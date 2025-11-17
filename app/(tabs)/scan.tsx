@@ -1,20 +1,48 @@
-import React, { useState, useCallback } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import {
-  ViroARScene,
-  ViroText,
-  ViroARSceneNavigator,
-} from '@reactvision/react-viro';
 import { useFocusEffect } from '@react-navigation/native';
+import {
+  Viro3DObject,
+  ViroAnimations,
+  ViroARScene,
+  ViroARSceneNavigator,
+  ViroText,
+} from '@reactvision/react-viro';
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
-function HelloWorldAR() {
+// Register a rotation animation
+ViroAnimations.registerAnimations({
+  rotate: {
+    properties: { rotateY: '+=90' }, // Rotate 90 degrees
+    duration: 1000, // Duration of each step in ms
+  },
+  // Note: combine/child animations aren't typed in our Viro typings.
+  // We'll rely on running the single 'rotate' animation with `loop: true`.
+});
+
+// AR Scene showing a 3D model
+function ARModelScene() {
   return (
     <ViroARScene>
+      {/* Optional reference text */}
       <ViroText
-        text="Hello World"
+        text="Look at the model below"
         scale={[0.2, 0.2, 0.2]}
-        position={[0, 0, -1]}
+        position={[0, 0.3, -1]}
         style={styles.helloText}
+      />
+
+      {/* 3D Model */}
+      <Viro3DObject
+        source={require('../../assets/3D-Models/model.glb')} // Update with your model path
+        resources={[]} // Any additional textures/resources if needed
+        position={[0, 0, -1]} // 1 meter in front of camera
+        scale={[0.2, 0.2, 0.2]} // Adjust size
+        type="GLB"
+        dragType="FixedToWorld" // Allows dragging
+        animation={{ name: 'rotate', run: true, loop: true }} // Auto rotate
+        onLoadStart={() => console.log('Model loading...')}
+        onLoadEnd={() => console.log('Model loaded!')}
+        onError={(e) => console.log('Error loading model:', e)}
       />
     </ViroARScene>
   );
@@ -23,7 +51,7 @@ function HelloWorldAR() {
 export default function Scan() {
   const [sceneKey, setSceneKey] = useState(0);
 
-  // Recreate the AR scene each time the tab is focused
+  // Remount AR scene when tab is focused
   useFocusEffect(
     useCallback(() => {
       setSceneKey(prev => prev + 1);
@@ -34,9 +62,9 @@ export default function Scan() {
   return (
     <View style={{ flex: 1 }}>
       <ViroARSceneNavigator
-        key={sceneKey}            // <-- Forces remount
+        key={sceneKey} // Forces remount
         autofocus={true}
-        initialScene={{ scene: HelloWorldAR }}
+        initialScene={{ scene: ARModelScene }}
         style={{ flex: 1 }}
       />
     </View>
