@@ -1,3 +1,4 @@
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import {
     Camera,
     MapView,
@@ -6,15 +7,13 @@ import {
 } from "@maplibre/maplibre-react-native";
 import * as Location from "expo-location";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function MapScreen() {
-    // fallback: Brussel
     const center: [number, number] = [4.3517, 50.8503];
 
-    // Kies de stijl van de kaart:
     const styleUrl =
-        "https://api.maptiler.com/maps/streets-v2/style.json?key=mIqAbQiXcMAwOt3f0O2W";
+        "https://api.maptiler.com/maps/019a91f5-7a01-7170-a11e-6df34c588725/style.json?key=mIqAbQiXcMAwOt3f0O2W";
 
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [userCoord, setUserCoord] = useState<[number, number] | null>(null);
@@ -22,7 +21,6 @@ export default function MapScreen() {
 
     useEffect(() => {
         (async () => {
-            // 1. Vraag toestemming
             const { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== "granted") {
                 setHasPermission(false);
@@ -31,7 +29,6 @@ export default function MapScreen() {
 
             setHasPermission(true);
 
-            // 2. Huidige positie ophalen
             const loc = await Location.getCurrentPositionAsync({});
             const coord: [number, number] = [
                 loc.coords.longitude,
@@ -39,7 +36,6 @@ export default function MapScreen() {
             ];
             setUserCoord(coord);
 
-            // 3. Camera naar gebruiker bewegen
             cameraRef.current?.setCamera({
                 centerCoordinate: coord,
                 zoomLevel: 16,
@@ -48,6 +44,23 @@ export default function MapScreen() {
             });
         })();
     }, []);
+
+    const goToMyLocation = async () => {
+        const loc = await Location.getCurrentPositionAsync({});
+        const coord: [number, number] = [
+            loc.coords.longitude,
+            loc.coords.latitude,
+        ];
+
+        setUserCoord(coord);
+
+        cameraRef.current?.setCamera({
+            centerCoordinate: coord,
+            zoomLevel: 16,
+            pitch: 60,
+            animationDuration: 800,
+        });
+    };
 
     if (hasPermission === false) {
         return (
@@ -69,19 +82,25 @@ export default function MapScreen() {
     return (
         <View style={styles.container}>
             <MapView style={styles.map} mapStyle={styleUrl}>
-                {/* blauw bolletje op je huidige positie */}
                 <UserLocation visible={true} />
 
                 <Camera
                     ref={cameraRef}
                     centerCoordinate={userCoord ?? center}
-                    zoomLevel={userCoord ? 16 : 12}
+                    zoomLevel={userCoord ? 17 : 12}
                     pitch={60}
                     heading={20}
-                    followUserLocation={!!userCoord}
-                    followZoomLevel={16}
                 />
             </MapView>
+
+            {/* Floating button met IconSymbol */}
+            <TouchableOpacity style={styles.locationBtn} onPress={goToMyLocation}>
+                <IconSymbol
+                    name="location.fill"
+                    size={28}
+                    color="white"
+                />
+            </TouchableOpacity>
         </View>
     );
 }
@@ -94,5 +113,17 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         gap: 8,
+    },
+    locationBtn: {
+        position: "absolute",
+        bottom: 24,
+        right: 24,
+        backgroundColor: "#292929",
+        padding: 12,
+        borderRadius: 50,
+        elevation: 5,
+        shadowColor: "#000",
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
     },
 });
