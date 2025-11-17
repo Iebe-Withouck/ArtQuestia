@@ -1,10 +1,9 @@
 import { useFocusEffect } from '@react-navigation/native';
 import {
-  Viro3DObject,
   ViroAnimations,
   ViroARScene,
   ViroARSceneNavigator,
-  ViroText,
+  ViroText
 } from '@reactvision/react-viro';
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -30,20 +29,6 @@ function ARModelScene() {
         position={[0, 0.3, -1]}
         style={styles.helloText}
       />
-
-      {/* 3D Model */}
-      <Viro3DObject
-        source={require('../../assets/3D-Models/model.glb')} // Update with your model path
-        resources={[]} // Any additional textures/resources if needed
-        position={[0, 0, -1]} // 1 meter in front of camera
-        scale={[0.2, 0.2, 0.2]} // Adjust size
-        type="GLB"
-        dragType="FixedToWorld" // Allows dragging
-        animation={{ name: 'rotate', run: true, loop: true }} // Auto rotate
-        onLoadStart={() => console.log('Model loading...')}
-        onLoadEnd={() => console.log('Model loaded!')}
-        onError={(e) => console.log('Error loading model:', e)}
-      />
     </ViroARScene>
   );
 }
@@ -55,7 +40,7 @@ export default function Scan() {
   useFocusEffect(
     useCallback(() => {
       setSceneKey(prev => prev + 1);
-      return () => {};
+      return () => { };
     }, [])
   );
 
