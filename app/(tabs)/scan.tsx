@@ -30,7 +30,7 @@ function ARModelScene() {
       />
 
       {/* 3D Model */}
-{/*       <Viro3DObject
+      <Viro3DObject
         source={require('../../assets/3D-Models/model.glb')} // Update with your model path
         resources={[]} // Any additional textures/resources if needed
         position={[0, 0, -1]} // 1 meter in front of camera
@@ -41,7 +41,7 @@ function ARModelScene() {
         onLoadStart={() => console.log('Model loading...')}
         onLoadEnd={() => console.log('Model loaded!')}
         onError={(e) => console.log('Error loading model:', e)}
-      /> */}
+      />
     </ViroARScene>
   );
 }
