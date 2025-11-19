@@ -1,78 +1,92 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
+import { Image, View } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+
+import HomeIcon from '@/assets/icons/home.png';
+import MapIcon from '@/assets/icons/map.png';
+import ScanIcon from '@/assets/icons/scan.png';
+import SettingsIcon from '@/assets/icons/settings.png';
+import StickersIcon from '@/assets/icons/stickerstab.png';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
+  const renderIcon = (icon, focused) => (
+    <View
+      style={{
+        width: focused ? 70 : 50,
+        height: focused ? 70 : 50,
+        borderRadius: focused ? 35 : 25,
+        backgroundColor: focused ? '#2B2B2B' : 'transparent',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: focused ? -45 : 0,
+      }}
+    >
+      <Image
+        source={icon}
+        style={{
+          width: focused ? 50 : 45,
+          height: focused ? 50 : 45,
+          resizeMode: 'contain',
+        }}
+      />
+    </View>
+  );
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarShowLabel: false,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
           backgroundColor: '#0000',
           borderTopWidth: 1,
           borderTopColor: '#4F4F4F',
-          paddingTop: 10,
+          paddingTop: 15,
+          paddingHorizontal: 15,
+          height: 80,
         },
       }}
     >
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
-          tabBarIcon: ({ color, size }) => (
-            <IconSymbol size={28} name="gearshape.fill" color={color} />
-          ),
+          tabBarIcon: ({ focused }) => renderIcon(SettingsIcon, focused),
         }}
       />
 
       <Tabs.Screen
         name="stickers"
         options={{
-          title: 'Stickers',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="star.fill" color={color} />
-          ),
+          tabBarIcon: ({ focused }) => renderIcon(StickersIcon, focused),
         }}
       />
 
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
-          ),
+          tabBarIcon: ({ focused }) => renderIcon(HomeIcon, focused),
         }}
       />
 
       <Tabs.Screen
         name="map"
         options={{
-          title: 'Map',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="globe.fill" color={color} />
-          ),
+          tabBarIcon: ({ focused }) => renderIcon(MapIcon, focused),
         }}
       />
 
       <Tabs.Screen
         name="scan"
         options={{
-          title: 'Scan',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="camera.fill" color={color} />
-          ),
+          tabBarIcon: ({ focused }) => renderIcon(ScanIcon, focused),
         }}
       />
-    </Tabs >
+    </Tabs>
   );
 }
