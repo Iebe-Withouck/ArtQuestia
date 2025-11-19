@@ -39,7 +39,7 @@ export default function SettingsScreen() {
       <View style={styles.container}>
         <TextInput
           placeholder="Zoek naar kunstwerken"
-          placeholderTextColor="#999"
+          placeholderTextColor="#666666"
           style={[styles.input, { fontFamily: 'LeagueSpartan' }]}
         />
 
