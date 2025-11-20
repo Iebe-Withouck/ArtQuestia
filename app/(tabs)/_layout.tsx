@@ -36,7 +36,7 @@ export default function TabLayout() {
           width: focused ? 70 : 50,
           height: focused ? 70 : 50,
           borderRadius: focused ? 35 : 25,
-          backgroundColor: focused ? '#2B2B2B' : 'transparent',
+          backgroundColor: focused ? '#292929' : 'transparent',
           justifyContent: 'center',
           alignItems: 'center',
           marginTop: focused ? -35 : 0,

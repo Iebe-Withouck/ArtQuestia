@@ -12,6 +12,7 @@ import {
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
+import Bell from '../../assets/icons/doorbell.png';
 import Location from '../../assets/icons/location.png';
 import Icon1 from '../../assets/icons/route.png';
 import Search from '../../assets/icons/search.png';
@@ -32,6 +33,11 @@ export default function SettingsScreen() {
 
   return (
     <ThemedView style={styles.titleContainer}>
+
+      <TouchableOpacity style={styles.bellButton}>
+        <Image source={Bell} style={styles.bellIcon} />
+      </TouchableOpacity>
+
       <ThemedText type="title" style={[styles.mainTitle, { fontFamily: 'Impact' }]}>
         ArtQuestia
       </ThemedText>
@@ -120,13 +126,29 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
     paddingTop: 70,
     paddingLeft: 20,
     paddingRight: 20,
-    backgroundColor: '#000000ff',
+    backgroundColor: '#000',
   },
+
+  bellButton: {
+    position: 'absolute',
+    top: 60,
+    right: 25,
+    width: 45,
+    height: 45,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 50,
+  },
+  bellIcon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+
   mainTitle: {
     fontSize: 32,
     color: '#fff',
@@ -144,7 +166,7 @@ const styles = StyleSheet.create({
 
   container: {
     flexDirection: 'row',
-    width: '95%',
+    width: '100%',
     height: 45,
     backgroundColor: '#fff',
     borderRadius: 30,
@@ -206,13 +228,12 @@ const styles = StyleSheet.create({
   artCard: {
     marginTop: 10,
     width: '100%',
-    alignSelf: 'center',
     backgroundColor: '#FF5AE5',
     borderRadius: 20,
     padding: 15,
     position: 'relative',
     overflow: 'hidden',
-    paddingBottom: 17,
+    paddingBottom: 20,
   },
 
   mapWrapper: {
@@ -226,24 +247,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   mapImage: {
-    width: '120%',
-    height: '120%',
+    width: '100%',
+    height: '100%',
     resizeMode: 'cover',
-    borderRadius: 10,
-    borderWidth: 2,
   },
 
   distanceBadge: {
     position: 'absolute',
-    bottom: -25,
-    left: '60%',
+    bottom: -18,
+    left: '50%',
     transform: [{ translateX: -38 }],
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#000',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 2,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
     zIndex: 20,
   },
   distanceIcon: {
@@ -260,9 +279,8 @@ const styles = StyleSheet.create({
   artImage: {
     width: '100%',
     height: 300,
-    alignSelf: 'center',
     resizeMode: 'contain',
-    marginTop: 5,
+    marginTop: 25,
     marginBottom: -75,
   },
 
@@ -270,7 +288,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     top: '55%',
-    marginTop: -20,
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -284,7 +301,7 @@ const styles = StyleSheet.create({
   },
 
   artTextWrapper: {
-    marginTop: 8,
+    marginTop: 10,
   },
   artTitle: {
     color: '#fff',
@@ -293,6 +310,5 @@ const styles = StyleSheet.create({
   artSubtitle: {
     color: '#fff',
     fontSize: 13,
-    marginTop: 2,
   },
 });
