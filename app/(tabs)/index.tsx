@@ -13,13 +13,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
 import Bell from '../../assets/icons/doorbell.png';
-import Location from '../../assets/icons/location.png';
 import Icon1 from '../../assets/icons/route.png';
 import Search from '../../assets/icons/search.png';
 import Icon3 from '../../assets/icons/share.png';
 import Icon2 from '../../assets/icons/stickers.png';
-import Ballerina from '../../assets/images/ballerina.png';
-import MapIcon from '../../assets/images/mapicon.png';
+
+import ArtworkCard from '@/components/ArtworkCard.tsx';
 
 export default function SettingsScreen() {
   const [fontsLoaded] = useFonts({
@@ -88,32 +87,8 @@ export default function SettingsScreen() {
         Dichtstbijzijnde kunstwerken
       </ThemedText>
 
-      <View style={styles.artCard}>
+      <ArtworkCard/>
 
-        <View style={styles.mapWrapper}>
-          <Image source={MapIcon} style={styles.mapImage} />
-          <View style={styles.distanceBadge}>
-            <Image source={Location} style={styles.distanceIcon} />
-            <ThemedText style={styles.distanceText}>1.5 km</ThemedText>
-          </View>
-        </View>
-
-        <Image source={Ballerina} style={styles.artImage} />
-
-        <TouchableOpacity style={styles.nextButton}>
-          <ThemedText style={styles.nextButtonText}>{'>'}</ThemedText>
-        </TouchableOpacity>
-
-        <View style={styles.artTextWrapper}>
-          <ThemedText style={[styles.artTitle, { fontFamily: 'Impact' }]}>
-            Ballerina
-          </ThemedText>
-          <ThemedText style={[styles.artSubtitle, { fontFamily: 'LeagueSpartan' }]}>
-            Stephan Balkenhol
-          </ThemedText>
-        </View>
-
-      </View>
     </ThemedView>
   );
 }
@@ -130,8 +105,8 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
     backgroundColor: '#000',
+    overflowY: 'scroll',
   },
-
   bellButton: {
     position: 'absolute',
     top: 60,
@@ -223,95 +198,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 15,
     fontFamily: 'LeagueSpartan',
-  },
-
-  artCard: {
-    marginTop: 10,
-    width: '100%',
-    backgroundColor: '#FF5AE5',
-    borderRadius: 20,
-    padding: 15,
-    position: 'relative',
-    overflow: 'hidden',
-    paddingBottom: 20,
-  },
-
-  mapWrapper: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    width: 90,
-    height: 70,
-    borderRadius: 10,
-    overflow: 'visible',
-    backgroundColor: '#000',
-  },
-  mapImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    borderRadius: 10,
-    borderColor: '#0000',
-    borderWidth: 2,
-  },
-
-  distanceBadge: {
-    position: 'absolute',
-    bottom: -18,
-    left: '50%',
-    transform: [{ translateX: -38 }],
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#000',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    zIndex: 20,
-  },
-  distanceIcon: {
-    width: 14,
-    height: 14,
-    marginRight: 6,
-  },
-  distanceText: {
-    color: '#fff',
-    fontSize: 11,
-    fontFamily: 'LeagueSpartan',
-  },
-
-  artImage: {
-    width: '100%',
-    height: 300,
-    resizeMode: 'contain',
-    marginTop: 10,
-    marginBottom: -78,
-  },
-
-  nextButton: {
-    position: 'absolute',
-    right: 16,
-    top: '55%',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  nextButtonText: {
-    color: '#fff',
-    fontSize: 20,
-  },
-
-  artTextWrapper: {
-    marginTop: 10,
-  },
-  artTitle: {
-    color: '#fff',
-    fontSize: 18,
-  },
-  artSubtitle: {
-    color: '#fff',
-    fontSize: 13,
   },
 });
