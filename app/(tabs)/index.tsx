@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
     paddingTop: 70,
     paddingLeft: 20,
     paddingRight: 20,
+    paddingBottom: 60,
   },
   bellButton: {
     position: 'absolute',

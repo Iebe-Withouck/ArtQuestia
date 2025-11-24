@@ -1,13 +1,17 @@
 import { useFonts } from 'expo-font';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
+  Modal,
+  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+
+const STRAPI_URL = 'http://192.168.0.12:1337';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -30,12 +34,83 @@ export default function SettingsScreen() {
     LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
 
-  if (!fontsLoaded) {
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState("Alle");
+  const [artworks, setArtworks] = useState<any[]>([]);
+  const [themes, setThemes] = useState<string[]>(['Alle', 'Religie', 'Abstract', 'Fun', 'Gemeenschap', 'Oorlog']);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    console.log('Component mounted, fetching artworks...');
+    fetchArtworks();
+  }, []);
+
+  const fetchArtworks = async () => {
+    try {
+      const response = await fetch(`${STRAPI_URL}/api/artworks?populate=*`);
+      const data = await response.json();
+      
+      console.log('API Response:', data);
+      
+      if (data.error) {
+        console.error('Strapi API Error:', data.error);
+        alert(`API Error: ${data.error.message}. Please enable public access to artworks in Strapi Settings > Users & Permissions > Public > Artwork`);
+        setLoading(false);
+        return;
+      }
+      
+      if (data.data) {
+        console.log('First artwork:', JSON.stringify(data.data[0], null, 2));
+        setArtworks(data.data);
+        console.log('Artworks set:', data.data.length);
+        
+        // Extract unique themes - Strapi v4 uses attributes
+        const uniqueThemes = ['Alle', ...new Set(
+          data.data
+            .map((artwork: any) => {
+              const theme = artwork.attributes?.Theme || artwork.Theme;
+              console.log('Theme found:', theme);
+              return theme;
+            })
+            .filter((theme: string) => theme)
+        )];
+        setThemes(uniqueThemes as string[]);
+        console.log('Themes set:', uniqueThemes);
+      }
+    } catch (error) {
+      console.error('Error fetching artworks:', error);
+      alert(`Network Error: ${error}. Make sure Strapi is running on ${STRAPI_URL}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleThemeSelect = (theme: string) => {
+    setSelectedTheme(theme);
+    setDropdownVisible(false);
+  };
+
+  const currentStickers = selectedTheme === 'Alle'
+    ? artworks
+    : artworks.filter(artwork => {
+        const theme = artwork.attributes?.Theme || artwork.Theme;
+        console.log('Filtering - Artwork:', JSON.stringify(artwork, null, 2));
+        console.log('Filtering - Theme value:', `"${theme}"`, 'Type:', typeof theme);
+        console.log('Filtering - Selected:', `"${selectedTheme}"`, 'Type:', typeof selectedTheme);
+        console.log('Filtering - Match:', theme === selectedTheme);
+        return theme === selectedTheme;
+      });
+
+  console.log('Total artworks:', artworks.length);
+  console.log('Current stickers count:', currentStickers.length, 'Selected theme:', selectedTheme);
+
+  if (!fontsLoaded || loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
   return (
     <ThemedView style={styles.titleContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
       <TouchableOpacity style={styles.bellButton}>
         <Image source={Bell} style={styles.bellIcon} />
@@ -105,58 +180,70 @@ export default function SettingsScreen() {
         Stickers
       </ThemedText>
       <View style={styles.buttonContainerStickers}>
-        <TouchableOpacity style={styles.buttonStickers1}>
+        <TouchableOpacity 
+          style={styles.buttonStickers1}
+          onPress={() => handleThemeSelect('Alle')}
+        >
           <ThemedText style={styles.buttonTextStickers}>Alle</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonStickers2}>
-          <ThemedText style={styles.buttonTextStickers}>Thema's</ThemedText>
+        <TouchableOpacity 
+          style={styles.buttonStickers2}
+          onPress={() => setDropdownVisible(!dropdownVisible)}
+        >
+          <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Thema's" : selectedTheme}</ThemedText>
+          <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
         </TouchableOpacity>
       </View>
+
+      {dropdownVisible && (
+        <View style={styles.dropdownContainer}>
+          <ThemedText style={{ color: '#fff', padding: 10 }}>Themes: {themes.length}</ThemedText>
+          {themes.filter(theme => theme !== 'Alle').map((theme, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.dropdownItem}
+              onPress={() => {
+                console.log('Selected theme:', theme);
+                handleThemeSelect(theme);
+              }}
+            >
+              <ThemedText style={styles.dropdownText}>{theme}</ThemedText>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
       <View style={styles.rowStickers}>
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={deJeugd} style={styles.stickerIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>De Jeugd</ThemedText>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={ballerina} style={styles.stickerIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Ballerina</ThemedText>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={cowboyHenk} style={styles.stickerIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Cowboy Henk</ThemedText>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={bazuin} style={styles.stickerIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Bazuin</ThemedText>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={ballerina} style={styles.stickerIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Ballerina</ThemedText>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={cowboyHenk} style={styles.stickerIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Cowboy Henk</ThemedText>
-          </View>
-        </TouchableOpacity>
+        {currentStickers.length === 0 ? (
+          <ThemedText style={{ color: '#fff', padding: 20 }}>
+            No stickers found for theme: {selectedTheme}
+          </ThemedText>
+        ) : (
+          currentStickers.map((artwork, index) => {
+            const attributes = artwork.attributes || artwork;
+            const stickerData = attributes.Stickers_Hidden?.data;
+            const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
+            const fullUrl = stickerUrl ? `${STRAPI_URL}${stickerUrl}` : null;
+            
+            console.log('Rendering sticker:', attributes.Name, 'URL:', fullUrl);
+            
+            return (
+              <TouchableOpacity key={artwork.id || index} style={styles.buttonContainer}>
+                {fullUrl ? (
+                  <Image 
+                    source={{ uri: fullUrl }} 
+                    style={styles.stickerIcon} 
+                  />
+                ) : (
+                  <View style={[styles.stickerIcon, { backgroundColor: '#444' }]} />
+                )}
+              </TouchableOpacity>
+            );
+          })
+        )}
       </View>
 
+      </ScrollView>
     </ThemedView>
   );
 }
@@ -169,11 +256,12 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
+    backgroundColor: '#000',
+  },
+  scrollContent: {
     paddingTop: 70,
     paddingLeft: 20,
     paddingRight: 20,
-    backgroundColor: '#000',
-    fontFamily: 'Impact',
   },
 
   bellButton: {
@@ -295,9 +383,33 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     borderRadius: 30,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FF7700',
+    gap: 5,
+  },
+  dropdownArrow: {
+    color: '#fff',
+    fontSize: 12,
+    fontFamily: 'Impact',
+  },
+  dropdownContainer: {
+    backgroundColor: '#292929',
+    borderRadius: 14,
+    marginTop: 5,
+    overflow: 'hidden',
+  },
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#444',
+  },
+  dropdownText: {
+    color: '#fff',
+    fontSize: 15,
+    fontFamily: 'LeagueSpartan',
   },
   buttonTextStickers: {
     color: '#fff',
@@ -308,8 +420,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    rowGap: 120,
     marginTop: 70,
-    marginBottom: 20,
+    marginBottom: 100,
     width: '100%',
   },
   stickerIcon: {
