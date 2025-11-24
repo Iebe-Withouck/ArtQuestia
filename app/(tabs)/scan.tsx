@@ -1,7 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import {
   Viro3DObject,
-  ViroAnimations,
   ViroARScene,
   ViroARSceneNavigator,
   ViroText,
@@ -9,16 +8,19 @@ import {
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-// Register a rotation animation
-ViroAnimations.registerAnimations({
-  rotate: {
-    properties: { rotateY: '+=360' }, // Rotate 360 degrees
-    duration: 3000, // Duration in ms
-  },
-});
-
 // AR Scene showing a 3D model
 function ARModelScene() {
+  const [rotation, setRotation] = useState([0, 0, 0]);
+
+  // Continuously rotate the model
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setRotation(([x, y, z]) => [x, y + 2, z]); // Rotate 2 degrees per frame on Y axis
+    }, 16); // ~60fps
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <ViroARScene>
       {/* Optional reference text */}
@@ -35,9 +37,9 @@ function ARModelScene() {
         resources={[]}
         position={[0, 0, -1]}
         scale={[0.5, 0.5, 0.5]}
+        rotation={rotation}
         type="GLB"
         dragType="FixedToWorld"
-        animation={{ name: 'rotate', run: true, loop: true }}
         onLoadStart={() => console.log('Model loading...')}
         onLoadEnd={() => console.log('Model loaded!')}
         onError={(e) => console.error('Error loading model:', e)}
@@ -53,7 +55,7 @@ export default function Scan() {
   useFocusEffect(
     useCallback(() => {
       setSceneKey(prev => prev + 1);
-      return () => {};
+      return () => { };
     }, [])
   );
 
