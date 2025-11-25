@@ -1,7 +1,8 @@
 import { useFonts } from 'expo-font';
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   Image,
   ScrollView,
   StyleSheet,
@@ -9,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as Location from 'expo-location';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -21,13 +23,90 @@ import Icon2 from '../../assets/icons/stickers.png';
 
 import ArtworkCard from '@/components/ArtworkCard.tsx';
 
+const STRAPI_URL = 'http://192.168.0.224:1337';
+
+const { width, height } = Dimensions.get('window');
+
+// Responsive scaling functions
+const scale = (size: number) => (width / 375) * size;
+const verticalScale = (size: number) => (height / 812) * size;
+const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
+
 export default function SettingsScreen() {
   const [fontsLoaded] = useFonts({
     Impact: require('../../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
 
-  if (!fontsLoaded) {
+  const [artworks, setArtworks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [currentArtworkIndex, setCurrentArtworkIndex] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    getUserLocation();
+    fetchArtworks();
+  }, []);
+
+  const getUserLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Location permission denied');
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      setUserLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+      console.log('User location:', location.coords);
+    } catch (error) {
+      console.error('Error getting location:', error);
+    }
+  };
+
+  // Calculate distance between two coordinates using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    return distance;
+  };
+
+  const fetchArtworks = async () => {
+    try {
+      const response = await fetch(`${STRAPI_URL}/api/artworks?populate=*`);
+      const data = await response.json();
+      
+      console.log('Fetched artworks:', data);
+      
+      if (data.error) {
+        console.error('Strapi API Error:', data.error);
+        setLoading(false);
+        return;
+      }
+      
+      if (data.data) {
+        console.log('Setting artworks:', data.data.length);
+        setArtworks(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching artworks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!fontsLoaded || loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
@@ -89,7 +168,82 @@ export default function SettingsScreen() {
         Dichtstbijzijnde kunstwerken
       </ThemedText>
 
-      <ArtworkCard/>
+      {(() => {
+        if (!userLocation) {
+          return (
+            <ThemedText style={{ color: '#fff', padding: 20, textAlign: 'center' }}>
+              Locatie ophalen...
+            </ThemedText>
+          );
+        }
+
+        if (artworks.length === 0) {
+          return (
+            <ThemedText style={{ color: '#fff', padding: 20, textAlign: 'center' }}>
+              Geen kunstwerken gevonden
+            </ThemedText>
+          );
+        }
+
+        // Calculate distances and sort artworks
+        const artworksWithDistance = artworks
+          .map(artwork => {
+            const attributes = artwork.attributes || artwork;
+            
+            // Location is a nested object with lat and lng properties
+            const lat = attributes.Location?.lat;
+            const lon = attributes.Location?.lng;
+            
+            if (!lat || !lon) {
+              console.log('Missing lat/lon for artwork:', attributes.Name);
+              return { ...artwork, distance: Infinity };
+            }
+            
+            const distance = calculateDistance(
+              userLocation.latitude,
+              userLocation.longitude,
+              lat,
+              lon
+            );
+            
+            console.log('Calculated distance for', attributes.Name, ':', distance, 'km');
+            
+            return { ...artwork, distance };
+          })
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, 2); // Only take the 2 closest
+
+        const handleNext = (index: number) => {
+          const nextIndex = (index + 1) % artworksWithDistance.length;
+          setCurrentArtworkIndex(nextIndex);
+          scrollViewRef.current?.scrollTo({
+            x: nextIndex * width,
+            animated: true,
+          });
+        };
+
+        return (
+          <View style={styles.artworkContainer}>
+            <ScrollView
+              ref={scrollViewRef}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              scrollEnabled={false}
+            >
+              {artworksWithDistance.map((artwork, index) => (
+                <View key={artwork.id || index} style={styles.artworkCardWrapper}>
+                  <ArtworkCard 
+                    artwork={artwork} 
+                    onNext={() => handleNext(index)}
+                    index={index}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        );
+      })()}
 
       </ScrollView>
     </ThemedView>
@@ -107,18 +261,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   scrollContent: {
-    paddingTop: 70,
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: 60,
+    paddingTop: verticalScale(70),
+    paddingHorizontal: scale(20),
+    paddingBottom: verticalScale(60),
   },
   bellButton: {
     position: 'absolute',
-    top: 60,
-    right: 25,
-    width: 45,
-    height: 45,
-    borderRadius: 30,
+    top: verticalScale(60),
+    right: scale(25),
+    width: moderateScale(45),
+    height: moderateScale(45),
+    borderRadius: moderateScale(30),
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 50,
@@ -130,78 +283,101 @@ const styles = StyleSheet.create({
   },
 
   mainTitle: {
-    fontSize: 32,
+    fontSize: moderateScale(32),
     color: '#fff',
   },
   subtitle: {
-    fontSize: 16,
-    marginTop: 8,
+    fontSize: moderateScale(16),
+    marginTop: verticalScale(8),
     color: '#fff',
   },
   title: {
-    fontSize: 20,
-    marginTop: 20,
+    fontSize: moderateScale(20),
+    marginTop: verticalScale(20),
     color: '#fff',
+  },
+  artworkScrollView: {
+    width: '100%',
+    marginTop: verticalScale(10),
+    marginHorizontal: scale(-20),
+  },
+  artworkScrollContent: {
+    paddingHorizontal: 0,
+  },
+  artworkContainer: {
+    width: '110%',
+    marginTop: verticalScale(10),
+    marginLeft: scale(-20),
+    marginRight: scale(-20),
+  },
+  artworkCardWrapper: {
+    width: width,
+    paddingHorizontal: scale(20),
   },
 
   container: {
     flexDirection: 'row',
     width: '100%',
-    height: 45,
+    height: verticalScale(45),
     backgroundColor: '#fff',
-    borderRadius: 30,
+    borderRadius: moderateScale(30),
     overflow: 'hidden',
-    marginTop: 16,
+    marginTop: verticalScale(16),
   },
   input: {
     flex: 1,
-    paddingLeft: 15,
-    fontSize: 15,
+    paddingLeft: scale(15),
+    fontSize: moderateScale(15),
     color: '#000',
   },
   searchButton: {
-    width: 50,
+    width: moderateScale(50),
     backgroundColor: '#FF7700',
     justifyContent: 'center',
     alignItems: 'center',
   },
   icon: {
-    width: 18,
-    height: 18,
+    width: moderateScale(18),
+    height: moderateScale(18),
     tintColor: '#fff',
   },
 
   rowButtons: {
     flexDirection: 'row',
-    marginTop: 40,
-    marginBottom: 20,
-    gap: 9,
+    justifyContent: 'space-between',
+    marginTop: verticalScale(40),
+    marginBottom: verticalScale(20),
+    paddingHorizontal: scale(5),
   },
   buttonContainer: {
     alignItems: 'center',
     position: 'relative',
-    width: 115,
+    flex: 1,
+    maxWidth: scale(115),
+    marginHorizontal: scale(4),
   },
   buttonIcon: {
-    width: 50,
-    height: 50,
+    width: moderateScale(50),
+    height: moderateScale(50),
     position: 'absolute',
-    top: -25,
+    top: verticalScale(-25),
     zIndex: 10,
   },
   button: {
     width: '100%',
-    paddingVertical: 10,
-    borderRadius: 14,
+    paddingVertical: verticalScale(10),
+    borderRadius: moderateScale(14),
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: verticalScale(8),
     backgroundColor: '#292929',
-    paddingTop: 20,
+    paddingTop: verticalScale(20),
+    minHeight: verticalScale(70),
   },
   buttonText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan',
+    textAlign: 'center',
   },
 });

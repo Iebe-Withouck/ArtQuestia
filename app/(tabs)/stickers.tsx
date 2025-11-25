@@ -2,6 +2,7 @@ import { useFonts } from 'expo-font';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   Image,
   Modal,
   ScrollView,
@@ -11,7 +12,14 @@ import {
   View,
 } from 'react-native';
 
-const STRAPI_URL = 'http://192.168.0.12:1337';
+const STRAPI_URL = 'http://192.168.0.224:1337';
+
+const { width, height } = Dimensions.get('window');
+
+// Responsive scaling functions
+const scale = (size: number) => (width / 375) * size;
+const verticalScale = (size: number) => (height / 812) * size;
+const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -23,6 +31,7 @@ import Icon7 from '../../assets/prestaties/7.png';
 import Icon120 from '../../assets/prestaties/120.png';
 import Icon55 from '../../assets/prestaties/55.png';
 import Route from '../../assets/icons/themaRouteIcon.png';
+import Cross from '../../assets/icons/cross.png';
 
 export default function SettingsScreen() {
   const [fontsLoaded] = useFonts({
@@ -35,8 +44,10 @@ export default function SettingsScreen() {
   const [selectedTheme, setSelectedTheme] = useState("Alle");
   const [selectedStickerType, setSelectedStickerType] = useState("Alle stickers");
   const [artworks, setArtworks] = useState<any[]>([]);
-  const [themes, setThemes] = useState<string[]>(['Alle', 'Religie', 'Abstract', 'Fun', 'Gemeenschap', 'Oorlog']);
+  const [themes, setThemes] = useState<string[]>(['Alle', 'Religie', 'Historie', 'Moderne Kunst', 'ZieMie', 'Oorlog']);
   const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedSticker, setSelectedSticker] = useState<any>(null);
 
   const stickerTypes = ['Alle stickers', 'Gevonden stickers', 'Verborgen stickers'];
 
@@ -95,6 +106,11 @@ export default function SettingsScreen() {
     setStickerTypeDropdownVisible(false);
   };
 
+  const handleStickerPress = (artwork: any) => {
+    setSelectedSticker(artwork);
+    setModalVisible(true);
+  };
+
   const currentStickers = selectedTheme === 'Alle'
     ? artworks
     : artworks.filter(artwork => {
@@ -132,8 +148,17 @@ export default function SettingsScreen() {
       <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
         Prestaties
       </ThemedText>
+      
+      <ThemedText style={[styles.prestatiesSubtitle, { fontFamily: 'LeagueSpartan' }]}>
+        Veeg om ze allemaal te zien
+      </ThemedText>
 
-      <View style={styles.rowButtons}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        style={styles.rowButtonsScrollView}
+        contentContainerStyle={styles.rowButtonsContent}
+      >
         <TouchableOpacity style={styles.buttonContainer}>
           <Image source={Icon11} style={styles.buttonIcon} />
           <View style={styles.button}>
@@ -168,7 +193,7 @@ export default function SettingsScreen() {
             <ThemedText style={styles.buttonText}>Oorlog</ThemedText>
           </View>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
 
       <View style={styles.themaRoute}>
         <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
@@ -223,6 +248,15 @@ export default function SettingsScreen() {
 
       {dropdownVisible && (
         <View style={styles.dropdownContainerOrange}>
+          <TouchableOpacity
+            style={styles.dropdownItem}
+            onPress={() => {
+              console.log('Selected theme: Alle');
+              handleThemeSelect('Alle');
+            }}
+          >
+            <ThemedText style={styles.dropdownText}>Alle Thema's</ThemedText>
+          </TouchableOpacity>
           {themes.filter(theme => theme !== 'Alle').map((theme, index) => (
             <TouchableOpacity
               key={index}
@@ -253,7 +287,11 @@ export default function SettingsScreen() {
             console.log('Rendering sticker:', attributes.Name, 'URL:', fullUrl);
             
             return (
-              <TouchableOpacity key={artwork.id || index} style={styles.buttonContainer}>
+              <TouchableOpacity 
+                key={artwork.id || index} 
+                style={styles.stickerContainer}
+                onPress={() => handleStickerPress(artwork)}
+              >
                 {fullUrl ? (
                   <Image 
                     source={{ uri: fullUrl }} 
@@ -269,6 +307,59 @@ export default function SettingsScreen() {
       </View>
 
       </ScrollView>
+
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {selectedSticker && (() => {
+              const attributes = selectedSticker.attributes || selectedSticker;
+              const stickerData = attributes.Stickers_Hidden?.data;
+              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
+              const fullUrl = stickerUrl ? `${STRAPI_URL}${stickerUrl}` : null;
+              
+              return (
+                <>
+                  <TouchableOpacity 
+                    style={styles.closeButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Image source={Cross} style={styles.closeButtonIcon} />
+                  </TouchableOpacity>
+                  
+                  {fullUrl && (
+                    <Image 
+                      source={{ uri: fullUrl }} 
+                      style={styles.modalStickerImage} 
+                    />
+                  )}
+                  
+                  <ThemedText style={styles.modalTitle}>
+                    {attributes.Name || 'Untitled'}
+                  </ThemedText>
+                  
+                  <ThemedText style={styles.modalCreator}>
+                    {attributes.Creator || 'Onbekend'}
+                  </ThemedText>
+                  
+                  <TouchableOpacity 
+                    style={styles.readMoreButton}
+                    onPress={() => {
+                      setModalVisible(false);
+                    }}
+                  >
+                    <ThemedText style={styles.readMoreButtonText}>Lees meer</ThemedText>
+                  </TouchableOpacity>
+                </>
+              );
+            })()}
+          </View>
+        </View>
+      </Modal>
     </ThemedView>
   );
 }
@@ -284,18 +375,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   scrollContent: {
-    paddingTop: 70,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingTop: verticalScale(70),
+    paddingHorizontal: scale(20),
   },
 
   bellButton: {
     position: 'absolute',
-    top: 60,
-    right: 25,
-    width: 45,
-    height: 45,
-    borderRadius: 30,
+    top: verticalScale(60),
+    right: scale(25),
+    width: moderateScale(45),
+    height: moderateScale(45),
+    borderRadius: moderateScale(30),
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 50,
@@ -307,78 +397,95 @@ const styles = StyleSheet.create({
   },
 
   mainTitle: {
-    fontSize: 32,
+    fontSize: moderateScale(32),
     color: '#fff',
   },
   subtitle: {
-    fontSize: 16,
-    marginTop: 8,
+    fontSize: moderateScale(16),
+    marginTop: verticalScale(8),
     color: '#fff',
   },
   title: {
-    fontSize: 20,
-    marginTop: 20,
+    fontSize: moderateScale(20),
+    marginTop: verticalScale(50),
     color: '#fff',
+  },
+  prestatiesSubtitle: {
+    fontSize: moderateScale(15),
+    color: '#ffffffff',
   },
 
   container: {
     flexDirection: 'row',
     width: '100%',
-    height: 45,
+    height: verticalScale(45),
     backgroundColor: '#fff',
-    borderRadius: 30,
+    borderRadius: moderateScale(30),
     overflow: 'hidden',
-    marginTop: 16,
+    marginTop: verticalScale(16),
   },
   input: {
     flex: 1,
-    paddingLeft: 15,
-    fontSize: 15,
+    paddingLeft: scale(15),
+    fontSize: moderateScale(15),
     color: '#000',
   },
   searchButton: {
-    width: 50,
+    width: moderateScale(50),
     backgroundColor: '#FF7700',
     justifyContent: 'center',
     alignItems: 'center',
   },
   icon: {
-    width: 18,
-    height: 18,
+    width: moderateScale(18),
+    height: moderateScale(18),
     tintColor: '#fff',
   },
 
+  rowButtonsScrollView: {
+    marginTop: verticalScale(20),
+    paddingTop: verticalScale(30),
+  },
+  rowButtonsContent: {
+    flexDirection: 'row',
+    gap: scale(5),
+    paddingRight: scale(20),
+    paddingLeft: (0),
+  },
   rowButtons: {
     flexDirection: 'row',
-    marginTop: 40,
-    marginBottom: 20,
+    justifyContent: 'center',
+    marginTop: verticalScale(40),
+    marginBottom: verticalScale(20),
     width: '100%',
+    gap: scale(10),
   },
   buttonContainer: {
     alignItems: 'center',
     position: 'relative',
-    width: 85,
+    width: scale(88),
   },
   buttonIcon: {
-    width: 60,
-    height: 77,
+    width: moderateScale(60),
+    height: moderateScale(77),
     position: 'absolute',
-    top: -25,
+    top: verticalScale(-25),
     zIndex: 10,
   },
   button: {
     width: '100%',
-    paddingVertical: 10,
-    borderRadius: 14,
+    paddingVertical: verticalScale(10),
+    borderRadius: moderateScale(14),
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 40,
-    paddingTop: 20,
+    marginTop: verticalScale(40),
+    paddingTop: verticalScale(20),
   },
   buttonText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan',
+    textAlign: 'center',
   },
   themaRoute: {
     flexDirection: 'row',
@@ -387,34 +494,34 @@ const styles = StyleSheet.create({
   },
   themaRouteIcon: {
     width: '100%',
-    height: 60,
+    height: verticalScale(60),
     resizeMode: 'contain',
-    marginBottom: 20,
+    marginBottom: verticalScale(20),
   },
   buttonContainerStickers: {
     flexDirection: 'row',
-    gap: 10,
-    marginTop: 10,
+    gap: scale(10),
+    marginTop: verticalScale(10),
   },
   buttonStickers1: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 30,
+    paddingVertical: verticalScale(10),
+    borderRadius: moderateScale(30),
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#215AFF',
-    gap: 5,
+    gap: scale(5),
   },
   buttonStickers2: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 30,
+    paddingVertical: verticalScale(10),
+    borderRadius: moderateScale(30),
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FF7700',
-    gap: 5,
+    gap: scale(5),
   },
   dropdownArrow: {
     color: '#fff',
@@ -423,53 +530,124 @@ const styles = StyleSheet.create({
   },
   dropdownContainerBlue: {
     backgroundColor: '#215AFF',
-    borderRadius: 14,
-    marginTop: 5,
+    borderRadius: moderateScale(14),
+    marginTop: verticalScale(5),
     overflow: 'hidden',
   },
   dropdownContainerOrange: {
     backgroundColor: '#FF7700',
-    borderRadius: 14,
-    marginTop: 5,
+    borderRadius: moderateScale(14),
+    marginTop: verticalScale(5),
     overflow: 'hidden',
   },
   dropdownContainer: {
     backgroundColor: '#292929',
-    borderRadius: 14,
-    marginTop: 5,
+    borderRadius: moderateScale(14),
+    marginTop: verticalScale(5),
     overflow: 'hidden',
   },
   dropdownItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(20),
     borderBottomWidth: 1,
     borderBottomColor: '#444',
   },
   dropdownText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan',
   },
   buttonTextStickers: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: moderateScale(15),
     fontFamily: 'Impact',
   },
   rowStickers: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
-    columnGap: 20,
-    rowGap: 120,
-    marginTop: 70,
-    marginBottom: 100,
+    columnGap: scale(10),
+    rowGap: verticalScale(120),
+    marginTop: verticalScale(70),
     width: '100%',
   },
+  stickerContainer: {
+    alignItems: 'center',
+    position: 'relative',
+    width: '31%', // 3 columns: 31% each
+    aspectRatio: 1,
+  },
   stickerIcon: {
-    width: 93,
-    height: 90,
+    width: moderateScale(93),
+    height: moderateScale(90),
     position: 'absolute',
-    top: -30,
+    top: verticalScale(-30),
     zIndex: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: moderateScale(20),
+    padding: scale(30),
+    width: '90%',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: verticalScale(20),
+    right: scale(20),
+    width: moderateScale(35),
+    height: moderateScale(35),
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  closeButtonIcon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  closeButtonText: {
+    color: '#000000ff',
+    fontSize: moderateScale(23),
+    fontFamily: 'Impact',
+  },
+  modalStickerImage: {
+    width: moderateScale(150),
+    height: moderateScale(150),
+    marginTop: verticalScale(20),
+    marginBottom: verticalScale(20),
+    resizeMode: 'contain',
+  },
+  modalTitle: {
+    fontSize: moderateScale(24),
+    color: '#fff',
+    fontFamily: 'Impact',
+    textAlign: 'center',
+    marginBottom: verticalScale(10),
+  },
+  modalCreator: {
+    fontSize: moderateScale(16),
+    color: '#ccc',
+    fontFamily: 'LeagueSpartan',
+    textAlign: 'center',
+    marginBottom: verticalScale(25),
+  },
+  readMoreButton: {
+    backgroundColor: '#FF7700',
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(100),
+    borderRadius: moderateScale(25),
+  },
+  readMoreButtonText: {
+    color: '#fff',
+    fontSize: moderateScale(16),
+    fontFamily: 'Impact',
   },
 });

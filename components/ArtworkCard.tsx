@@ -13,18 +13,70 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 
 import Location from '../assets/icons/location.png';
-import Ballerina from '../assets/images/ballerina.png';
 import MapIcon from '../assets/images/mapicon.png';
+import NextIcon from '../assets/icons/next.png';
 
-export default function SettingsScreen() {
+const STRAPI_URL = 'http://192.168.0.224:1337';
+
+interface ArtworkCardProps {
+  artwork: {
+    id: number;
+    attributes: {
+      Name: string;
+      Creator: string;
+      Distance?: string;
+      Photo?: {
+        data?: {
+          attributes?: {
+            url?: string;
+          };
+        };
+      };
+    };
+  };
+  onNext?: () => void;
+  index?: number;
+}
+
+export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardProps) {
   const [fontsLoaded] = useFonts({
     Impact: require('../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
 
+  const handleMapPress = () => {
+    // Map navigation removed
+  };
+
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
+
+  // Add null checks for attributes
+  if (!artwork) {
+    console.log('No artwork provided');
+    return null;
+  }
+
+  console.log('Rendering artwork:', artwork);
+
+  const attributes = artwork.attributes || artwork;
+  
+  // Use Photo field with multiple fallback checks like in stickers.tsx
+  const photoData = attributes.Photo?.data;
+  const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo?.url;
+  const fullImageUrl = photoUrl ? `${STRAPI_URL}${photoUrl}` : null;
+  
+  // Use the calculated distance from the artwork object (passed from index.tsx)
+  const calculatedDistance = (artwork as any).distance;
+  console.log('Artwork distance:', calculatedDistance);
+  console.log('Full artwork object:', artwork);
+  
+  const distanceText = calculatedDistance && calculatedDistance !== Infinity 
+    ? `${calculatedDistance.toFixed(1)} km` 
+    : '1.5 km';
+    
+  console.log('Distance text:', distanceText);
 
   return (
     <ThemedView style={styles.titleContainer}>
@@ -34,22 +86,32 @@ export default function SettingsScreen() {
           <Image source={MapIcon} style={styles.mapImage} />
           <View style={styles.distanceBadge}>
             <Image source={Location} style={styles.distanceIcon} />
-            <ThemedText style={styles.distanceText}>1.5 km</ThemedText>
+            <ThemedText style={styles.distanceText}>{distanceText}</ThemedText>
           </View>
         </View>
 
-        <Image source={Ballerina} style={styles.artImage} />
+        {fullImageUrl ? (
+          <Image source={{ uri: fullImageUrl }} style={styles.artImage} />
+        ) : (
+          <View style={[styles.artImage, { backgroundColor: '#444' }]} />
+        )}
 
-        <TouchableOpacity style={styles.nextButton}>
-          <ThemedText style={styles.nextButtonText}>{'>'}</ThemedText>
+        <TouchableOpacity 
+          style={[
+            styles.nextButton, 
+            index === 1 ? styles.nextButtonLeft : styles.nextButtonRight
+          ]} 
+          onPress={onNext}
+        >
+          <Image source={NextIcon} style={styles.nextButtonIcon} />
         </TouchableOpacity>
 
         <View style={styles.artTextWrapper}>
           <ThemedText style={[styles.artTitle, { fontFamily: 'Impact' }]}>
-            Ballerina
+            {attributes.Name || 'Untitled'}
           </ThemedText>
           <ThemedText style={[styles.artSubtitle, { fontFamily: 'LeagueSpartan' }]}>
-            Stephan Balkenhol
+            {attributes.Creator || 'Unknown'}
           </ThemedText>
         </View>
 
@@ -122,23 +184,35 @@ const styles = StyleSheet.create({
   },
 
   artImage: {
-    width: '100%',
+    width: '80%',
     height: 300,
     resizeMode: 'contain',
-    marginTop: 10,
-    marginBottom: -78,
+    marginTop: 40,
+    marginLeft: '20%',
+    marginBottom: -100,
   },
 
   nextButton: {
     position: 'absolute',
-    right: 16,
-    top: '55%',
+    top: '50%',
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  nextButtonRight: {
+    right: 16,
+  },
+  nextButtonLeft: {
+    left: 16,
+    transform: [{ rotate: '180deg' }],
+  },
+  nextButtonIcon: {
+    width: '60%',
+    height: '60%',
+    resizeMode: 'contain',
   },
   nextButtonText: {
     color: '#fff',
