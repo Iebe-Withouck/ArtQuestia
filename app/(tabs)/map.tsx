@@ -1,9 +1,11 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
     Camera,
+    Images,
     LineLayer,
     MapView,
     ShapeSource,
+    SymbolLayer,
     UserLocation,
     type CameraRef,
 } from "@maplibre/maplibre-react-native";
@@ -17,12 +19,45 @@ import {
     View,
 } from "react-native";
 
-export default function MapScreen() {
-    // fallback: Brussel
-    const center: [number, number] = [4.3517, 50.8503];
+// Type for markers
+type Marker = {
+    id: string;
+    coordinate: [number, number]; // [longitude, latitude]
+    title: string;
+    icon?: string; // icon name reference for custom icons
+};
 
-    // Centrum Kortrijk
-    const kortrijkCenter: [number, number] = [3.2649, 50.828];
+export default function MapScreen() {
+    // fallback: Kortrijk
+    const center: [number, number] = [3.2649, 50.828];
+
+    // Markers array - Add your coordinates here
+    const [markers, setMarkers] = useState<Marker[]>([
+        {
+            id: "oorlogsmonument_bissegem",
+            coordinate: [3.227223, 50.823085],
+            title: "",
+            icon: "marker-icon1",
+        },
+        {
+            id: "leie_monument",
+            coordinate: [3.268430, 50.835340],
+            title: "",
+            icon: "marker-icon2",
+        },
+        {
+            id: "groeninge_monument",
+            coordinate: [3.275814, 50.828708],
+            title: "",
+            icon: "marker-icon3",
+        },
+        {
+            id: "monument_voor_de_gesneuvelden_van_wereldoorlog_ii",
+            coordinate: [3.265759, 50.827542],
+            title: "",
+            icon: "marker-icon4",
+        },
+    ]);
 
     // Onze MapTiler style
     const maptilerKey = "mIqAbQiXcMAwOt3f0O2W";
@@ -31,13 +66,18 @@ export default function MapScreen() {
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [userCoord, setUserCoord] = useState<[number, number] | null>(null);
     const [routeGeoJSON, setRouteGeoJSON] = useState<any | null>(null);
+    const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
 
     const cameraRef = useRef<CameraRef>(null);
 
     // OpenRouteService
     const ORS_API_KEY = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImNjNDUyZGVlMzNmMzQ3N2RhMTNiNTFmOWU5MGIwYjYzIiwiaCI6Im11cm11cjY0In0=";
 
-    const fetchWalkingRoute = async (startCoord: [number, number]) => {
+    // Fetch route to a specific marker (ready for future implementation)
+    const fetchWalkingRoute = async (
+        startCoord: [number, number],
+        endCoord: [number, number]
+    ) => {
         try {
             const res = await fetch(
                 "https://api.openrouteservice.org/v2/directions/foot-walking/geojson",
@@ -49,7 +89,7 @@ export default function MapScreen() {
                         Authorization: ORS_API_KEY,
                     },
                     body: JSON.stringify({
-                        coordinates: [startCoord, kortrijkCenter],
+                        coordinates: [startCoord, endCoord],
                     }),
                 }
             );
@@ -65,6 +105,39 @@ export default function MapScreen() {
         } catch (e) {
             console.warn("Error fetching ORS walking route", e);
         }
+    };
+
+    // Function to navigate to a marker (ready for future routing implementation)
+    const navigateToMarker = async (marker: Marker) => {
+        if (!userCoord) return;
+        setSelectedMarker(marker);
+        await fetchWalkingRoute(userCoord, marker.coordinate);
+
+        // Zoom to show both user and marker
+        cameraRef.current?.setCamera({
+            centerCoordinate: marker.coordinate,
+            zoomLevel: 14,
+            animationDuration: 1000,
+        });
+    };
+
+    // Convert markers to GeoJSON for rendering
+    const getMarkersGeoJSON = () => {
+        return {
+            type: "FeatureCollection",
+            features: markers.map((marker) => ({
+                type: "Feature",
+                id: marker.id,
+                properties: {
+                    title: marker.title,
+                    icon: marker.icon || "marker-icon",
+                },
+                geometry: {
+                    type: "Point",
+                    coordinates: marker.coordinate,
+                },
+            })),
+        };
     };
 
     useEffect(() => {
@@ -93,8 +166,10 @@ export default function MapScreen() {
                 animationDuration: 1000,
             });
 
-            // Wandelroute user → Kortrijk
-            await fetchWalkingRoute(coord);
+            // You can enable this to show route to first marker on load
+            // if (markers.length > 0) {
+            //     await fetchWalkingRoute(coord, markers[0].coordinate);
+            // }
         })();
     }, []);
 
@@ -114,14 +189,16 @@ export default function MapScreen() {
             animationDuration: 800,
         });
 
-        // Route opnieuw berekenen vanaf nieuwe positie
-        await fetchWalkingRoute(coord);
+        // Route opnieuw berekenen als er een marker geselecteerd is
+        if (selectedMarker) {
+            await fetchWalkingRoute(coord, selectedMarker.coordinate);
+        }
     };
 
     if (hasPermission === false) {
         return (
             <View style={styles.center}>
-                <Text>Locatie-permissie is geweigerd 😢</Text>
+                <Text>Locatie-permissie is geweigerd</Text>
             </View>
         );
     }
@@ -138,10 +215,49 @@ export default function MapScreen() {
     return (
         <View style={styles.container}>
             <MapView style={styles.map} mapStyle={styleUrl}>
+                {/* Place your custom marker icons here
+                    Example: <Images images={{ 'marker-icon': require('@/assets/icons/marker.png') }} />
+                    You can add multiple icons for different marker types
+                */}
+                <Images
+                    images={{
+                        'marker-icon1': require('@/assets/icons/oorlogsmonument_bissegem.png'),
+                        'marker-icon2': require('@/assets/icons/oorlogsmonument_bissegem.png'),
+                        'marker-icon3': require('@/assets/icons/oorlogsmonument_bissegem.png'),
+                        'marker-icon4': require('@/assets/icons/oorlogsmonument_bissegem.png'),
+                    }}
+                />
+
                 {/* native user dot */}
                 <UserLocation visible={true} />
 
-                {/* wandelroute user → Kortrijk (volgt straten) */}
+                {/* Custom Markers */}
+                {markers.length > 0 && (
+                    <ShapeSource
+                        id="markers-source"
+                        shape={getMarkersGeoJSON() as any}
+                    >
+                        <SymbolLayer
+                            id="markers-layer"
+                            style={{
+                                iconImage: ["get", "icon"],
+                                iconSize: 0.05,
+                                iconAllowOverlap: true,
+                                iconIgnorePlacement: true,
+                                // For default pins if no custom icon is loaded:
+                                textField: ["get", "title"],
+                                textSize: 12,
+                                textOffset: [0, 1.5],
+                                textAnchor: "top",
+                                textColor: "#000000",
+                                textHaloColor: "#ffffff",
+                                textHaloWidth: 2,
+                            }}
+                        />
+                    </ShapeSource>
+                )}
+
+                {/* wandelroute user → selected marker (volgt straten) */}
                 {routeGeoJSON && (
                     <ShapeSource id="walking-route" shape={routeGeoJSON as any}>
                         <LineLayer
