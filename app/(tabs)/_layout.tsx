@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Image, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -14,7 +14,7 @@ import StickersIcon from '@/assets/icons/stickerstab.png';
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
-  const renderIcon = (icon, focused) => (
+  const renderIcon = (icon, focused, label) => (
     <View style={{ alignItems: 'center', justifyContent: 'center' }}>
 
       {focused && (
@@ -51,6 +51,18 @@ export default function TabLayout() {
           }}
         />
       </View>
+
+      <Text
+        style={{
+          color: focused ? '#FFFFFF' : '#999999',
+          fontSize: 9.6,
+          marginTop: focused ? 5 : 2,
+          fontWeight: focused ? '600' : '400',
+          fontFamily: 'LeagueSpartan',
+        }}
+      >
+        {label}
+      </Text>
     </View>
   );
 
@@ -73,35 +85,35 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          tabBarIcon: ({ focused }) => renderIcon(SettingsIcon, focused),
+          tabBarIcon: ({ focused }) => renderIcon(SettingsIcon, focused, 'account'),
         }}
       />
 
       <Tabs.Screen
         name="stickers"
         options={{
-          tabBarIcon: ({ focused }) => renderIcon(StickersIcon, focused),
+          tabBarIcon: ({ focused }) => renderIcon(StickersIcon, focused, 'stickers'),
         }}
       />
 
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ focused }) => renderIcon(HomeIcon, focused),
+          tabBarIcon: ({ focused }) => renderIcon(HomeIcon, focused, 'home'),
         }}
       />
 
       <Tabs.Screen
         name="map"
         options={{
-          tabBarIcon: ({ focused }) => renderIcon(MapIcon, focused),
+          tabBarIcon: ({ focused }) => renderIcon(MapIcon, focused, 'map'),
         }}
       />
 
       <Tabs.Screen
         name="scan"
         options={{
-          tabBarIcon: ({ focused }) => renderIcon(ScanIcon, focused),
+          tabBarIcon: ({ focused }) => renderIcon(ScanIcon, focused, 'AR-scan'),
         }}
       />
     </Tabs>
