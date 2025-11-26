@@ -55,7 +55,7 @@ export default function TabLayout() {
       <Text
         style={{
           color: focused ? '#FFFFFF' : '#999999',
-          fontSize: 9.6,
+          fontSize: 9.5,
           marginTop: focused ? 5 : 2,
           fontWeight: focused ? '600' : '400',
           fontFamily: 'LeagueSpartan',

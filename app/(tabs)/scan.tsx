@@ -18,7 +18,7 @@ function ARModelScene() {
 
       {/* Optional reference text */}
       <ViroText
-        text="Look at the cube below"
+        text="Look at the bomb below"
         scale={[0.2, 0.2, 0.2]}
         position={[0, 0.3, -1]}
         style={styles.helloText}
@@ -28,7 +28,7 @@ function ARModelScene() {
       <Viro3DObject
         source={require('../../assets/3D-Models/bomb.glb')}
         resources={[]}
-        position={[0, 0, -1]}
+        position={[0, -0.4, -2]}
         scale={[0.1, 0.1, 0.1]}
         type="GLB"
         // This runs the animation that lives inside the GLB
