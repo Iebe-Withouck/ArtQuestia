@@ -17,7 +17,6 @@ import {
     Pressable,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View
 } from "react-native";
@@ -109,6 +108,7 @@ export default function MapScreen() {
     const [userCoord, setUserCoord] = useState<[number, number] | null>(null);
     const [routeGeoJSON, setRouteGeoJSON] = useState<any | null>(null);
     const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
+    const [isRouteActive, setIsRouteActive] = useState(false);
 
     const cameraRef = useRef<CameraRef>(null);
 
@@ -159,6 +159,7 @@ export default function MapScreen() {
 
         setSelectedMarker(marker);
         await fetchWalkingRoute(userCoord, marker.coordinate);
+        setIsRouteActive(true);
 
         // Zoom naar het kunstwerk
         cameraRef.current?.setCamera({
@@ -166,6 +167,22 @@ export default function MapScreen() {
             zoomLevel: 14,
             animationDuration: 1000,
         });
+    };
+
+    // Cancel route
+    const cancelRoute = () => {
+        setRouteGeoJSON(null);
+        setIsRouteActive(false);
+        setSelectedMarker(null);
+    };
+
+    // Calculate arrival time
+    const getArrivalTime = (distanceKm: number) => {
+        const walkingSpeedKmH = 5; // Average walking speed
+        const durationMinutes = Math.round((distanceKm / walkingSpeedKmH) * 60);
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + durationMinutes);
+        return now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
     };
 
     // Convert markers to GeoJSON for rendering
@@ -232,6 +249,39 @@ export default function MapScreen() {
         })();
     }, []);
 
+    // Live location tracking when route is active
+    useEffect(() => {
+        let locationSubscription: Location.LocationSubscription | null = null;
+
+        if (isRouteActive && selectedMarker) {
+            (async () => {
+                locationSubscription = await Location.watchPositionAsync(
+                    {
+                        accuracy: Location.Accuracy.High,
+                        timeInterval: 5000, // Update every 5 seconds
+                        distanceInterval: 10, // Update every 10 meters
+                    },
+                    (location) => {
+                        const coord: [number, number] = [
+                            location.coords.longitude,
+                            location.coords.latitude,
+                        ];
+                        setUserCoord(coord);
+
+                        // Update route if needed
+                        fetchWalkingRoute(coord, selectedMarker.coordinate);
+                    }
+                );
+            })();
+        }
+
+        return () => {
+            if (locationSubscription) {
+                locationSubscription.remove();
+            }
+        };
+    }, [isRouteActive, selectedMarker]);
+
     const goToMyLocation = async () => {
         const loc = await Location.getCurrentPositionAsync({});
         const coord: [number, number] = [
@@ -249,7 +299,7 @@ export default function MapScreen() {
         });
 
         // Route opnieuw berekenen als er een marker geselecteerd is
-        if (selectedMarker) {
+        if (selectedMarker && isRouteActive) {
             await fetchWalkingRoute(coord, selectedMarker.coordinate);
         }
     };
@@ -273,15 +323,6 @@ export default function MapScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Search bar */}
-            <View style={styles.searchContainer}>
-                <TextInput
-                    placeholder="Zoek naar kunstwerken"
-                    placeholderTextColor="#666666"
-                    style={styles.input}
-                />
-            </View>
-
             <MapView
                 style={styles.map}
                 mapStyle={styleUrl}
@@ -354,7 +395,7 @@ export default function MapScreen() {
             </TouchableOpacity>
 
             {/* Popup onderaan bij geselecteerd kunstwerk */}
-            {selectedMarker && (
+            {selectedMarker && !isRouteActive && (
                 <Pressable
                     style={styles.popupContainer}
                     onPress={() => setSelectedMarker(null)}
@@ -399,6 +440,71 @@ export default function MapScreen() {
                     </Pressable>
                 </Pressable>
             )}
+
+            {/* Route navigation popup - shown when route is active */}
+            {isRouteActive && selectedMarker && routeGeoJSON && (
+                <View style={styles.routePopupContainer}>
+                    <View style={styles.routePopupCard}>
+                        {/* Left side: Green arrow with distance */}
+                        <View style={styles.routeArrowContainer}>
+                            <Text style={styles.routeDistanceText}>
+                                {userCoord ? Math.round(calculateDistance(userCoord, selectedMarker.coordinate) * 1000) : 0}m
+                            </Text>
+                            <IconSymbol name="arrow.right" size={50} color="#000" />
+                        </View>
+
+                        {/* Right side: Content */}
+                        <View style={styles.routeContentContainer}>
+                            {/* Title and description */}
+                            <View>
+                                <Text style={styles.routeTitle}>
+                                    {selectedMarker.title || "Kunstwerk"}
+                                </Text>
+                                <Text style={styles.routeSubtitle}>
+                                    {selectedMarker.description || "Kunstenaar"}
+                                </Text>
+                            </View>
+
+                            {/* Info icons */}
+                            <View style={styles.routeInfoSection}>
+                                {/* Labels Row */}
+                                <View style={styles.routeLabelsRow}>
+                                    <Text style={styles.routeInfoLabel}>Aankomst</Text>
+                                    <Text style={styles.routeInfoLabel}>Afstand</Text>
+                                    <Text style={styles.routeInfoLabel}>Annuleer</Text>
+                                </View>
+
+                                {/* Icons Row */}
+                                <View style={styles.routeIconsRow}>
+                                    <View style={styles.routeIconCircle}>
+                                        <IconSymbol name="clock.fill" size={24} color="#000" />
+                                    </View>
+                                    <View style={styles.routeIconCircle}>
+                                        <IconSymbol name="figure.walk" size={24} color="#000" />
+                                    </View>
+                                    <TouchableOpacity
+                                        style={styles.routeCancelCircle}
+                                        onPress={cancelRoute}
+                                    >
+                                        <IconSymbol name="xmark" size={24} color="#fff" />
+                                    </TouchableOpacity>
+                                </View>
+
+                                {/* Values Row */}
+                                <View style={styles.routeValuesRow}>
+                                    <Text style={styles.routeInfoValue}>
+                                        {userCoord ? getArrivalTime(calculateDistance(userCoord, selectedMarker.coordinate)) : "--"}
+                                    </Text>
+                                    <Text style={styles.routeInfoValue}>
+                                        {userCoord ? calculateDistance(userCoord, selectedMarker.coordinate) : "--"} km
+                                    </Text>
+                                    <View style={styles.routeInfoValuePlaceholder} />
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            )}
         </View>
     );
 }
@@ -437,7 +543,7 @@ const styles = StyleSheet.create({
     },
     locationBtn: {
         position: "absolute",
-        bottom: 24,
+        top: 60,
         right: 24,
         backgroundColor: "#292929",
         padding: 12,
@@ -474,7 +580,7 @@ const styles = StyleSheet.create({
     popupImageContainer: {
         width: 150,
         height: 180,
-        backgroundColor: "#FF00FF",
+        backgroundColor: "#FF5AE5",
         justifyContent: "center",
         alignItems: "center",
     },
@@ -519,5 +625,105 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontWeight: "700",
         fontSize: 16,
+    },
+
+    // Route navigation popup styles
+    routePopupContainer: {
+        position: "absolute",
+        left: 16,
+        right: 16,
+        bottom: 24,
+    },
+    routePopupCard: {
+        backgroundColor: "#ffffff",
+        borderRadius: 24,
+        overflow: "hidden",
+        flexDirection: "row",
+        shadowColor: "#000",
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 6,
+        minHeight: 180,
+    },
+    routeArrowContainer: {
+        width: 120,
+        backgroundColor: "#1AF7A2",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingVertical: 16,
+    },
+    routeDistanceText: {
+        fontSize: 32,
+        fontWeight: "700",
+        color: "#000",
+        marginBottom: 4,
+    },
+    routeContentContainer: {
+        flex: 1,
+        padding: 16,
+        justifyContent: "space-between",
+    },
+    routeTitle: {
+        fontSize: 20,
+        fontWeight: "700",
+        color: "#000",
+        marginBottom: 2,
+    },
+    routeSubtitle: {
+        fontSize: 14,
+        color: "#666",
+        marginBottom: 8,
+    },
+    routeInfoSection: {
+        marginTop: 4,
+    },
+    routeLabelsRow: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        marginBottom: 8,
+    },
+    routeInfoLabel: {
+        fontSize: 12,
+        fontWeight: "600",
+        color: "#000",
+        flex: 1,
+        textAlign: "center",
+    },
+    routeIconsRow: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "center",
+        marginBottom: 6,
+    },
+    routeIconCircle: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: "#FDE404",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    routeCancelCircle: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: "#F10906",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    routeValuesRow: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        marginTop: 8,
+    },
+    routeInfoValue: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#000",
+        flex: 1,
+        textAlign: "center",
+    },
+    routeInfoValuePlaceholder: {
+        flex: 1,
     },
 });
