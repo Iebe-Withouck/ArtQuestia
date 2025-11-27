@@ -13,6 +13,8 @@ import * as Location from "expo-location";
 import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
+    Image,
+    Pressable,
     StyleSheet,
     Text,
     TextInput,
@@ -21,12 +23,46 @@ import {
 } from "react-native";
 
 
+// Image mapping for markers
+const markerImages: { [key: string]: any } = {
+    "marker-icon1": require("@/assets/icons/oorlogsmonument_bissegem.png"),
+    "marker-icon2": require("@/assets/icons/leie_monument.png"),
+    "marker-icon3": require("@/assets/icons/groeninge_monument.png"),
+    "marker-icon4": require("@/assets/icons/monument_voor_de_gesneuvelden_van_wereldoorlog_ii.png"),
+};
+
+// Calculate distance between two coordinates using Haversine formula
+const calculateDistance = (
+    coord1: [number, number],
+    coord2: [number, number]
+): number => {
+    const [lon1, lat1] = coord1;
+    const [lon2, lat2] = coord2;
+
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c;
+
+    return Math.round(distance * 10) / 10; // Round to 1 decimal
+};
+
 // Type for markers
 type Marker = {
     id: string;
     coordinate: [number, number]; // [longitude, latitude]
     title: string;
     icon?: string; // icon name reference for custom icons
+    description?: string; // short description for the marker
 };
 
 export default function MapScreen() {
@@ -40,24 +76,28 @@ export default function MapScreen() {
             coordinate: [3.227223, 50.823085],
             title: "Oorlogsmonument Bissegem",
             icon: "marker-icon1",
+            description: "Viane-Lagae",
         },
         {
             id: "leie_monument",
             coordinate: [3.268430, 50.835340],
             title: "Leie Monument",
             icon: "marker-icon2",
+            description: "Courtens, Alfred",
         },
         {
             id: "groeninge_monument",
             coordinate: [3.275814, 50.828708],
             title: "Groeninge Monument",
             icon: "marker-icon3",
+            description: "Devreese, Godfried",
         },
         {
             id: "monument_voor_de_gesneuvelden_van_wereldoorlog_ii",
             coordinate: [3.265759, 50.827542],
             title: "WO II Monument",
             icon: "marker-icon4",
+            description: "Geoffroy de Montpellier",
         },
     ]);
 
@@ -315,25 +355,38 @@ export default function MapScreen() {
 
             {/* Popup onderaan bij geselecteerd kunstwerk */}
             {selectedMarker && (
-                <View style={styles.popupContainer}>
-                    <View style={styles.popupCard}>
-                        <Text style={styles.popupTitle}>
-                            {selectedMarker.title || "Kunstwerk"}
-                        </Text>
-                        <Text style={styles.popupSubtitle}>
-                            {selectedMarker.id.replace(/_/g, " ")}
-                        </Text>
+                <Pressable
+                    style={styles.popupContainer}
+                    onPress={() => setSelectedMarker(null)}
+                >
+                    <Pressable
+                        style={styles.popupCard}
+                        onPress={(e) => e.stopPropagation()}
+                    >
+                        {/* Left side: Image with pink background - full height */}
+                        <View style={styles.popupImageContainer}>
+                            <Image
+                                source={markerImages[selectedMarker.icon || 'marker-icon1']}
+                                style={styles.popupImage}
+                                resizeMode="contain"
+                            />
+                        </View>
 
-                        <View style={styles.popupButtonsRow}>
-                            <TouchableOpacity
-                                style={styles.popupSecondaryButton}
-                                onPress={() => setSelectedMarker(null)}
-                            >
-                                <Text style={styles.popupSecondaryText}>
-                                    Sluit
+                        {/* Right side: Text content + button */}
+                        <View style={styles.popupRightContent}>
+                            <View style={styles.popupTextContainer}>
+                                <Text style={styles.popupTitle}>
+                                    {selectedMarker.title || "Kunstwerk"}
                                 </Text>
-                            </TouchableOpacity>
+                                <Text style={styles.popupSubtitle}>
+                                    {selectedMarker.description || "Kunstenaar"}
+                                </Text>
+                                <Text style={styles.popupDistance}>
+                                    Afstand: {userCoord ? calculateDistance(userCoord, selectedMarker.coordinate) : "--"} km
+                                </Text>
+                            </View>
 
+                            {/* Ontdek button on the right */}
                             <TouchableOpacity
                                 style={styles.popupPrimaryButton}
                                 onPress={() => navigateToMarker(selectedMarker)}
@@ -343,8 +396,8 @@ export default function MapScreen() {
                                 </Text>
                             </TouchableOpacity>
                         </View>
-                    </View>
-                </View>
+                    </Pressable>
+                </Pressable>
             )}
         </View>
     );
@@ -401,54 +454,70 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
+        top: 0,
+        justifyContent: "center",
         alignItems: "center",
-        padding: 16,
+        paddingHorizontal: 16,
     },
     popupCard: {
         width: "100%",
         maxWidth: 420,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#000000",
         borderRadius: 24,
-        padding: 16,
+        overflow: "hidden",
+        flexDirection: "row",
         shadowColor: "#000",
-        shadowOpacity: 0.15,
+        shadowOpacity: 0.3,
         shadowRadius: 8,
         elevation: 6,
     },
+    popupImageContainer: {
+        width: 150,
+        height: 180,
+        backgroundColor: "#FF00FF",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    popupImage: {
+        width: "80%",
+        height: "80%",
+    },
+    popupRightContent: {
+        flex: 1,
+        padding: 16,
+        justifyContent: "space-between",
+    },
+    popupTextContainer: {
+        flex: 1,
+        justifyContent: "center",
+    },
     popupTitle: {
-        fontSize: 18,
+        fontSize: 24,
         fontWeight: "700",
         marginBottom: 4,
-        color: "#000",
+        color: "#FFFFFF",
     },
     popupSubtitle: {
-        fontSize: 14,
-        color: "#555",
-        marginBottom: 16,
+        fontSize: 16,
+        color: "#CCCCCC",
+        marginBottom: 8,
     },
-    popupButtonsRow: {
-        flexDirection: "row",
-        justifyContent: "flex-end",
-        gap: 8,
+    popupDistance: {
+        fontSize: 14,
+        color: "#FFFFFF",
+        marginTop: 4,
     },
     popupPrimaryButton: {
         backgroundColor: "#FF7700",
-        paddingHorizontal: 18,
-        paddingVertical: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
         borderRadius: 999,
+        alignItems: "center",
+        marginTop: 12,
     },
     popupPrimaryText: {
         color: "#fff",
-        fontWeight: "600",
-    },
-    popupSecondaryButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 999,
-        backgroundColor: "#f1f1f1",
-    },
-    popupSecondaryText: {
-        color: "#333",
-        fontWeight: "500",
+        fontWeight: "700",
+        fontSize: 16,
     },
 });
