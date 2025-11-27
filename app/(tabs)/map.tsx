@@ -706,15 +706,15 @@ const styles = StyleSheet.create({
     },
     popupSubtitle: {
         fontSize: 16,
-        color: "#CCCCCC",
+        color: "#FFFFFF",
         marginBottom: 8,
-        fontFamily: "LeagueSpartan",
+        fontFamily: "LeagueSpartan-medium",
     },
     popupDistance: {
         fontSize: 14,
         color: "#FFFFFF",
         marginTop: 4,
-        fontFamily: "LeagueSpartan",
+        fontFamily: "LeagueSpartan-regular",
     },
     popupPrimaryButton: {
         backgroundColor: "#FF7700",
@@ -838,7 +838,7 @@ const styles = StyleSheet.create({
         color: "#000",
         flex: 1,
         textAlign: "center",
-        fontFamily: "LeagueSpartan-medium",
+        fontFamily: "LeagueSpartan-regular",
     },
     routeInfoValuePlaceholder: {
         flex: 1,
