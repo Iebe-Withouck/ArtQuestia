@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 
-const STRAPI_URL = 'http://192.168.0.12:1337';
+const STRAPI_URL = 'http://192.168.0.212:1337';
 
 const { width, height } = Dimensions.get('window');
 
@@ -354,6 +354,14 @@ export default function SettingsScreen() {
                   >
                     <ThemedText style={styles.readMoreButtonText}>Lees meer</ThemedText>
                   </TouchableOpacity>
+                                    <TouchableOpacity 
+                    style={styles.deelButton}
+                    onPress={() => {
+                      setModalVisible(false);
+                    }}
+                  >
+                    <ThemedText style={styles.deelButtonText}>Deel je ervaring!</ThemedText>
+                  </TouchableOpacity>
                 </>
               );
             })()}
@@ -644,10 +652,25 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(12),
     paddingHorizontal: scale(100),
     borderRadius: moderateScale(25),
+    marginBottom: verticalScale(10),
   },
   readMoreButtonText: {
     color: '#fff',
     fontSize: moderateScale(16),
     fontFamily: 'Impact',
+  },
+  deelButton: {
+    backgroundColor: '#215AFF',
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(80),
+    borderRadius: moderateScale(25),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deelButtonText: {
+    color: '#fff',
+    fontSize: moderateScale(16),
+    fontFamily: 'Impact',
+    textAlign: 'center',
   },
 });
