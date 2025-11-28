@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 
-const STRAPI_URL = 'http://172.30.32.144:1337';
+const STRAPI_URL = 'http://172.30.40.49:1337';
 
 const { width, height } = Dimensions.get('window');
 
