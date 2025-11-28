@@ -76,6 +76,7 @@ export default function MapScreen() {
     const [routeGeoJSON, setRouteGeoJSON] = useState<any | null>(null);
     const [selectedMarker, setSelectedMarker] = useState<Marker | null>(null);
     const [isRouteActive, setIsRouteActive] = useState(false);
+    const [isLoadingRoute, setIsLoadingRoute] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredMarkers, setFilteredMarkers] = useState<Marker[]>([]);
 
@@ -186,7 +187,9 @@ export default function MapScreen() {
         }
 
         setSelectedMarker(marker);
+        setIsLoadingRoute(true);
         await fetchWalkingRoute(userCoord, marker.coordinate);
+        setIsLoadingRoute(false);
         setIsRouteActive(true);
 
         // Zoom naar het kunstwerk
@@ -548,7 +551,7 @@ export default function MapScreen() {
             {selectedMarker && !isRouteActive && (
                 <Pressable
                     style={styles.popupContainer}
-                    onPress={() => setSelectedMarker(null)}
+                    onPress={() => !isLoadingRoute && setSelectedMarker(null)}
                 >
                     <Pressable
                         style={styles.popupCard}
@@ -583,12 +586,22 @@ export default function MapScreen() {
 
                             {/* Ontdek button on the right */}
                             <TouchableOpacity
-                                style={styles.popupPrimaryButton}
+                                style={[styles.popupPrimaryButton, isLoadingRoute && styles.popupPrimaryButtonDisabled]}
                                 onPress={() => navigateToMarker(selectedMarker)}
+                                disabled={isLoadingRoute}
                             >
-                                <Text style={styles.popupPrimaryText}>
-                                    Ontdek
-                                </Text>
+                                {isLoadingRoute ? (
+                                    <View style={styles.loadingContainer}>
+                                        <ActivityIndicator color="#fff" size="small" />
+                                        <Text style={styles.popupPrimaryText}>
+                                            Route berekenen...
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <Text style={styles.popupPrimaryText}>
+                                        Ontdek
+                                    </Text>
+                                )}
                             </TouchableOpacity>
                         </View>
                     </Pressable>
@@ -904,6 +917,14 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         fontSize: 16,
         fontFamily: "Impact",
+    },
+    popupPrimaryButtonDisabled: {
+        opacity: 0.7,
+    },
+    loadingContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
     },
 
     // Route navigation popup styles
