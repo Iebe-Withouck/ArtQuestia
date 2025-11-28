@@ -396,7 +396,15 @@ export default function MapScreen() {
                         coordinate={marker.coordinate}
                     >
                         <TouchableOpacity
-                            onPress={() => setSelectedMarker(marker)}
+                            onPress={() => {
+                                setSelectedMarker(marker);
+                                cameraRef.current?.setCamera({
+                                    centerCoordinate: marker.coordinate,
+                                    zoomLevel: 16,
+                                    pitch: 60,
+                                    animationDuration: 1000,
+                                });
+                            }}
                             style={{
                                 width: 60,
                                 height: 60,
