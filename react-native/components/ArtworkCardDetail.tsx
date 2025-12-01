@@ -16,7 +16,7 @@ import { ThemedView } from '@/components/themed-view';
 import NextIcon from '../assets/icons/next.png';
 import Bell from '../assets/icons/doorbell_black.png';
 
-const STRAPI_URL = 'http://172.30.40.49:1337';
+const STRAPI_URL = 'http://192.168.0.212:1337';
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,6 +35,7 @@ interface ArtworkCardDetailProps {
       Year?: number;
       Theme?: string;
       Description?: string;
+      Color?: string;
       Photo?: {
         data?: {
           attributes?: {
@@ -119,6 +120,11 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
     ? `${calculatedDistance.toFixed(1)} km` 
     : 'Distance not available';
 
+  // Add # to color code if it doesn't already have it
+  const backgroundColor = attributes.Color 
+    ? (attributes.Color.startsWith('#') ? attributes.Color : `#${attributes.Color}`)
+    : '#FF5AE5';
+
   return (
     <ThemedView style={styles.container}>
       <ScrollView 
@@ -137,7 +143,7 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
 
         {/* Main Photo */}
         {fullPhotoHiddenUrl && (
-          <View style={styles.imageContainer}>
+          <View style={[styles.imageContainer, { backgroundColor }]}>
             <Image source={{ uri: fullPhotoHiddenUrl }} style={styles.heroImage} />
           </View>
         )}
@@ -256,7 +262,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: verticalScale(400),
     borderRadius: moderateScale(30),
-    backgroundColor: '#FF5AE5',
   },
   heroImage: {
     width: '70%',
