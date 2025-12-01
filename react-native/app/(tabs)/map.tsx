@@ -385,7 +385,7 @@ export default function MapScreen() {
             position: "absolute",
             top: isSmallDevice ? 50 : 60,
             left: isSmallDevice ? 16 : 20,
-            right: isSmallDevice ? 70 : 80,
+            right: isSmallDevice ? 16 : 20,
             flexDirection: "row",
             height: isSmallDevice ? 40 : 45,
             backgroundColor: "#fff",
@@ -878,22 +878,14 @@ export default function MapScreen() {
                 </View>
             )}
 
-            {/* Floating button: ga naar mijn locatie + route herberekenen */}
-            <TouchableOpacity
-                style={styles.locationBtn}
-                onPress={goToMyLocation}
-            >
-                <IconSymbol name="location.fill" size={28} color="white" />
-            </TouchableOpacity>
-
             {/* Bottom action buttons */}
             {!isRouteActive && (
                 <View style={styles.bottomButtonsContainer}>
                     <TouchableOpacity
                         style={styles.nearestButton}
-                        onPress={goToNearestArtwork}
+                        onPress={goToMyLocation}
                     >
-                        <Text style={styles.bottomButtonText}>Dichtstbijzijnde</Text>
+                        <Text style={styles.bottomButtonText}>Huidige locatie</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.followRouteButton}
