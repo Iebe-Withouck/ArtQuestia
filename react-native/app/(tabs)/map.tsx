@@ -517,13 +517,13 @@ export default function MapScreen() {
         },
         bottomButtonText: {
             color: "#FFFFFF",
-            fontSize: isSmallDevice ? 14 : 16,
+            fontSize: isSmallDevice ? 16 : 18,
             fontWeight: "700",
-            fontFamily: "Impact",
+            fontFamily: "LeagueSpartan-medium",
         },
         buttonArrowIcon: {
-            width: isSmallDevice ? 12 : 14,
-            height: isSmallDevice ? 12 : 14,
+            width: isSmallDevice ? 8 : 10,
+            height: isSmallDevice ? 8 : 10,
             tintColor: "#FFFFFF",
         },
         popupContainer: {
