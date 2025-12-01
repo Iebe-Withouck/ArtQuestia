@@ -137,76 +137,26 @@ export default function SettingsScreen() {
         <Image source={Bell} style={styles.bellIcon} />
       </TouchableOpacity>
 
-      <ThemedText type="title" style={[styles.mainTitle, { fontFamily: 'Impact' }]}>
+      <ThemedText style={[styles.mainTitle]}>
         ArtQuestia
       </ThemedText>
 
-      <ThemedText type="title" style={[styles.subtitle, { fontFamily: 'LeagueSpartan' }]}>
-        Beleef, ontdek, verbind
+      <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan' }]}>
+        Ontdek Kortrijk, beleef de quest & scoor beloningen
       </ThemedText>
-
-      <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
-        Prestaties
-      </ThemedText>
-      
-      <ThemedText style={[styles.prestatiesSubtitle, { fontFamily: 'LeagueSpartan' }]}>
-        Veeg om ze allemaal te zien
-      </ThemedText>
-
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.rowButtonsScrollView}
-        contentContainerStyle={styles.rowButtonsContent}
-      >
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={Icon11} style={styles.buttonIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Religie</ThemedText>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={Icon4} style={styles.buttonIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Abstract</ThemedText>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={Icon7} style={styles.buttonIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Fun</ThemedText>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={Icon120} style={styles.buttonIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Gemeenschap</ThemedText>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={Icon55} style={styles.buttonIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Oorlog</ThemedText>
-          </View>
-        </TouchableOpacity>
-      </ScrollView>
 
       <View style={styles.themaRoute}>
-        <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
-          Oorlog thema route
+        <ThemedText style={[styles.title]}>
+          Oorlog thema quest
         </ThemedText>
-        <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
-          55%
+        <ThemedText style={[styles.percentage]}>
+          55% compleet
         </ThemedText>
       </View>
       <Image source={Route} style={styles.themaRouteIcon} />
 
 
-      <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
+      <ThemedText style={[styles.stickersTitle]}>
         Stickers
       </ThemedText>
       <View style={styles.buttonContainerStickers}>
@@ -408,18 +358,33 @@ const styles = StyleSheet.create({
   },
 
   mainTitle: {
+    fontFamily: 'Impact',
     fontSize: moderateScale(32),
     color: '#fff',
+    lineHeight: moderateScale(38),
   },
   subtitle: {
-    fontSize: moderateScale(16),
-    marginTop: verticalScale(8),
+    fontSize: moderateScale(15),
     color: '#fff',
   },
   title: {
-    fontSize: moderateScale(20),
+    fontSize: moderateScale(24),
     marginTop: verticalScale(50),
     color: '#fff',
+    fontFamily: 'Impact',
+  },
+  stickersTitle: {
+    fontSize: moderateScale(24),
+    marginTop: verticalScale(50),
+    marginBottom: verticalScale(10),
+    color: '#fff',
+    fontFamily: 'Impact',
+  },
+  percentage: {
+    fontSize: moderateScale(15),
+    marginTop: verticalScale(50),
+    color: '#fff',
+    fontFamily: 'LeagueSpartan',
   },
   prestatiesSubtitle: {
     fontSize: moderateScale(15),
@@ -502,12 +467,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: verticalScale(15),
   },
   themaRouteIcon: {
     width: '100%',
     height: verticalScale(60),
     resizeMode: 'contain',
-    marginBottom: verticalScale(20),
   },
   buttonContainerStickers: {
     flexDirection: 'row',
@@ -587,7 +552,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
     width: '31%', // 3 columns: 31% each
-    aspectRatio: 1,
+    minHeight: verticalScale(120),
   },
   stickerIcon: {
     width: moderateScale(93),
@@ -599,10 +564,12 @@ const styles = StyleSheet.create({
   stickerName: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    lineHeight: moderateScale(14),
+    fontFamily: 'Impact',
     textAlign: 'center',
-    marginTop: verticalScale(80),
-    paddingHorizontal: scale(5),
+    marginTop: verticalScale(85),
+    paddingHorizontal: scale(2),
+    flexWrap: 'wrap',
   },
   modalOverlay: {
     flex: 1,

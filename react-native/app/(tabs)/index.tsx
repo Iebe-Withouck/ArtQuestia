@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import * as Location from 'expo-location';
+import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -32,8 +33,9 @@ const { width, height } = Dimensions.get('window');
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
-
 export default function SettingsScreen() {
+  const router = useRouter();
+  
   const [fontsLoaded] = useFonts({
     Impact: require('../../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
@@ -147,19 +149,15 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       </View>
 
-      <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
-        Begin de zoektocht!
-      </ThemedText>
-
       <View style={styles.rowButtons}>
-        <TouchableOpacity style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/map')}>
           <Image source={Icon1} style={styles.buttonIcon} />
           <View style={styles.button}>
             <ThemedText style={styles.buttonText}>Kies je route</ThemedText>
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/stickers')}>
           <Image source={Icon2} style={styles.buttonIcon} />
           <View style={styles.button}>
             <ThemedText style={styles.buttonText}>Verzamel stickers!</ThemedText>

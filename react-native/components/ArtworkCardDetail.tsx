@@ -262,14 +262,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: verticalScale(400),
     borderRadius: moderateScale(30),
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   heroImage: {
-    width: '70%',
-    height: '75%',
-    marginLeft: '15%',
-    position: 'absolute',
-    bottom: 0,
-    resizeMode: 'cover',
+    width: '80%',
+    height: '80%',
+    resizeMode: 'contain',
   },
 
   // Content
@@ -396,14 +395,14 @@ const styles = StyleSheet.create({
   },
     readMoreButton: {
     backgroundColor: '#FF7700',
-    paddingVertical: verticalScale(20),
+    paddingVertical: verticalScale(12),
     borderRadius: moderateScale(50),
     marginBottom: verticalScale(10),
   },
   readMoreButtonText: {
     textAlign: 'center',
     color: '#fff',
-    fontSize: moderateScale(16),
+    fontSize: moderateScale(15),
     fontFamily: 'Impact',
   },
 });
