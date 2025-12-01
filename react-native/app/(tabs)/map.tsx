@@ -512,12 +512,19 @@ export default function MapScreen() {
             shadowColor: "#000",
             shadowOpacity: 0.15,
             shadowRadius: 4,
+            flexDirection: "row",
+            gap: 8,
         },
         bottomButtonText: {
             color: "#FFFFFF",
             fontSize: isSmallDevice ? 14 : 16,
             fontWeight: "700",
             fontFamily: "Impact",
+        },
+        buttonArrowIcon: {
+            width: isSmallDevice ? 12 : 14,
+            height: isSmallDevice ? 12 : 14,
+            tintColor: "#FFFFFF",
         },
         popupContainer: {
             position: "absolute",
@@ -889,9 +896,14 @@ export default function MapScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.followRouteButton}
-                        onPress={() => console.log("Volg een route")}
+                        onPress={() => console.log("Quest volgen")}
                     >
-                        <Text style={styles.bottomButtonText}>Volg een route</Text>
+                        <Text style={styles.bottomButtonText}>Quest volgen</Text>
+                        <Image
+                            source={require('@/assets/icons/arrow.png')}
+                            style={styles.buttonArrowIcon}
+                            resizeMode="contain"
+                        />
                     </TouchableOpacity>
                 </View>
             )}
