@@ -58,6 +58,7 @@ type Marker = {
     creator: string;
     iconUrl: string; // URL to the hidden photo from Strapi
     description?: string; // short description for the marker
+    color?: string; // Color from Strapi
 };
 
 export default function MapScreen() {
@@ -126,6 +127,11 @@ export default function MapScreen() {
                         console.log('Final Photo URL:', fullImageUrl);
                         console.log('Location:', [attributes.Location.lng, attributes.Location.lat]);
 
+                        // Get color and add # if needed
+                        const color = attributes.Color
+                            ? (attributes.Color.startsWith('#') ? attributes.Color : `#${attributes.Color}`)
+                            : '#FF5AE5';
+
                         return {
                             id: artwork.id.toString(),
                             coordinate: [attributes.Location.lng, attributes.Location.lat],
@@ -133,6 +139,7 @@ export default function MapScreen() {
                             creator: attributes.Creator || 'Onbekend',
                             iconUrl: fullImageUrl,
                             description: attributes.Description || '',
+                            color: color,
                         };
                     });
 
@@ -551,7 +558,6 @@ export default function MapScreen() {
         },
         popupImageContainer: {
             width: isSmallDevice ? 130 : 150,
-            backgroundColor: "#FF5AE5",
             justifyContent: "center",
             alignItems: "center",
         },
@@ -775,7 +781,7 @@ export default function MapScreen() {
                             style={{
                                 width: 60,
                                 height: 60,
-                                backgroundColor: '#FF5AE5',
+                                backgroundColor: marker.color || '#FF5AE5',
                                 borderRadius: 30,
                                 borderWidth: 3,
                                 borderColor: '#FFFFFF',
@@ -918,8 +924,8 @@ export default function MapScreen() {
                         style={styles.popupCard}
                         onPress={(e) => e.stopPropagation()}
                     >
-                        {/* Left side: Image with pink background - full height */}
-                        <View style={styles.popupImageContainer}>
+                        {/* Left side: Image with dynamic color background - full height */}
+                        <View style={[styles.popupImageContainer, { backgroundColor: selectedMarker.color || '#FF5AE5' }]}>
                             {selectedMarker.iconUrl ? (
                                 <Image
                                     source={{ uri: selectedMarker.iconUrl }}
