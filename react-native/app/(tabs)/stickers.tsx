@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as Location from 'expo-location';
 
 const STRAPI_URL = 'http://192.168.0.212:1337';
 
@@ -23,6 +24,7 @@ const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import ArtworkCardDetail from '@/components/ArtworkCardDetail';
 
 import Bell from '../../assets/icons/doorbell.png';
 import Icon11 from '../../assets/prestaties/11.png';
@@ -48,11 +50,47 @@ export default function SettingsScreen() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSticker, setSelectedSticker] = useState<any>(null);
+  const [showDetailView, setShowDetailView] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const stickerTypes = ['Alle stickers', 'Gevonden stickers', 'Verborgen stickers'];
 
+  const getUserLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Location permission denied');
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      setUserLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+      console.log('User location:', location.coords);
+    } catch (error) {
+      console.error('Error getting location:', error);
+    }
+  };
+
+  // Calculate distance between two coordinates using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Radius of the Earth in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    return distance;
+  };
+
   useEffect(() => {
     console.log('Component mounted, fetching artworks...');
+    getUserLocation();
     fetchArtworks();
   }, []);
 
@@ -107,6 +145,22 @@ export default function SettingsScreen() {
   };
 
   const handleStickerPress = (artwork: any) => {
+    // Calculate distance if user location is available
+    if (userLocation) {
+      const attributes = artwork.attributes || artwork;
+      const lat = attributes.Location?.lat;
+      const lon = attributes.Location?.lng;
+      
+      if (lat && lon) {
+        const distance = calculateDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          lat,
+          lon
+        );
+        artwork.distance = distance;
+      }
+    }
     setSelectedSticker(artwork);
     setModalVisible(true);
   };
@@ -127,6 +181,11 @@ export default function SettingsScreen() {
 
   if (!fontsLoaded || loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
+  }
+
+  // Show detail view if artwork is selected
+  if (showDetailView && selectedSticker) {
+    return <ArtworkCardDetail artwork={selectedSticker} onClose={() => setShowDetailView(false)} />;
   }
 
   return (
@@ -303,6 +362,7 @@ export default function SettingsScreen() {
                     style={styles.readMoreButton}
                     onPress={() => {
                       setModalVisible(false);
+                      setShowDetailView(true);
                     }}
                   >
                     <ThemedText style={styles.readMoreButtonText}>Lees meer</ThemedText>
@@ -356,7 +416,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'contain',
   },
-
   mainTitle: {
     fontFamily: 'Impact',
     fontSize: moderateScale(32),
@@ -536,7 +595,8 @@ const styles = StyleSheet.create({
   buttonTextStickers: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'Impact',
+    fontFamily: 'LeagueSpartan',
+    fontWeight: 'bold',
   },
   rowStickers: {
     flexDirection: 'row',
@@ -629,27 +689,30 @@ const styles = StyleSheet.create({
   readMoreButton: {
     backgroundColor: '#FF7700',
     paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(100),
+    paddingHorizontal: scale(95),
     borderRadius: moderateScale(25),
     marginBottom: verticalScale(10),
   },
   readMoreButtonText: {
     color: '#fff',
-    fontSize: moderateScale(16),
-    fontFamily: 'Impact',
+    fontSize: moderateScale(15),
+    fontFamily: 'LeagueSpartan',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   deelButton: {
     backgroundColor: '#215AFF',
     paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(80),
+    paddingHorizontal: scale(73),
     borderRadius: moderateScale(25),
     alignItems: 'center',
     justifyContent: 'center',
   },
   deelButtonText: {
     color: '#fff',
-    fontSize: moderateScale(16),
-    fontFamily: 'Impact',
+    fontSize: moderateScale(15),
+    fontFamily: 'LeagueSpartan',
+    fontWeight: 'bold',
     textAlign: 'center',
   },
 });

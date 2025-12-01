@@ -130,12 +130,12 @@ export default function SettingsScreen() {
         <Image source={Bell} style={styles.bellIcon} />
       </TouchableOpacity>
 
-      <ThemedText type="title" style={[styles.mainTitle, { fontFamily: 'Impact' }]}>
+      <ThemedText style={[styles.mainTitle]}>
         ArtQuestia
       </ThemedText>
 
-      <ThemedText type="title" style={[styles.subtitle, { fontFamily: 'LeagueSpartan' }]}>
-        Beleef, ontdek, verbind
+      <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan' }]}>
+        Ontdek Kortrijk, beleef de quest & scoor beloningen
       </ThemedText>
 
       <View style={styles.container}>
@@ -148,6 +148,10 @@ export default function SettingsScreen() {
           <Image source={Search} style={styles.icon} />
         </TouchableOpacity>
       </View>
+
+      <ThemedText style={[styles.title]}>
+        Begin de zoektocht!
+      </ThemedText>
 
       <View style={styles.rowButtons}>
         <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/map')}>
@@ -172,7 +176,7 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       </View>
 
-      <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
+      <ThemedText style={[styles.title]}>
         Dichtstbijzijnde kunstwerken
       </ThemedText>
 
@@ -293,17 +297,19 @@ const styles = StyleSheet.create({
   },
 
   mainTitle: {
+    fontFamily: 'Impact',
     fontSize: moderateScale(32),
     color: '#fff',
+    lineHeight: moderateScale(38),
   },
   subtitle: {
-    fontSize: moderateScale(16),
-    marginTop: verticalScale(8),
+    fontSize: moderateScale(15),
     color: '#fff',
   },
   title: {
-    fontSize: moderateScale(20),
-    marginTop: verticalScale(20),
+    marginTop: verticalScale(40),
+    fontFamily: 'Impact',
+    fontSize: moderateScale(24),
     color: '#fff',
   },
   artworkScrollView: {
@@ -316,7 +322,7 @@ const styles = StyleSheet.create({
   },
   artworkContainer: {
     width: '110%',
-    marginTop: verticalScale(10),
+    marginTop: verticalScale(5),
     marginLeft: scale(-20),
     marginRight: scale(-20),
   },
