@@ -25,15 +25,16 @@ const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import ArtworkCardDetail from '@/components/ArtworkCardDetail';
+import SettingsEdit from '@/components/SettingsEdit';
 
 import Bell from '../../assets/icons/doorbell.png';
 import Oorlog from '../../assets/profile-info/oorlogsmonumenten.png';
 import Religie from '../../assets/profile-info/religie.png';
 import Cross from '../../assets/icons/cross.png';
 import Info from '../../assets/icons/info.png';
-import Age from '../../assets/profile-info/Group 100.png';
-import RoutesComplete from '../../assets/profile-info/Group 99.png'
-import FoundedStickers from "../../assets/profile-info/Group 98.png"
+import Age from '../../assets/profile-info/age.png';
+import RoutesComplete from '../../assets/profile-info/routesComplete.png'
+import FoundedStickers from "../../assets/profile-info/foundedStickers.png"
 import ProfilePic from '../../assets/profile-info/Group 97.png'
 import Potlood from '../../assets/profile-info/potlood.png'
 
@@ -55,7 +56,10 @@ export default function SettingsScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSticker, setSelectedSticker] = useState<any>(null);
   const [showDetailView, setShowDetailView] = useState(false);
+  const [showEditView, setShowEditView] = useState(false);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [userName, setUserName] = useState('Jane Doe');
+  const [userAge, setUserAge] = useState('22');
 
   const stickerTypes = ['Alle stickers', 'Gevonden stickers', 'Verborgen stickers'];
 
@@ -197,47 +201,75 @@ export default function SettingsScreen() {
     return <ArtworkCardDetail artwork={selectedSticker} onClose={() => setShowDetailView(false)} />;
   }
 
+  // Show edit view if edit icon is clicked
+  if (showEditView) {
+    return (
+      <SettingsEdit 
+        onClose={() => setShowEditView(false)}
+        userName={userName}
+        userAge={userAge}
+        onSave={(name: string, age: string) => {
+          setUserName(name);
+          setUserAge(age);
+          setShowEditView(false);
+        }}
+      />
+    );
+  }
+
   return (
     <ThemedView style={styles.titleContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-      <TouchableOpacity style={styles.bellButton}>
-        <Image source={Bell} style={styles.bellIcon} />
-      </TouchableOpacity>
+      <View style={styles.profileSection}>
+        <TouchableOpacity style={styles.bellButton}>
+          <Image source={Bell} style={styles.bellIcon} />
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.infoButton}>
-        <Image source={Info} style={styles.infoIcon} />
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.infoButton}>
+          <Image source={Info} style={styles.infoIcon} />
+        </TouchableOpacity>
 
-      <View style={styles.profileContainer}>
-        <View style={styles.profilePicWrapper}>
-          <Image source={ProfilePic} style={styles.profilePic} />
-          <Image source={Potlood} style={styles.editIcon} />
+        <View style={styles.profileContainer}>
+          <TouchableOpacity 
+            onPress={() => {
+              console.log('Edit icon pressed!');
+              setShowEditView(true);
+            }}
+            activeOpacity={0.9}
+            style={styles.profilePicWrapper}
+          >
+            <Image source={ProfilePic} style={styles.profilePic} />
+            <Image source={Potlood} style={styles.editIconImage} />
+          </TouchableOpacity>
+          <ThemedText style={styles.profileName}>{userName}</ThemedText>
         </View>
-        <ThemedText style={styles.profileName}>Jane Doe</ThemedText>
-      </View>
 
         <View style={styles.rowInfo}>
-        <TouchableOpacity style={styles.infoContainer}>
-          <Image source={Age} style={styles.infoIcons} />
-          <View style={styles.info}>
-            <ThemedText style={styles.infoText}>Leeftijd</ThemedText>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.infoContainer}>
+            <Image source={Age} style={styles.infoIcons} />
+            <ThemedText style={styles.infoNumberAge}>{userAge}</ThemedText>
+            <View style={styles.info}>
+              <ThemedText style={styles.infoText}>Leeftijd</ThemedText>
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.infoContainer}>
-          <Image source={RoutesComplete} style={styles.infoIcons} />
-          <View style={styles.info}>
-            <ThemedText style={styles.infoText}>Complete routes</ThemedText>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.infoContainer}>
+            <Image source={RoutesComplete} style={styles.infoIcons} />
+            <ThemedText style={styles.infoNumberRoutes}>5</ThemedText>
+            <View style={styles.info}>
+              <ThemedText style={styles.infoText}>Complete routes</ThemedText>
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.infoContainer}>
-          <Image source={FoundedStickers} style={styles.infoIcons} />
-          <View style={styles.info}>
-            <ThemedText style={styles.infoText}>Gevonden stickers</ThemedText>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.infoContainer}>
+            <Image source={FoundedStickers} style={styles.infoIcons} />
+            <ThemedText style={styles.infoNumberStickers}>12</ThemedText>
+            <View style={styles.info}>
+              <ThemedText style={styles.infoText}>Gevonden stickers</ThemedText>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.themaRoute}>
@@ -493,6 +525,16 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'contain',
   },
+  profileSection: {
+    backgroundColor: '#292929',
+    paddingTop: verticalScale(80),
+    paddingBottom: verticalScale(40),
+    paddingHorizontal: scale(20),
+    marginHorizontal: scale(-20),
+    marginTop: verticalScale(-70),
+    marginBottom: verticalScale(30),
+    borderRadius: moderateScale(30),
+  },
   profileContainer: {
     alignItems: 'center',
     marginTop: verticalScale(-10),
@@ -516,6 +558,24 @@ const styles = StyleSheet.create({
     width: moderateScale(30),
     height: moderateScale(30),
     resizeMode: 'contain',
+  },
+  editIconTouchable: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: moderateScale(30),
+    height: moderateScale(30),
+    zIndex: 10,
+  },
+  editIconImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: moderateScale(30),
+    height: moderateScale(30),
   },
   profileName: {
     fontSize: moderateScale(30),
@@ -847,6 +907,36 @@ const styles = StyleSheet.create({
     top: verticalScale(-25),
     zIndex: 10,
   },
+  infoNumberAge: {
+    position: 'absolute',
+    top: verticalScale(-12),
+    left: '50%',
+    transform: [{ translateX: -moderateScale(12) }],
+    zIndex: 11,
+    fontSize: moderateScale(24),
+    color: '#fff',
+    fontFamily: 'Impact',
+  },
+  infoNumberRoutes: {
+    position: 'absolute',
+    top: verticalScale(-11),
+    left: '50%',
+    transform: [{ translateX: -moderateScale(6) }],
+    zIndex: 11,
+    fontSize: moderateScale(24),
+    color: '#fff',
+    fontFamily: 'Impact',
+  },
+  infoNumberStickers: {
+    position: 'absolute',
+    top: verticalScale(-12),
+    left: '50%',
+    transform: [{ translateX: -moderateScale(11) }],
+    zIndex: 11,
+    fontSize: moderateScale(24),
+    color: '#000000ff',
+    fontFamily: 'Impact',
+  },
   info: {
     width: '100%',
     paddingVertical: verticalScale(10),
@@ -854,7 +944,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: verticalScale(8),
-    backgroundColor: '#292929',
+    backgroundColor: '#000000ff',
     paddingTop: verticalScale(20),
     minHeight: verticalScale(70),
   },
