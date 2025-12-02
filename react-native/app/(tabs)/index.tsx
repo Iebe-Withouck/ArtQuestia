@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
+  FlatList,
   Image,
   ScrollView,
   StyleSheet,
@@ -35,7 +36,7 @@ const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 export default function SettingsScreen() {
   const router = useRouter();
-  
+
   const [fontsLoaded] = useFonts({
     Impact: require('../../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
@@ -46,12 +47,27 @@ export default function SettingsScreen() {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [currentArtworkIndex, setCurrentArtworkIndex] = useState(0);
   const [selectedArtwork, setSelectedArtwork] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredArtworks, setFilteredArtworks] = useState<any[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     getUserLocation();
     fetchArtworks();
   }, []);
+
+  // Filter artworks based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredArtworks([]);
+    } else {
+      const filtered = artworks.filter(artwork => {
+        const attributes = artwork.attributes || artwork;
+        return attributes.Name?.toLowerCase().includes(searchQuery.toLowerCase());
+      });
+      setFilteredArtworks(filtered);
+    }
+  }, [searchQuery, artworks]);
 
   const getUserLocation = async () => {
     try {
@@ -77,11 +93,11 @@ export default function SettingsScreen() {
     const R = 6371; // Radius of the Earth in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
     return distance;
   };
@@ -90,18 +106,18 @@ export default function SettingsScreen() {
     try {
       const response = await fetch(`${STRAPI_URL}/api/artworks?populate=*`);
       const data = await response.json();
-      
+
       console.log('Fetched artworks:', data);
       if (data.data && data.data[0]) {
         console.log('First artwork attributes:', data.data[0].attributes);
       }
-      
+
       if (data.error) {
         console.error('Strapi API Error:', data.error);
         setLoading(false);
         return;
       }
-      
+
       if (data.data) {
         console.log('Setting artworks:', data.data.length);
         setArtworks(data.data);
@@ -126,138 +142,181 @@ export default function SettingsScreen() {
     <ThemedView style={styles.titleContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-      <TouchableOpacity style={styles.bellButton}>
-        <Image source={Bell} style={styles.bellIcon} />
-      </TouchableOpacity>
-
-      <ThemedText style={[styles.mainTitle]}>
-        ArtQuestia
-      </ThemedText>
-
-      <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan' }]}>
-        Ontdek Kortrijk, beleef de quest & scoor beloningen
-      </ThemedText>
-
-      <View style={styles.container}>
-        <TextInput
-          placeholder="Zoek naar kunstwerken"
-          placeholderTextColor="#666666"
-          style={[styles.input, { fontFamily: 'LeagueSpartan' }]}
-        />
-        <TouchableOpacity style={styles.searchButton}>
-          <Image source={Search} style={styles.icon} />
-        </TouchableOpacity>
-      </View>
-
-      <ThemedText style={[styles.title]}>
-        Begin de zoektocht!
-      </ThemedText>
-
-      <View style={styles.rowButtons}>
-        <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/map')}>
-          <Image source={Icon1} style={styles.buttonIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Kies je route</ThemedText>
-          </View>
+        <TouchableOpacity style={styles.bellButton}>
+          <Image source={Bell} style={styles.bellIcon} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/stickers')}>
-          <Image source={Icon2} style={styles.buttonIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Verzamel stickers!</ThemedText>
-          </View>
-        </TouchableOpacity>
+        <ThemedText style={[styles.mainTitle]}>
+          ArtQuestia
+        </ThemedText>
 
-        <TouchableOpacity style={styles.buttonContainer}>
-          <Image source={Icon3} style={styles.buttonIcon} />
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>Deel je ervaring</ThemedText>
-          </View>
-        </TouchableOpacity>
-      </View>
+        <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan' }]}>
+          Ontdek Kortrijk, beleef de quest & scoor beloningen
+        </ThemedText>
 
-      <ThemedText style={[styles.title]}>
-        Dichtstbijzijnde kunstwerken
-      </ThemedText>
+        <View style={styles.container}>
+          <TextInput
+            placeholder="Zoek naar kunstwerken"
+            placeholderTextColor="#666666"
+            style={[styles.input, { fontFamily: 'LeagueSpartan' }]}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <TouchableOpacity style={styles.searchButton}>
+            <Image source={Search} style={styles.icon} />
+          </TouchableOpacity>
+        </View>
 
-      {(() => {
-        if (!userLocation) {
-          return (
-            <ThemedText style={{ color: '#fff', padding: 20, textAlign: 'center' }}>
-              Locatie ophalen...
-            </ThemedText>
-          );
-        }
+        {/* Search results dropdown */}
+        {filteredArtworks.length > 0 && (
+          <View style={styles.searchResultsContainer}>
+            <FlatList
+              data={filteredArtworks}
+              keyExtractor={(item) => item.id.toString()}
+              style={styles.searchResultsList}
+              renderItem={({ item }) => {
+                const attributes = item.attributes || item;
+                const lat = attributes.Location?.lat;
+                const lon = attributes.Location?.lng;
+                const distance = userLocation && lat && lon
+                  ? calculateDistance(userLocation.latitude, userLocation.longitude, lat, lon)
+                  : null;
 
-        if (artworks.length === 0) {
-          return (
-            <ThemedText style={{ color: '#fff', padding: 20, textAlign: 'center' }}>
-              Geen kunstwerken gevonden
-            </ThemedText>
-          );
-        }
-
-        // Calculate distances and sort artworks
-        const artworksWithDistance = artworks
-          .map(artwork => {
-            const attributes = artwork.attributes || artwork;
-            
-            // Location is a nested object with lat and lng properties
-            const lat = attributes.Location?.lat;
-            const lon = attributes.Location?.lng;
-            
-            if (!lat || !lon) {
-              console.log('Missing lat/lon for artwork:', attributes.Name);
-              return { ...artwork, distance: Infinity };
-            }
-            
-            const distance = calculateDistance(
-              userLocation.latitude,
-              userLocation.longitude,
-              lat,
-              lon
-            );
-            
-            console.log('Calculated distance for', attributes.Name, ':', distance, 'km');
-            
-            return { ...artwork, distance };
-          })
-          .sort((a, b) => a.distance - b.distance)
-          .slice(0, 2); // Only take the 2 closest
-
-        const handleNext = (index: number) => {
-          const nextIndex = (index + 1) % artworksWithDistance.length;
-          setCurrentArtworkIndex(nextIndex);
-          scrollViewRef.current?.scrollTo({
-            x: nextIndex * width,
-            animated: true,
-          });
-        };
-
-        return (
-          <View style={styles.artworkContainer}>
-            <ScrollView
-              ref={scrollViewRef}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              scrollEnabled={false}
-            >
-              {artworksWithDistance.map((artwork, index) => (
-                <View key={artwork.id || index} style={styles.artworkCardWrapper}>
-                  <TouchableOpacity onPress={() => setSelectedArtwork(artwork)} activeOpacity={0.95}>
-                    <ArtworkCard 
-                      artwork={artwork} 
-                      onNext={() => handleNext(index)}
-                      index={index}
-                    />
+                return (
+                  <TouchableOpacity
+                    style={styles.searchResultItem}
+                    onPress={() => {
+                      setSearchQuery('');
+                      setFilteredArtworks([]);
+                      const artworkWithDistance = {
+                        ...item,
+                        distance: distance || Infinity
+                      };
+                      setSelectedArtwork(artworkWithDistance);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.searchResultTextContainer}>
+                      <ThemedText style={styles.searchResultTitle}>
+                        {attributes.Name || 'Onbekend'}
+                      </ThemedText>
+                    </View>
                   </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
+                );
+              }}
+            />
           </View>
-        );
-      })()}
+        )}
+
+        <ThemedText style={[styles.title]}>
+          Begin de zoektocht!
+        </ThemedText>
+
+        <View style={styles.rowButtons}>
+          <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/map')}>
+            <Image source={Icon1} style={styles.buttonIcon} />
+            <View style={styles.button}>
+              <ThemedText style={styles.buttonText}>Kies je route</ThemedText>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/stickers')}>
+            <Image source={Icon2} style={styles.buttonIcon} />
+            <View style={styles.button}>
+              <ThemedText style={styles.buttonText}>Verzamel stickers!</ThemedText>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.buttonContainer}>
+            <Image source={Icon3} style={styles.buttonIcon} />
+            <View style={styles.button}>
+              <ThemedText style={styles.buttonText}>Deel je ervaring</ThemedText>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        <ThemedText style={[styles.title]}>
+          Dichtstbijzijnde kunstwerken
+        </ThemedText>
+
+        {(() => {
+          if (!userLocation) {
+            return (
+              <ThemedText style={{ color: '#fff', padding: 20, textAlign: 'center' }}>
+                Locatie ophalen...
+              </ThemedText>
+            );
+          }
+
+          if (artworks.length === 0) {
+            return (
+              <ThemedText style={{ color: '#fff', padding: 20, textAlign: 'center' }}>
+                Geen kunstwerken gevonden
+              </ThemedText>
+            );
+          }
+
+          // Calculate distances and sort artworks
+          const artworksWithDistance = artworks
+            .map(artwork => {
+              const attributes = artwork.attributes || artwork;
+
+              // Location is a nested object with lat and lng properties
+              const lat = attributes.Location?.lat;
+              const lon = attributes.Location?.lng;
+
+              if (!lat || !lon) {
+                console.log('Missing lat/lon for artwork:', attributes.Name);
+                return { ...artwork, distance: Infinity };
+              }
+
+              const distance = calculateDistance(
+                userLocation.latitude,
+                userLocation.longitude,
+                lat,
+                lon
+              );
+
+              console.log('Calculated distance for', attributes.Name, ':', distance, 'km');
+
+              return { ...artwork, distance };
+            })
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, 2); // Only take the 2 closest
+
+          const handleNext = (index: number) => {
+            const nextIndex = (index + 1) % artworksWithDistance.length;
+            setCurrentArtworkIndex(nextIndex);
+            scrollViewRef.current?.scrollTo({
+              x: nextIndex * width,
+              animated: true,
+            });
+          };
+
+          return (
+            <View style={styles.artworkContainer}>
+              <ScrollView
+                ref={scrollViewRef}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                scrollEnabled={false}
+              >
+                {artworksWithDistance.map((artwork, index) => (
+                  <View key={artwork.id || index} style={styles.artworkCardWrapper}>
+                    <TouchableOpacity onPress={() => setSelectedArtwork(artwork)} activeOpacity={0.95}>
+                      <ArtworkCard
+                        artwork={artwork}
+                        onNext={() => handleNext(index)}
+                        index={index}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          );
+        })()}
 
       </ScrollView>
     </ThemedView>
@@ -356,6 +415,46 @@ const styles = StyleSheet.create({
     width: moderateScale(18),
     height: moderateScale(18),
     tintColor: '#fff',
+  },
+
+  searchResultsContainer: {
+    marginTop: verticalScale(10),
+    maxHeight: height * 0.4,
+    backgroundColor: '#fff',
+    borderRadius: moderateScale(16),
+    zIndex: 9,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  searchResultsList: {
+    maxHeight: height * 0.4,
+  },
+  searchResultItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: moderateScale(16),
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    width: '100%',
+  },
+  searchResultTextContainer: {
+    flex: 1,
+    marginRight: scale(12),
+  },
+  searchResultTitle: {
+    fontSize: moderateScale(16),
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: verticalScale(4),
+    fontFamily: 'LeagueSpartan',
+  },
+  searchResultDistance: {
+    fontSize: moderateScale(14),
+    color: '#000000',
+    fontFamily: 'LeagueSpartan',
   },
 
   rowButtons: {
