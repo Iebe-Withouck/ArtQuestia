@@ -4,6 +4,8 @@ import {
   ViroAmbientLight,
   ViroARScene,
   ViroARSceneNavigator,
+  ViroDirectionalLight,
+  ViroSpotLight,
   ViroText,
 } from '@reactvision/react-viro';
 import React, { useCallback, useState } from 'react';
@@ -13,8 +15,22 @@ import { StyleSheet, View } from 'react-native';
 function ARModelScene() {
   return (
     <ViroARScene>
-      {/* Light so the cube is visible */}
-      <ViroAmbientLight color="#ffffff" />
+      {/* Ambient light for overall scene illumination */}
+      <ViroAmbientLight color="#ffffff" intensity={30000} />
+
+      {/* Directional light from above-front to simulate sunlight */}
+      <ViroDirectionalLight
+        color="#ffffff"
+        direction={[0, -1, -0.5]}
+        intensity={500}
+      />
+
+      {/* Additional directional light from the side for depth */}
+      <ViroDirectionalLight
+        color="#ffffff"
+        direction={[1, -0.5, 0]}
+        intensity={300}
+      />
 
       {/* Optional reference text */}
       <ViroText
