@@ -184,10 +184,27 @@ export default function Scan() {
   const [menuHeight] = useState(new Animated.Value(verticalScale(120)));
   const [artworkData, setArtworkData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const rotateValue = useState(new Animated.Value(0))[0];
 
   const [fontsLoaded] = useFonts({
     Impact: require('../../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
+  });
+
+  // Rotate animation for loader
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(rotateValue, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      })
+    ).start();
+  }, []);
+
+  const spin = rotateValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
   });
 
   // Target GPS coordinates
@@ -291,8 +308,10 @@ export default function Scan() {
   if (hasPermission === null) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#ffffff" />
-        <Text style={styles.loadingText}>Requesting location permission...</Text>
+        <Animated.Image
+          source={require('../../assets/images/loader.png')}
+          style={[styles.loaderImage, { transform: [{ rotate: spin }] }]}
+        />
       </View>
     );
   }
@@ -311,8 +330,10 @@ export default function Scan() {
   if (!userLocation) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#ffffff" />
-        <Text style={styles.loadingText}>Getting GPS location...</Text>
+        <Animated.Image
+          source={require('../../assets/images/loader.png')}
+          style={[styles.loaderImage, { transform: [{ rotate: spin }] }]}
+        />
       </View>
     );
   }
@@ -461,6 +482,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#000',
+  },
+  loaderImage: {
+    width: moderateScale(150),
+    height: moderateScale(150),
+    resizeMode: 'contain',
   },
   loadingText: {
     fontSize: 18,
