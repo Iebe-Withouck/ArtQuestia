@@ -308,6 +308,12 @@ export default function Scan() {
   if (hasPermission === null) {
     return (
       <View style={styles.loadingContainer}>
+        <Text style={[styles.loadingTitle, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
+          Bijna klaar
+        </Text>
+        <Text style={[styles.loadingSubtitle, { fontFamily: fontsLoaded ? 'LeagueSpartan' : undefined }]}>
+          We hebben even tijd nodig om de experience awesome te maken!
+        </Text>
         <Animated.Image
           source={require('../../assets/images/loader.png')}
           style={[styles.loaderImage, { transform: [{ rotate: spin }] }]}
@@ -330,6 +336,12 @@ export default function Scan() {
   if (!userLocation) {
     return (
       <View style={styles.loadingContainer}>
+        <Text style={[styles.loadingTitle, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
+          Bijna klaar
+        </Text>
+        <Text style={[styles.loadingSubtitle, { fontFamily: fontsLoaded ? 'LeagueSpartan' : undefined }]}>
+          We hebben even tijd nodig om de experience awesome te maken!
+        </Text>
         <Animated.Image
           source={require('../../assets/images/loader.png')}
           style={[styles.loaderImage, { transform: [{ rotate: spin }] }]}
@@ -487,6 +499,20 @@ const styles = StyleSheet.create({
     width: moderateScale(150),
     height: moderateScale(150),
     resizeMode: 'contain',
+    marginTop: verticalScale(30),
+  },
+  loadingTitle: {
+    fontSize: moderateScale(32),
+    color: '#ffffff',
+    marginBottom: verticalScale(10),
+    textAlign: 'center',
+  },
+  loadingSubtitle: {
+    fontSize: moderateScale(16),
+    color: '#ffffff',
+    marginBottom: verticalScale(30),
+    textAlign: 'center',
+    paddingHorizontal: scale(40),
   },
   loadingText: {
     fontSize: 18,
