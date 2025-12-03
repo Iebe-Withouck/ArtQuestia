@@ -197,8 +197,8 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
           )}
 
             <TouchableOpacity 
-                style={styles.readMoreButton}>
-                <ThemedText style={styles.readMoreButtonText}>Start je tocht naar {attributes.Name}</ThemedText>
+                style={styles.startTochtButton}>
+                <ThemedText style={styles.startTochtButtonText}>Start je tocht naar {attributes.Name}</ThemedText>
             </TouchableOpacity>
         </View>
 
@@ -400,6 +400,18 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(10),
   },
   readMoreButtonText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontSize: moderateScale(15),
+    fontFamily: 'Impact',
+  },
+  startTochtButton: {
+    backgroundColor: '#FF7700',
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(50),
+    marginBottom: verticalScale(10),
+  },
+  startTochtButtonText: {
     textAlign: 'center',
     color: '#fff',
     fontSize: moderateScale(15),
