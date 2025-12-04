@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
 
   searchResultsContainer: {
     marginTop: verticalScale(10),
-    maxHeight: height * 0.4,
+    maxHeight: height * 0.25,
     backgroundColor: '#fff',
     borderRadius: moderateScale(16),
     zIndex: 9,
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   searchResultsList: {
-    maxHeight: height * 0.4,
+    maxHeight: height * 0.25,
   },
   searchResultItem: {
     flexDirection: 'row',
