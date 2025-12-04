@@ -676,7 +676,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
   },
   themaRoute: {
@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
   themaRouteButtonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -776,12 +776,12 @@ const styles = StyleSheet.create({
   dropdownText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
   },
   buttonTextStickers: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -869,7 +869,7 @@ const styles = StyleSheet.create({
   modalCreator: {
     fontSize: moderateScale(16),
     color: '#ccc',
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
     marginBottom: verticalScale(25),
   },
@@ -883,7 +883,7 @@ const styles = StyleSheet.create({
   readMoreButtonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -951,7 +951,7 @@ const styles = StyleSheet.create({
   infoText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
   },
   deelButton: {
@@ -965,7 +965,7 @@ const styles = StyleSheet.create({
   deelButtonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
     textAlign: 'center',
   },

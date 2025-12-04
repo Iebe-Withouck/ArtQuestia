@@ -200,7 +200,7 @@ export default function SettingsScreen() {
           ArtQuestia
         </ThemedText>
 
-        <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan' }]}>
+        <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
           Ontdek Kortrijk, beleef de quest & scoor beloningen
         </ThemedText>
 
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(15),
     marginTop: verticalScale(50),
     color: '#fff',
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
   },
   prestatiesSubtitle: {
     fontSize: moderateScale(15),
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
   },
   themaRoute: {
@@ -590,12 +590,12 @@ const styles = StyleSheet.create({
   dropdownText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
   },
   buttonTextStickers: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
   },
   rowStickers: {
@@ -711,7 +711,7 @@ const styles = StyleSheet.create({
   deelButtonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
     textAlign: 'center',
   },

@@ -424,7 +424,7 @@ export default function Scan() {
               <Text style={[styles.artworkName, { fontFamily: 'Impact' }]}>
                 {artwork.Name || 'Untitled'}
               </Text>
-              <Text style={[styles.creatorName, { fontFamily: 'LeagueSpartan' }]}>
+              <Text style={[styles.creatorName, { fontFamily: 'LeagueSpartan-regular' }]}>
                 {artwork.Creator || 'Unknown'}
               </Text>
             </View>
@@ -441,7 +441,7 @@ export default function Scan() {
                 <TouchableOpacity style={styles.buttonContainer}>
                   <Text style={[styles.buttonIcon, { fontFamily: 'Impact' }]}>Jaar</Text>
                   <View style={styles.button}>
-                    <Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan' }]}>
+                    <Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan-regular' }]}>
                       {artwork.Year || 'N/A'}
                     </Text>
                   </View>
@@ -450,7 +450,7 @@ export default function Scan() {
                 <TouchableOpacity style={styles.buttonContainer}>
                   <Text style={[styles.buttonIcon, { fontFamily: 'Impact' }]}>Locatie</Text>
                   <View style={styles.button}>
-                    <Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan' }]}>
+                    <Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan-regular' }]}>
                       {calculatedDistance} km
                     </Text>
                   </View>
@@ -459,7 +459,7 @@ export default function Scan() {
                 <TouchableOpacity style={styles.buttonContainer}>
                   <Text style={[styles.buttonIcon, { fontFamily: 'Impact' }]}>Thema</Text>
                   <View style={styles.button}>
-                    <Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan' }]}>
+                    <Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan-regular' }]}>
                       {artwork.Theme || 'N/A'}
                     </Text>
                   </View>
@@ -469,7 +469,7 @@ export default function Scan() {
               {/* Description */}
               {artwork.Description && (
                 <View style={styles.descriptionContainer}>
-                  <Text style={[styles.description, { fontFamily: 'LeagueSpartan' }]}>
+                  <Text style={[styles.description, { fontFamily: 'LeagueSpartan-regular' }]}>
                     {artwork.Description}
                   </Text>
                 </View>
