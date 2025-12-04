@@ -24,7 +24,7 @@ import {
   ScrollView,
 } from 'react-native';
 
-const STRAPI_URL = 'http://172.30.21.166:1337';
+const STRAPI_URL = 'http://192.168.0.155:1337';
 const { width, height } = Dimensions.get('window');
 
 // Responsive scaling functions

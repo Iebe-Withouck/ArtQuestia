@@ -23,7 +23,7 @@ import {
     View
 } from "react-native";
 
-const STRAPI_URL = 'http://172.30.21.166:1337';
+const STRAPI_URL = 'http://192.168.0.155:1337';
 
 // Calculate distance between two coordinates using Haversine formula
 const calculateDistance = (
@@ -427,7 +427,7 @@ export default function MapScreen() {
             top: isSmallDevice ? 100 : 115,
             left: isSmallDevice ? 16 : 20,
             right: isSmallDevice ? 16 : 20,
-            maxHeight: screenHeight * 0.4,
+            maxHeight: screenHeight * 0.25,
             backgroundColor: "#fff",
             borderRadius: 16,
             zIndex: 9,
@@ -437,7 +437,7 @@ export default function MapScreen() {
             shadowRadius: 4,
         },
         searchResultsList: {
-            maxHeight: screenHeight * 0.4,
+            maxHeight: screenHeight * 0.25,
         },
         searchResultItem: {
             flexDirection: "row",

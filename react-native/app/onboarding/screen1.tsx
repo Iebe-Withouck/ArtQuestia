@@ -26,9 +26,9 @@ export default function Screen1() {
       </View>
 
       <Image source={Phone} style={styles.phoneImage} />
-      
+
       <Text style={styles.title}>Ontdek Kortrijk, beleef de quest & scoor beloningen</Text>
-      
+
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Hup, Naar de volgende!</Text>
       </TouchableOpacity>
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: '#fff',
     fontSize: moderateScale(16),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'Impact',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   skipButtonText: {
     color: '#fff',
     fontSize: moderateScale(20),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
   },
 });

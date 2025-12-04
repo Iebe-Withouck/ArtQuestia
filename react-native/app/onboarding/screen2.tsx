@@ -22,9 +22,9 @@ export default function Screen2() {
       </View>
 
       <Image source={Phone} style={styles.phoneImage} />
-      
+
       <Text style={styles.title}>Bekijk het kunstwerk dichts bij jou</Text>
-      
+
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Hup, Naar de volgende!</Text>
       </TouchableOpacity>
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: '#fff',
     fontSize: moderateScale(16),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'Impact',
     fontWeight: 'bold',
     textAlign: 'center',
   },

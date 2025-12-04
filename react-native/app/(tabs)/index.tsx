@@ -26,7 +26,7 @@ import Icon2 from '../../assets/icons/stickers.png';
 import ArtworkCard from '@/components/ArtworkCard';
 import ArtworkCardDetail from '@/components/ArtworkCardDetail';
 
-const STRAPI_URL = 'http://172.30.21.166:1337';
+const STRAPI_URL = 'http://192.168.0.155:1337';
 
 const { width, height } = Dimensions.get('window');
 
@@ -150,7 +150,7 @@ export default function SettingsScreen() {
           ArtQuestia
         </ThemedText>
 
-        <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan' }]}>
+        <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
           Ontdek Kortrijk, beleef de quest & scoor beloningen
         </ThemedText>
 
@@ -158,7 +158,7 @@ export default function SettingsScreen() {
           <TextInput
             placeholder="Zoek naar kunstwerken"
             placeholderTextColor="#666666"
-            style={[styles.input, { fontFamily: 'LeagueSpartan' }]}
+            style={[styles.input, { fontFamily: 'LeagueSpartan-regular' }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -223,7 +223,7 @@ export default function SettingsScreen() {
           <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/stickers')}>
             <Image source={Icon2} style={styles.buttonIcon} />
             <View style={styles.button}>
-              <ThemedText style={styles.buttonText}>Verzamel stickers!</ThemedText>
+              <ThemedText style={styles.buttonText}>Verzamel{'\n'}stickers!</ThemedText>
             </View>
           </TouchableOpacity>
 
@@ -300,7 +300,12 @@ export default function SettingsScreen() {
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                scrollEnabled={false}
+                scrollEnabled={true}
+                onMomentumScrollEnd={(event) => {
+                  const contentOffsetX = event.nativeEvent.contentOffset.x;
+                  const newIndex = Math.round(contentOffsetX / width);
+                  setCurrentArtworkIndex(newIndex);
+                }}
               >
                 {artworksWithDistance.map((artwork, index) => (
                   <View key={artwork.id || index} style={styles.artworkCardWrapper}>
@@ -449,12 +454,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#000',
     marginBottom: verticalScale(4),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
   },
   searchResultDistance: {
     fontSize: moderateScale(14),
     color: '#000000',
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
   },
 
   rowButtons: {
@@ -490,7 +495,8 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
+    margin: -10,
   },
 });

@@ -26,7 +26,7 @@ export default function Screen5() {
     try {
       // Request location permissions
       const { status } = await Location.requestForegroundPermissionsAsync();
-      
+
       if (status === 'granted') {
         console.log('Location permission granted');
       } else {
@@ -35,7 +35,7 @@ export default function Screen5() {
     } catch (error) {
       console.error('Error requesting location permission:', error);
     }
-    
+
     // Navigate to main app regardless of permission status
     router.replace("/(tabs)");
   };
@@ -43,20 +43,20 @@ export default function Screen5() {
   return (
     <View style={styles.container}>
 
-    <Image source={Phone} style={styles.phoneImage} />
+      <Image source={Phone} style={styles.phoneImage} />
 
-    {/* Pop-up overlay */}
-    <View style={styles.popupOverlay}>
-      <View style={styles.popupCard}>
-        <Text style={styles.popupTitle}>Locatie aanzetten?</Text>
-        <Text style={styles.popupText}>Zet je locatie aan en krijg een heads‑up als er toffe kunstspots vlak bij jou opduiken, zodat je sneller nieuwe stickers scoort en vlotter rewards vrijspeelt. </Text>
-        
-      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextButtonText}>Ja, ik zet het aan!</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-        <Text style={styles.skipButtonText}>Verdergaan zonder locatie</Text>
-      </TouchableOpacity>
+      {/* Pop-up overlay */}
+      <View style={styles.popupOverlay}>
+        <View style={styles.popupCard}>
+          <Text style={styles.popupTitle}>Locatie aanzetten?</Text>
+          <Text style={styles.popupText}>Zet je locatie aan en krijg een heads‑up als er toffe kunstspots vlak bij jou opduiken, zodat je sneller nieuwe stickers scoort en vlotter rewards vrijspeelt. </Text>
+
+          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+            <Text style={styles.nextButtonText}>Ja, ik zet het aan!</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+            <Text style={styles.skipButtonText}>Verdergaan zonder locatie</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   popupText: {
     fontSize: moderateScale(16),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     color: '#fff',
     marginBottom: verticalScale(30),
     lineHeight: moderateScale(22),
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: '#fff',
     fontSize: moderateScale(16),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'Impact',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   skipButtonText: {
     color: '#fff',
     fontSize: moderateScale(16),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'Impact',
     fontWeight: 'bold',
     textAlign: 'center',
   },

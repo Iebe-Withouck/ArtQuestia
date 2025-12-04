@@ -16,7 +16,7 @@ import Location from '../assets/icons/location.png';
 import MapIcon from '../assets/images/mapicon.png';
 import NextIcon from '../assets/icons/next.png';
 
-const STRAPI_URL = 'http://172.30.21.166:1337';
+const STRAPI_URL = 'http://192.168.0.155:1337';
 
 interface ArtworkCardProps {
   artwork: {
@@ -119,7 +119,7 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
           <ThemedText style={[styles.artTitle, { fontFamily: 'Impact' }]}>
             {attributes.Name || 'Untitled'}
           </ThemedText>
-          <ThemedText style={[styles.artSubtitle, { fontFamily: 'LeagueSpartan' }]}>
+          <ThemedText style={[styles.artSubtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
             {attributes.Creator || 'Unknown'}
           </ThemedText>
         </View>
