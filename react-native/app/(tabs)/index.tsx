@@ -26,7 +26,7 @@ import Icon2 from '../../assets/icons/stickers.png';
 import ArtworkCard from '@/components/ArtworkCard';
 import ArtworkCardDetail from '@/components/ArtworkCardDetail';
 
-const STRAPI_URL = 'http://192.168.0.212:1337';
+const STRAPI_URL = 'http://172.30.21.166:1337';
 
 const { width, height } = Dimensions.get('window');
 

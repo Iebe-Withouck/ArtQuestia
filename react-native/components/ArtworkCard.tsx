@@ -16,7 +16,7 @@ import Location from '../assets/icons/location.png';
 import MapIcon from '../assets/images/mapicon.png';
 import NextIcon from '../assets/icons/next.png';
 
-const STRAPI_URL = 'http://192.168.0.212:1337';
+const STRAPI_URL = 'http://172.30.21.166:1337';
 
 interface ArtworkCardProps {
   artwork: {
@@ -62,29 +62,29 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   console.log('Rendering artwork:', artwork);
 
   const attributes = artwork.attributes || artwork;
-  
+
   // Use Photo field with multiple fallback checks like in stickers.tsx
   const photoData = attributes.Photo_Hidden?.data;
   const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo_Hidden?.url;
   const fullImageUrl = photoUrl ? `${STRAPI_URL}${photoUrl}` : null;
-  
+
   // Use the calculated distance from the artwork object (passed from index.tsx)
   const calculatedDistance = (artwork as any).distance;
   console.log('Artwork distance:', calculatedDistance);
   console.log('Full artwork object:', artwork);
-  
-  const distanceText = calculatedDistance && calculatedDistance !== Infinity 
-    ? `${calculatedDistance.toFixed(1)} km` 
+
+  const distanceText = calculatedDistance && calculatedDistance !== Infinity
+    ? `${calculatedDistance.toFixed(1)} km`
     : '1.5 km';
-    
+
   console.log('Distance text:', distanceText);
   console.log('Color from attributes:', attributes.Color);
 
   // Add # to color code if it doesn't already have it
-  const backgroundColor = attributes.Color 
+  const backgroundColor = attributes.Color
     ? (attributes.Color.startsWith('#') ? attributes.Color : `#${attributes.Color}`)
     : '#FF5AE5';
-  
+
   console.log('Final backgroundColor:', backgroundColor);
 
   return (
@@ -105,11 +105,11 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
           <View style={[styles.artImage, { backgroundColor: '#444' }]} />
         )}
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
-            styles.nextButton, 
+            styles.nextButton,
             index === 1 ? styles.nextButtonLeft : styles.nextButtonRight
-          ]} 
+          ]}
           onPress={onNext}
         >
           <Image source={NextIcon} style={styles.nextButtonIcon} />

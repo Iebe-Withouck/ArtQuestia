@@ -24,7 +24,7 @@ import {
   ScrollView,
 } from 'react-native';
 
-const STRAPI_URL = 'http://192.168.0.155:1337';
+const STRAPI_URL = 'http://172.30.21.166:1337';
 const { width, height } = Dimensions.get('window');
 
 // Responsive scaling functions
@@ -208,8 +208,8 @@ export default function Scan() {
   });
 
   // Target GPS coordinates
-  const TARGET_LATITUDE = 50.818549;
-  const TARGET_LONGITUDE = 3.436160;
+  const TARGET_LATITUDE = 50.831368;
+  const TARGET_LONGITUDE = 3.263218;
 
   // Fetch artwork data from Strapi
   useEffect(() => {

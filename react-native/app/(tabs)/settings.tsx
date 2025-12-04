@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 
-const STRAPI_URL = 'http://192.168.0.212:1337';
+const STRAPI_URL = 'http://172.30.21.166:1337';
 
 const { width, height } = Dimensions.get('window');
 
@@ -87,11 +87,11 @@ export default function SettingsScreen() {
     const R = 6371; // Radius of the Earth in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
     return distance;
   };
@@ -106,21 +106,21 @@ export default function SettingsScreen() {
     try {
       const response = await fetch(`${STRAPI_URL}/api/artworks?populate=*`);
       const data = await response.json();
-      
+
       console.log('API Response:', data);
-      
+
       if (data.error) {
         console.error('Strapi API Error:', data.error);
         alert(`API Error: ${data.error.message}. Please enable public access to artworks in Strapi Settings > Users & Permissions > Public > Artwork`);
         setLoading(false);
         return;
       }
-      
+
       if (data.data) {
         console.log('First artwork:', JSON.stringify(data.data[0], null, 2));
         setArtworks(data.data);
         console.log('Artworks set:', data.data.length);
-        
+
         // Extract unique themes - Strapi v4 uses attributes
         const uniqueThemes = ['Alle', ...new Set(
           data.data
@@ -163,7 +163,7 @@ export default function SettingsScreen() {
       const attributes = artwork.attributes || artwork;
       const lat = attributes.Location?.lat;
       const lon = attributes.Location?.lng;
-      
+
       if (lat && lon) {
         const distance = calculateDistance(
           userLocation.latitude,
@@ -181,13 +181,13 @@ export default function SettingsScreen() {
   const currentStickers = selectedTheme === 'Alle'
     ? artworks
     : artworks.filter(artwork => {
-        const theme = artwork.attributes?.Theme || artwork.Theme;
-        console.log('Filtering - Artwork:', JSON.stringify(artwork, null, 2));
-        console.log('Filtering - Theme value:', `"${theme}"`, 'Type:', typeof theme);
-        console.log('Filtering - Selected:', `"${selectedTheme}"`, 'Type:', typeof selectedTheme);
-        console.log('Filtering - Match:', theme === selectedTheme);
-        return theme === selectedTheme;
-      });
+      const theme = artwork.attributes?.Theme || artwork.Theme;
+      console.log('Filtering - Artwork:', JSON.stringify(artwork, null, 2));
+      console.log('Filtering - Theme value:', `"${theme}"`, 'Type:', typeof theme);
+      console.log('Filtering - Selected:', `"${selectedTheme}"`, 'Type:', typeof selectedTheme);
+      console.log('Filtering - Match:', theme === selectedTheme);
+      return theme === selectedTheme;
+    });
 
   console.log('Total artworks:', artworks.length);
   console.log('Current stickers count:', currentStickers.length, 'Selected theme:', selectedTheme);
@@ -204,7 +204,7 @@ export default function SettingsScreen() {
   // Show edit view if edit icon is clicked
   if (showEditView) {
     return (
-      <SettingsEdit 
+      <SettingsEdit
         onClose={() => setShowEditView(false)}
         userName={userName}
         userAge={userAge}
@@ -221,195 +221,195 @@ export default function SettingsScreen() {
     <ThemedView style={styles.titleContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-      <View style={styles.profileSection}>
-        <TouchableOpacity style={styles.bellButton}>
-          <Image source={Bell} style={styles.bellIcon} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.infoButton}>
-          <Image source={Info} style={styles.infoIcon} />
-        </TouchableOpacity>
-
-        <View style={styles.profileContainer}>
-          <TouchableOpacity 
-            onPress={() => {
-              console.log('Edit icon pressed!');
-              setShowEditView(true);
-            }}
-            activeOpacity={0.9}
-            style={styles.profilePicWrapper}
-          >
-            <Image source={ProfilePic} style={styles.profilePic} />
-            <Image source={Potlood} style={styles.editIconImage} />
-          </TouchableOpacity>
-          <ThemedText style={styles.profileName}>{userName}</ThemedText>
-        </View>
-
-        <View style={styles.rowInfo}>
-          <TouchableOpacity style={styles.infoContainer}>
-            <Image source={Age} style={styles.infoIcons} />
-            <ThemedText style={styles.infoNumberAge}>{userAge}</ThemedText>
-            <View style={styles.info}>
-              <ThemedText style={styles.infoText}>Leeftijd</ThemedText>
-            </View>
+        <View style={styles.profileSection}>
+          <TouchableOpacity style={styles.bellButton}>
+            <Image source={Bell} style={styles.bellIcon} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.infoContainer}>
-            <Image source={RoutesComplete} style={styles.infoIcons} />
-            <ThemedText style={styles.infoNumberRoutes}>5</ThemedText>
-            <View style={styles.info}>
-              <ThemedText style={styles.infoText}>Complete routes</ThemedText>
-            </View>
+          <TouchableOpacity style={styles.infoButton}>
+            <Image source={Info} style={styles.infoIcon} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.infoContainer}>
-            <Image source={FoundedStickers} style={styles.infoIcons} />
-            <ThemedText style={styles.infoNumberStickers}>12</ThemedText>
-            <View style={styles.info}>
-              <ThemedText style={styles.infoText}>Gevonden stickers</ThemedText>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.themaRoute}>
-        <ThemedText style={[styles.title]}>
-          Thema routes
-        </ThemedText>
-      </View>
-      <View style={styles.themaRouteRow}>
-        <Image source={Oorlog} style={styles.themaRouteIcon} />
-        <Image source={Religie} style={styles.themaRouteIcon} />
-      </View>
-
-      <TouchableOpacity 
-        style={styles.themaRouteButton}
-        onPress={() => {
-          setThemaRouteDropdownVisible(!themaRouteDropdownVisible);
-          setDropdownVisible(false);
-          setStickerTypeDropdownVisible(false);
-        }}
-      >
-        <ThemedText style={styles.themaRouteButtonText}>{selectedThemaRoute}</ThemedText>
-        <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
-      </TouchableOpacity>
-
-      {themaRouteDropdownVisible && (
-        <View style={styles.dropdownContainerGreen}>
-          {themes.filter(theme => theme !== 'Alle').map((route, index) => (
+          <View style={styles.profileContainer}>
             <TouchableOpacity
-              key={index}
-              style={styles.dropdownItem}
-              onPress={() => handleThemaRouteSelect(route)}
+              onPress={() => {
+                console.log('Edit icon pressed!');
+                setShowEditView(true);
+              }}
+              activeOpacity={0.9}
+              style={styles.profilePicWrapper}
             >
-              <ThemedText style={styles.dropdownText}>{route}</ThemedText>
+              <Image source={ProfilePic} style={styles.profilePic} />
+              <Image source={Potlood} style={styles.editIconImage} />
             </TouchableOpacity>
-          ))}
-        </View>
-      )}
+            <ThemedText style={styles.profileName}>{userName}</ThemedText>
+          </View>
 
-      <ThemedText style={[styles.stickersTitle]}>
-        Stickers
-      </ThemedText>
-      <View style={styles.buttonContainerStickers}>
-        <TouchableOpacity 
-          style={styles.buttonStickers1}
+          <View style={styles.rowInfo}>
+            <TouchableOpacity style={styles.infoContainer}>
+              <Image source={Age} style={styles.infoIcons} />
+              <ThemedText style={styles.infoNumberAge}>{userAge}</ThemedText>
+              <View style={styles.info}>
+                <ThemedText style={styles.infoText}>Leeftijd</ThemedText>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.infoContainer}>
+              <Image source={RoutesComplete} style={styles.infoIcons} />
+              <ThemedText style={styles.infoNumberRoutes}>5</ThemedText>
+              <View style={styles.info}>
+                <ThemedText style={styles.infoText}>Complete routes</ThemedText>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.infoContainer}>
+              <Image source={FoundedStickers} style={styles.infoIcons} />
+              <ThemedText style={styles.infoNumberStickers}>12</ThemedText>
+              <View style={styles.info}>
+                <ThemedText style={styles.infoText}>Gevonden stickers</ThemedText>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.themaRoute}>
+          <ThemedText style={[styles.title]}>
+            Thema routes
+          </ThemedText>
+        </View>
+        <View style={styles.themaRouteRow}>
+          <Image source={Oorlog} style={styles.themaRouteIcon} />
+          <Image source={Religie} style={styles.themaRouteIcon} />
+        </View>
+
+        <TouchableOpacity
+          style={styles.themaRouteButton}
           onPress={() => {
-            setStickerTypeDropdownVisible(!stickerTypeDropdownVisible);
+            setThemaRouteDropdownVisible(!themaRouteDropdownVisible);
             setDropdownVisible(false);
-          }}
-        >
-          <ThemedText style={styles.buttonTextStickers}>{selectedStickerType}</ThemedText>
-          <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.buttonStickers2}
-          onPress={() => {
-            setDropdownVisible(!dropdownVisible);
             setStickerTypeDropdownVisible(false);
           }}
         >
-          <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Thema's" : selectedTheme}</ThemedText>
+          <ThemedText style={styles.themaRouteButtonText}>{selectedThemaRoute}</ThemedText>
           <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
         </TouchableOpacity>
-      </View>
 
-      {stickerTypeDropdownVisible && (
-        <View style={styles.dropdownContainerBlue}>
-          {stickerTypes.map((type, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.dropdownItem}
-              onPress={() => handleStickerTypeSelect(type)}
-            >
-              <ThemedText style={styles.dropdownText}>{type}</ThemedText>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
+        {themaRouteDropdownVisible && (
+          <View style={styles.dropdownContainerGreen}>
+            {themes.filter(theme => theme !== 'Alle').map((route, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.dropdownItem}
+                onPress={() => handleThemaRouteSelect(route)}
+              >
+                <ThemedText style={styles.dropdownText}>{route}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
-      {dropdownVisible && (
-        <View style={styles.dropdownContainerOrange}>
+        <ThemedText style={[styles.stickersTitle]}>
+          Stickers
+        </ThemedText>
+        <View style={styles.buttonContainerStickers}>
           <TouchableOpacity
-            style={styles.dropdownItem}
+            style={styles.buttonStickers1}
             onPress={() => {
-              console.log('Selected theme: Alle');
-              handleThemeSelect('Alle');
+              setStickerTypeDropdownVisible(!stickerTypeDropdownVisible);
+              setDropdownVisible(false);
             }}
           >
-            <ThemedText style={styles.dropdownText}>Alle Thema's</ThemedText>
+            <ThemedText style={styles.buttonTextStickers}>{selectedStickerType}</ThemedText>
+            <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
           </TouchableOpacity>
-          {themes.filter(theme => theme !== 'Alle').map((theme, index) => (
+          <TouchableOpacity
+            style={styles.buttonStickers2}
+            onPress={() => {
+              setDropdownVisible(!dropdownVisible);
+              setStickerTypeDropdownVisible(false);
+            }}
+          >
+            <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Thema's" : selectedTheme}</ThemedText>
+            <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
+          </TouchableOpacity>
+        </View>
+
+        {stickerTypeDropdownVisible && (
+          <View style={styles.dropdownContainerBlue}>
+            {stickerTypes.map((type, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.dropdownItem}
+                onPress={() => handleStickerTypeSelect(type)}
+              >
+                <ThemedText style={styles.dropdownText}>{type}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {dropdownVisible && (
+          <View style={styles.dropdownContainerOrange}>
             <TouchableOpacity
-              key={index}
               style={styles.dropdownItem}
               onPress={() => {
-                console.log('Selected theme:', theme);
-                handleThemeSelect(theme);
+                console.log('Selected theme: Alle');
+                handleThemeSelect('Alle');
               }}
             >
-              <ThemedText style={styles.dropdownText}>{theme}</ThemedText>
+              <ThemedText style={styles.dropdownText}>Alle Thema's</ThemedText>
             </TouchableOpacity>
-          ))}
-        </View>
-      )}
-
-      <View style={styles.rowStickers}>
-        {currentStickers.length === 0 ? (
-          <ThemedText style={{ color: '#fff', padding: 20 }}>
-            No stickers found for theme: {selectedTheme}
-          </ThemedText>
-        ) : (
-          currentStickers.map((artwork, index) => {
-            const attributes = artwork.attributes || artwork;
-            const stickerData = attributes.Stickers_Hidden?.data;
-            const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
-            const fullUrl = stickerUrl ? `${STRAPI_URL}${stickerUrl}` : null;
-            
-            console.log('Rendering sticker:', attributes.Name, 'URL:', fullUrl);
-            
-            return (
-              <TouchableOpacity 
-                key={artwork.id || index} 
-                style={styles.stickerContainer}
-                onPress={() => handleStickerPress(artwork)}
+            {themes.filter(theme => theme !== 'Alle').map((theme, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.dropdownItem}
+                onPress={() => {
+                  console.log('Selected theme:', theme);
+                  handleThemeSelect(theme);
+                }}
               >
-                {fullUrl ? (
-                  <Image 
-                    source={{ uri: fullUrl }} 
-                    style={styles.stickerIcon} 
-                  />
-                ) : (
-                  <View style={[styles.stickerIcon, { backgroundColor: '#444' }]} />
-                )}
-                <ThemedText style={styles.stickerName}>
-                  {attributes.Name || 'Untitled'}
-                </ThemedText>
+                <ThemedText style={styles.dropdownText}>{theme}</ThemedText>
               </TouchableOpacity>
-            );
-          })
+            ))}
+          </View>
         )}
-      </View>
+
+        <View style={styles.rowStickers}>
+          {currentStickers.length === 0 ? (
+            <ThemedText style={{ color: '#fff', padding: 20 }}>
+              No stickers found for theme: {selectedTheme}
+            </ThemedText>
+          ) : (
+            currentStickers.map((artwork, index) => {
+              const attributes = artwork.attributes || artwork;
+              const stickerData = attributes.Stickers_Hidden?.data;
+              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
+              const fullUrl = stickerUrl ? `${STRAPI_URL}${stickerUrl}` : null;
+
+              console.log('Rendering sticker:', attributes.Name, 'URL:', fullUrl);
+
+              return (
+                <TouchableOpacity
+                  key={artwork.id || index}
+                  style={styles.stickerContainer}
+                  onPress={() => handleStickerPress(artwork)}
+                >
+                  {fullUrl ? (
+                    <Image
+                      source={{ uri: fullUrl }}
+                      style={styles.stickerIcon}
+                    />
+                  ) : (
+                    <View style={[styles.stickerIcon, { backgroundColor: '#444' }]} />
+                  )}
+                  <ThemedText style={styles.stickerName}>
+                    {attributes.Name || 'Untitled'}
+                  </ThemedText>
+                </TouchableOpacity>
+              );
+            })
+          )}
+        </View>
 
       </ScrollView>
 
@@ -426,32 +426,32 @@ export default function SettingsScreen() {
               const stickerData = attributes.Stickers_Hidden?.data;
               const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
               const fullUrl = stickerUrl ? `${STRAPI_URL}${stickerUrl}` : null;
-              
+
               return (
                 <>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.closeButton}
                     onPress={() => setModalVisible(false)}
                   >
                     <Image source={Cross} style={styles.closeButtonIcon} />
                   </TouchableOpacity>
-                  
+
                   {fullUrl && (
-                    <Image 
-                      source={{ uri: fullUrl }} 
-                      style={styles.modalStickerImage} 
+                    <Image
+                      source={{ uri: fullUrl }}
+                      style={styles.modalStickerImage}
                     />
                   )}
-                  
+
                   <ThemedText style={styles.modalTitle}>
                     {attributes.Name || 'Untitled'}
                   </ThemedText>
-                  
+
                   <ThemedText style={styles.modalCreator}>
                     {attributes.Creator || 'Onbekend'}
                   </ThemedText>
-                  
-                  <TouchableOpacity 
+
+                  <TouchableOpacity
                     style={styles.readMoreButton}
                     onPress={() => {
                       setModalVisible(false);
@@ -460,7 +460,7 @@ export default function SettingsScreen() {
                   >
                     <ThemedText style={styles.readMoreButtonText}>Lees meer</ThemedText>
                   </TouchableOpacity>
-                                    <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.deelButton}
                     onPress={() => {
                       setModalVisible(false);
