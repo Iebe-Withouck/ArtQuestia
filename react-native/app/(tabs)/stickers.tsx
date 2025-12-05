@@ -43,8 +43,10 @@ export default function SettingsScreen() {
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [stickerTypeDropdownVisible, setStickerTypeDropdownVisible] = useState(false);
+  const [themeQuestDropdownVisible, setThemeQuestDropdownVisible] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState("Alle");
   const [selectedStickerType, setSelectedStickerType] = useState("Alle stickers");
+  const [selectedThemeQuest, setSelectedThemeQuest] = useState("Oorlog");
   const [artworks, setArtworks] = useState<any[]>([]);
   const [themes, setThemes] = useState<string[]>(['Alle', 'Religie', 'Historie', 'Moderne Kunst', 'ZieMie', 'Oorlog']);
   const [loading, setLoading] = useState(true);
@@ -144,6 +146,11 @@ export default function SettingsScreen() {
     setStickerTypeDropdownVisible(false);
   };
 
+  const handleThemeQuestSelect = (theme: string) => {
+    setSelectedThemeQuest(theme);
+    setThemeQuestDropdownVisible(false);
+  };
+
   const handleStickerPress = (artwork: any) => {
     // Calculate distance if user location is available
     if (userLocation) {
@@ -204,14 +211,39 @@ export default function SettingsScreen() {
           Ontdek Kortrijk, beleef de quest & scoor beloningen
         </ThemedText>
 
-        <View style={styles.themaRoute}>
-          <ThemedText style={[styles.title]}>
-            Oorlog thema quest
-          </ThemedText>
-          <ThemedText style={[styles.percentage]}>
+        <View style={[styles.themaRoute, { marginTop: verticalScale(50) }]}>
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center', gap: scale(10) }}
+            onPress={() => {
+              setThemeQuestDropdownVisible(!themeQuestDropdownVisible);
+              setDropdownVisible(false);
+              setStickerTypeDropdownVisible(false);
+            }}
+          >
+            <ThemedText style={[styles.title, { marginTop: 0 }]}>
+              {selectedThemeQuest} thema quest
+            </ThemedText>
+            <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
+          </TouchableOpacity>
+          <ThemedText style={[styles.percentage, { marginTop: 0 }]}>
             55% compleet
           </ThemedText>
         </View>
+
+        {themeQuestDropdownVisible && (
+          <View style={[styles.dropdownContainerOrange, { marginTop: verticalScale(10), marginBottom: verticalScale(10) }]}>
+            {themes.filter(theme => theme !== 'Alle').map((theme, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.dropdownItem}
+                onPress={() => handleThemeQuestSelect(theme)}
+              >
+                <ThemedText style={styles.dropdownText}>{theme}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
         <Image source={Route} style={styles.themaRouteIcon} />
 
 
