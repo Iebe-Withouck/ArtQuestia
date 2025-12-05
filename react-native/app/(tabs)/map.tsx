@@ -95,6 +95,8 @@ export default function MapScreen() {
     const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 
     const cameraRef = useRef<CameraRef>(null);
+    const hasStartedRouteFromParams = useRef(false);
+    const isManualLocationUpdate = useRef(false);
 
     // Fetch artworks from Strapi
     const fetchArtworks = async () => {
@@ -237,6 +239,7 @@ export default function MapScreen() {
         setRouteGeoJSON(null);
         setIsRouteActive(false);
         setSelectedMarker(null);
+        hasStartedRouteFromParams.current = false;
     };
 
     // Find and show nearest artwork popup
@@ -303,8 +306,10 @@ export default function MapScreen() {
         console.log('userCoord:', userCoord);
         console.log('markers.length:', markers.length);
         console.log('isRouteActive:', isRouteActive);
+        console.log('hasStartedRouteFromParams:', hasStartedRouteFromParams.current);
 
-        if (params.startRoute === 'true' && params.artworkLat && params.artworkLng && userCoord && markers.length > 0 && !isRouteActive) {
+        // Only trigger on params change, not on userCoord or other state changes
+        if (params.startRoute === 'true' && params.artworkLat && params.artworkLng && userCoord && markers.length > 0 && !hasStartedRouteFromParams.current) {
             console.log('Starting route to artwork...');
             const artworkCoord: [number, number] = [
                 parseFloat(params.artworkLng as string),
@@ -321,6 +326,7 @@ export default function MapScreen() {
             if (marker) {
                 // Start route to this artwork
                 console.log('Navigating to marker:', marker.title);
+                hasStartedRouteFromParams.current = true;
                 navigateToMarker(marker);
             } else if (params.artworkName) {
                 console.log('Creating temporary marker');
@@ -333,10 +339,11 @@ export default function MapScreen() {
                     iconUrl: '',
                     color: '#FF5AE5'
                 };
+                hasStartedRouteFromParams.current = true;
                 navigateToMarker(tempMarker);
             }
         }
-    }, [params.startRoute, params.artworkId, userCoord, markers.length]);
+    }, [params.startRoute, params.artworkId, markers.length]);
 
     useEffect(() => {
         (async () => {
@@ -385,8 +392,11 @@ export default function MapScreen() {
                         ];
                         setUserCoord(coord);
 
-                        // Update route if needed
-                        fetchWalkingRoute(coord, selectedMarker.coordinate);
+                        // Update route only if it's from automatic tracking, not manual navigation
+                        if (!isManualLocationUpdate.current) {
+                            fetchWalkingRoute(coord, selectedMarker.coordinate);
+                        }
+                        isManualLocationUpdate.current = false;
                     }
                 );
             })();
@@ -401,6 +411,7 @@ export default function MapScreen() {
 
     const goToMyLocation = async () => {
         try {
+            isManualLocationUpdate.current = true;
             const loc = await Location.getCurrentPositionAsync({});
             const coord: [number, number] = [
                 loc.coords.longitude,
@@ -416,10 +427,8 @@ export default function MapScreen() {
                 animationDuration: 800,
             });
 
-            // Route opnieuw berekenen als er een marker geselecteerd is
-            if (selectedMarker && isRouteActive) {
-                await fetchWalkingRoute(coord, selectedMarker.coordinate);
-            }
+            // Only recalculate route if route is actually active
+            // Don't do anything if route was cancelled
         } catch (error) {
             console.error('Error getting location:', error);
         }

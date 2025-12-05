@@ -255,7 +255,7 @@ export default function Scan() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setHasPermission(false);
-        console.log('Location permission denied');
+        console.log('Locatietoestemming geweigerd');
         return;
       }
 
@@ -326,8 +326,8 @@ export default function Scan() {
   if (hasPermission === false) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.errorText}>Location permission denied</Text>
-        <Text style={styles.errorSubtext}>Please enable location services to use AR</Text>
+        <Text style={styles.errorText}>Locatietoestemming geweigerd</Text>
+        <Text style={styles.errorSubtext}>Schakel locatievoorzieningen in om AR te gebruiken</Text>
       </View>
     );
   }
@@ -339,7 +339,7 @@ export default function Scan() {
         <Text style={[styles.loadingTitle, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
           Bijna klaar
         </Text>
-        <Text style={[styles.loadingSubtitle, { fontFamily: fontsLoaded ? 'LeagueSpartan' : undefined }]}>
+        <Text style={[styles.loadingSubtitle, { fontFamily: fontsLoaded ? 'LeagueSpartan-regular' : undefined }]}>
           We hebben even tijd nodig om de experience awesome te maken!
         </Text>
         <Animated.Image
