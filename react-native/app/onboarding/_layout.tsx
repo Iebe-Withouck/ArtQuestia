@@ -7,7 +7,7 @@ export default function OnboardingLayout() {
       <Stack.Screen name="screen2" />
       <Stack.Screen name="screen3" />
       <Stack.Screen name="screen4" />
-      <Stack.Screen name="screen5" />
+      <Stack.Screen name="locatiePermission" />
     </Stack>
   );
 }

@@ -10,7 +10,7 @@ const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size
 
 import Phone from '../../assets/images/phone5.png';
 
-export default function Screen5() {
+export default function LocatiePermission() {
   const handleFinish = () => {
     router.replace("/(tabs)");
   };
