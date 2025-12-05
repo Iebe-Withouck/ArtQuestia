@@ -461,7 +461,7 @@ export default function MapScreen() {
             position: "absolute",
             top: isSmallDevice ? 50 : 60,
             left: isSmallDevice ? 16 : 20,
-            right: isSmallDevice ? 16 : 20,
+            right: isSmallDevice ? 70 : 80,
             flexDirection: "row",
             height: isSmallDevice ? 40 : 45,
             backgroundColor: "#fff",
@@ -489,6 +489,27 @@ export default function MapScreen() {
         searchIcon: {
             width: isSmallDevice ? 16 : 18,
             height: isSmallDevice ? 16 : 18,
+            tintColor: "#fff",
+        },
+        locationButton: {
+            position: "absolute",
+            top: isSmallDevice ? 50 : 60,
+            right: isSmallDevice ? 16 : 20,
+            width: isSmallDevice ? 40 : 45,
+            height: isSmallDevice ? 40 : 45,
+            backgroundColor: "#215AFF",
+            borderRadius: 999,
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 11,
+            elevation: 6,
+            shadowColor: "#000",
+            shadowOpacity: 0.15,
+            shadowRadius: 4,
+        },
+        locationIcon: {
+            width: isSmallDevice ? 18 : 20,
+            height: isSmallDevice ? 18 : 20,
             tintColor: "#fff",
         },
         searchResultsContainer: {
@@ -937,6 +958,18 @@ export default function MapScreen() {
                 />
             </MapView>
 
+            {/* Location button */}
+            <TouchableOpacity
+                style={styles.locationButton}
+                onPress={goToMyLocation}
+            >
+                <Image
+                    source={require('@/assets/icons/location.png')}
+                    style={styles.locationIcon}
+                    resizeMode="contain"
+                />
+            </TouchableOpacity>
+
             {/* Search bar */}
             <View style={styles.searchContainer}>
                 <TextInput
@@ -996,9 +1029,9 @@ export default function MapScreen() {
                 <View style={styles.bottomButtonsContainer}>
                     <TouchableOpacity
                         style={styles.nearestButton}
-                        onPress={goToMyLocation}
+                        onPress={goToNearestArtwork}
                     >
-                        <Text style={styles.bottomButtonText}>Huidige locatie</Text>
+                        <Text style={styles.bottomButtonText}>Dichtstbijzijnde</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.followRouteButton}
