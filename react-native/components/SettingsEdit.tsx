@@ -163,13 +163,17 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
         <View style={styles.cameraSection}>
         <ThemedText style={styles.label}>Camera</ThemedText>
         <TouchableOpacity 
-          style={styles.dropdownCamera}
+          style={[
+            styles.dropdownCamera,
+            camera === 'False' && styles.dropdownCameraRed,
+            camera === 'True' && styles.dropdownCameraGreen
+          ]}
           onPress={() => setIsCameraOpen(!isCameraOpen)}
         >
-          <ThemedText style={styles.dropdownText}>
+          <ThemedText style={[styles.dropdownText, camera === 'True' && styles.dropdownTextGreen]}>
             {camera === 'False' ? 'Niet-toegelaten' : camera === 'True' ? 'Toegelaten' : ''}
           </ThemedText>
-          <ThemedText style={styles.dropdownArrow}>{isCameraOpen ? '▲' : '▼'}</ThemedText>
+          <ThemedText style={[styles.dropdownArrow, camera === 'True' && styles.dropdownTextGreen]}>{isCameraOpen ? '▲' : '▼'}</ThemedText>
         </TouchableOpacity>
         {isCameraOpen && (
           <View style={styles.dropdownOptions}>
@@ -192,13 +196,17 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
     <View style={styles.locatieSection}>
         <ThemedText style={styles.label}>Locatie</ThemedText>
         <TouchableOpacity 
-          style={styles.dropdownLocation}
+          style={[
+            styles.dropdownLocation,
+            location === 'False' && styles.dropdownLocationRed,
+            location === 'True' && styles.dropdownLocationGreen
+          ]}
           onPress={() => setIsLocationOpen(!isLocationOpen)}
         >
-          <ThemedText style={styles.dropdownText}>
+          <ThemedText style={[styles.dropdownText, location === 'True' && styles.dropdownTextGreen]}>
             {location === 'False' ? 'Niet-toegelaten' : location === 'True' ? 'Toegelaten' : ''}
           </ThemedText>
-          <ThemedText style={styles.dropdownArrow}>{isLocationOpen ? '▲' : '▼'}</ThemedText>
+          <ThemedText style={[styles.dropdownArrow, location === 'True' && styles.dropdownTextGreen]}>{isLocationOpen ? '▲' : '▼'}</ThemedText>
         </TouchableOpacity>
         {isLocationOpen && (
           <View style={styles.dropdownOptions}>
@@ -210,7 +218,7 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.dropdownOption}
-              onPress={() => { setCamera('True'); setIsCameraOpen(false); }}
+              onPress={() => { setLocation('True'); setIsLocationOpen(false); }}
             >
               <ThemedText style={styles.dropdownOptionText}>Toegelaten</ThemedText>
             </TouchableOpacity>
@@ -411,6 +419,12 @@ const styles = StyleSheet.create({
     gap: moderateScale(70),
     alignItems: 'center',
   },
+  dropdownCameraRed: {
+    backgroundColor: '#dc2626',
+  },
+  dropdownCameraGreen: {
+    backgroundColor: '#16a34a',
+  },
   dropdownLocation: {
     backgroundColor: '#292929',
     borderRadius: moderateScale(12),
@@ -421,10 +435,19 @@ const styles = StyleSheet.create({
     gap: moderateScale(70),
     alignItems: 'center',
   },
+  dropdownLocationRed: {
+    backgroundColor: '#dc2626',
+  },
+  dropdownLocationGreen: {
+    backgroundColor: '#16a34a',
+  },
   dropdownText: {
     fontSize: moderateScale(15),
     color: '#fff',
     fontFamily: 'LeagueSpartan',
+  },
+  dropdownTextGreen: {
+    color: '#000',
   },
   dropdownArrow: {
     fontSize: moderateScale(12),
