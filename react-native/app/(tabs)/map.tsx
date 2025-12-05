@@ -16,6 +16,7 @@ import {
     Dimensions,
     FlatList,
     Image,
+    Modal,
     Pressable,
     StyleSheet,
     Text,
@@ -93,6 +94,9 @@ export default function MapScreen() {
     const [themeDropdownVisible, setThemeDropdownVisible] = useState(false);
     const [themes, setThemes] = useState<string[]>([]);
     const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+    const [nearbyArtwork, setNearbyArtwork] = useState<Marker | null>(null);
+    const [showProximityPopup, setShowProximityPopup] = useState(false);
+    const shownProximityAlerts = useRef<Set<string>>(new Set());
 
     const cameraRef = useRef<CameraRef>(null);
     const hasStartedRouteFromParams = useRef(false);
@@ -408,6 +412,23 @@ export default function MapScreen() {
             }
         };
     }, [isRouteActive, selectedMarker]);
+
+    // Check proximity to artworks (500 meters for testing - change back to 10 for production)
+    useEffect(() => {
+        if (!userCoord || markers.length === 0) return;
+
+        markers.forEach((marker) => {
+            const distanceKm = calculateDistance(userCoord, marker.coordinate);
+            const distanceMeters = distanceKm * 1000;
+
+            // Radius
+            if (distanceMeters <= 10 && !shownProximityAlerts.current.has(marker.id)) {
+                setNearbyArtwork(marker);
+                setShowProximityPopup(true);
+                shownProximityAlerts.current.add(marker.id);
+            }
+        });
+    }, [userCoord, markers]);
 
     const goToMyLocation = async () => {
         try {
@@ -863,6 +884,72 @@ export default function MapScreen() {
             fontFamily: "LeagueSpartan-medium",
             textAlign: "center",
         },
+        proximityModalOverlay: {
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20,
+        },
+        proximityModalContent: {
+            backgroundColor: '#2D2D2D',
+            borderRadius: 20,
+            padding: 30,
+            width: '90%',
+            maxWidth: 400,
+            alignItems: 'center',
+            position: 'relative',
+        },
+        proximityCloseButton: {
+            position: 'absolute',
+            top: 15,
+            right: 15,
+            zIndex: 10,
+        },
+        proximityCloseCircle: {
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: '#FFD600',
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        proximityCloseX: {
+            fontSize: 24,
+            fontWeight: 'bold',
+            color: '#000',
+        },
+        proximityTitle: {
+            fontSize: isSmallDevice ? 28 : 32,
+            fontWeight: 'bold',
+            color: '#FFFFFF',
+            fontFamily: 'Impact',
+            textAlign: 'center',
+            lineHeight: isSmallDevice ? 32 : 38,
+        },
+        proximitySubtitle: {
+            fontSize: isSmallDevice ? 16 : 18,
+            color: '#FFFFFF',
+            fontFamily: 'LeagueSpartan-regular',
+            textAlign: 'center',
+            marginTop: 20,
+            marginBottom: 30,
+        },
+        proximityButton: {
+            backgroundColor: '#FF7700',
+            paddingVertical: 16,
+            paddingHorizontal: 40,
+            borderRadius: 30,
+            width: '100%',
+            alignItems: 'center',
+        },
+        proximityButtonText: {
+            fontSize: isSmallDevice ? 13 : 15,
+            fontWeight: 'bold',
+            color: '#000000',
+            fontFamily: 'LeagueSpartan-semi-bold',
+            textAlign: 'center',
+        },
     });
 
     if (hasPermission === false) {
@@ -1219,6 +1306,53 @@ export default function MapScreen() {
                     </View>
                 </View>
             )}
+
+            {/* AR Experience Proximity Popup Modal */}
+            <Modal
+                visible={showProximityPopup}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowProximityPopup(false)}
+            >
+                <View style={styles.proximityModalOverlay}>
+                    <View style={styles.proximityModalContent}>
+                        {/* Close button */}
+                        <TouchableOpacity
+                            style={styles.proximityCloseButton}
+                            onPress={() => setShowProximityPopup(false)}
+                        >
+                            <View style={styles.proximityCloseCircle}>
+                                <Text style={styles.proximityCloseX}>✕</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        {/* Title */}
+                        <Text style={styles.proximityTitle}>
+                            Nice, je hebt
+                        </Text>
+                        <Text style={styles.proximityTitle}>
+                            {nearbyArtwork?.title || 'ballerina'} bereikt!
+                        </Text>
+
+                        {/* Subtitle */}
+                        <Text style={styles.proximitySubtitle}>
+                            Wil je beginnen met de AR-experience?
+                        </Text>
+
+                        {/* Start AR button */}
+                        <TouchableOpacity
+                            style={styles.proximityButton}
+                            onPress={() => {
+                                setShowProximityPopup(false);
+                                // Navigate to AR experience (scan screen)
+                                // You can add navigation logic here
+                            }}
+                        >
+                            <Text style={styles.proximityButtonText} numberOfLines={1} adjustsFontSizeToFit>Begin de AR-experience</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
