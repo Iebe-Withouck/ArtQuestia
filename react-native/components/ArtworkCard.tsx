@@ -16,7 +16,7 @@ import Location from '../assets/icons/location.png';
 import MapIcon from '../assets/images/mapicon.png';
 import NextIcon from '../assets/icons/next.png';
 
-const STRAPI_URL = 'http://192.168.0.155:1337';
+const STRAPI_URL = 'http://172.30.21.177:1337';
 
 interface ArtworkCardProps {
   artwork: {

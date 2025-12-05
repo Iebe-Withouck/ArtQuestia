@@ -23,7 +23,7 @@ import {
     View
 } from "react-native";
 
-const STRAPI_URL = 'http://192.168.0.155:1337';
+const STRAPI_URL = 'http://172.30.21.177:1337';
 
 // Calculate distance between two coordinates using Haversine formula
 const calculateDistance = (

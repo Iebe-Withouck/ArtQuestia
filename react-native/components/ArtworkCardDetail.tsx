@@ -16,7 +16,7 @@ import { ThemedView } from '@/components/themed-view';
 import NextIcon from '../assets/icons/next.png';
 import Bell from '../assets/icons/doorbell_black.png';
 
-const STRAPI_URL = 'http://192.168.0.155:1337';
+const STRAPI_URL = 'http://172.30.21.177:1337';
 
 const { width, height } = Dimensions.get('window');
 

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 
-const STRAPI_URL = 'http://192.168.0.155:1337';
+const STRAPI_URL = 'http://172.30.21.177:1337';
 
 const { width, height } = Dimensions.get('window');
 
