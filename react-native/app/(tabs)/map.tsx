@@ -86,6 +86,9 @@ export default function MapScreen() {
     const [isLoadingRoute, setIsLoadingRoute] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredMarkers, setFilteredMarkers] = useState<Marker[]>([]);
+    const [themeDropdownVisible, setThemeDropdownVisible] = useState(false);
+    const [themes, setThemes] = useState<string[]>([]);
+    const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 
     const cameraRef = useRef<CameraRef>(null);
 
@@ -146,6 +149,18 @@ export default function MapScreen() {
                 console.log('Transformed markers:', transformedMarkers.length);
                 console.log('Markers:', JSON.stringify(transformedMarkers, null, 2));
                 setMarkers(transformedMarkers);
+
+                // Extract unique themes from artworks
+                const uniqueThemes = [...new Set(
+                    data.data
+                        .map((artwork: any) => {
+                            const attributes = artwork.attributes || artwork;
+                            return attributes.Theme;
+                        })
+                        .filter((theme: string) => theme)
+                )];
+                setThemes(uniqueThemes as string[]);
+                console.log('Themes extracted:', uniqueThemes);
             }
         } catch (error) {
             console.error('Error fetching artworks:', error);
@@ -362,6 +377,14 @@ export default function MapScreen() {
         } catch (error) {
             console.error('Error getting location:', error);
         }
+    };
+
+    // Handle theme selection
+    const handleThemeSelect = (theme: string) => {
+        setSelectedTheme(theme);
+        setThemeDropdownVisible(false);
+        console.log('Selected theme:', theme);
+        // Here you can add logic to filter markers or create a route based on theme
     };
 
     // Handle search result click
@@ -733,6 +756,36 @@ export default function MapScreen() {
         routeInfoValuePlaceholder: {
             flex: 1,
         },
+        themeDropdownContainer: {
+            position: "absolute",
+            left: isSmallDevice ? 16 : 20,
+            right: isSmallDevice ? 16 : 20,
+            bottom: isSmallDevice ? 100 : 110,
+            maxHeight: screenHeight * 0.3,
+            backgroundColor: "#FF7700",
+            borderRadius: 16,
+            zIndex: 100,
+            elevation: 10,
+            shadowColor: "#000",
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+        },
+        themeDropdownList: {
+            maxHeight: screenHeight * 0.3,
+        },
+        themeDropdownItem: {
+            paddingVertical: isSmallDevice ? 14 : 16,
+            paddingHorizontal: isSmallDevice ? 16 : 20,
+            borderBottomWidth: 1,
+            borderBottomColor: "rgba(255, 255, 255, 0.2)",
+        },
+        themeDropdownText: {
+            fontSize: isSmallDevice ? 14 : 16,
+            fontWeight: "600",
+            color: "#FFFFFF",
+            fontFamily: "LeagueSpartan-medium",
+            textAlign: "center",
+        },
     });
 
     if (hasPermission === false) {
@@ -902,15 +955,37 @@ export default function MapScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.followRouteButton}
-                        onPress={() => console.log("Quest volgen")}
+                        onPress={() => setThemeDropdownVisible(!themeDropdownVisible)}
                     >
-                        <Text style={styles.bottomButtonText}>Quest volgen</Text>
+                        <Text style={styles.bottomButtonText}>
+                            {selectedTheme || 'Quest volgen'}
+                        </Text>
                         <Image
                             source={require('@/assets/icons/arrow.png')}
-                            style={styles.buttonArrowIcon}
+                            style={[styles.buttonArrowIcon, { transform: [{ rotate: themeDropdownVisible ? '180deg' : '0deg' }] }]}
                             resizeMode="contain"
                         />
                     </TouchableOpacity>
+                </View>
+            )}
+
+            {/* Theme dropdown menu */}
+            {!isRouteActive && themeDropdownVisible && (
+                <View style={styles.themeDropdownContainer}>
+                    <FlatList
+                        data={themes}
+                        keyExtractor={(item, index) => index.toString()}
+                        style={styles.themeDropdownList}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                style={styles.themeDropdownItem}
+                                onPress={() => handleThemeSelect(item)}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={styles.themeDropdownText}>{item}</Text>
+                            </TouchableOpacity>
+                        )}
+                    />
                 </View>
             )}
 

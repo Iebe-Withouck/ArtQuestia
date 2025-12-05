@@ -401,10 +401,10 @@ export default function Scan() {
             activeOpacity={0.8}
           >
             <Image
-              source={require('../../assets/icons/next.png')}
+              source={require('../../assets/icons/arrow2.png')}
               style={[
                 styles.toggleIcon,
-                { transform: [{ rotate: isMenuExpanded ? '90deg' : '-90deg' }] }
+                { transform: [{ rotate: isMenuExpanded ? '0deg' : '180deg' }] }
               ]}
             />
           </TouchableOpacity>
