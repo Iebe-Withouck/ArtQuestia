@@ -728,7 +728,7 @@ const styles = StyleSheet.create({
   readMoreButtonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
     textAlign: 'center',
   },

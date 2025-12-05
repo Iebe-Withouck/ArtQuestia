@@ -9,6 +9,7 @@ import {
     type CameraRef,
 } from "@maplibre/maplibre-react-native";
 import * as Location from "expo-location";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
@@ -62,6 +63,9 @@ type Marker = {
 };
 
 export default function MapScreen() {
+    // Get route params
+    const params = useLocalSearchParams();
+
     // fallback: Kortrijk
     const center: [number, number] = [3.2649, 50.828];
 
@@ -291,6 +295,48 @@ export default function MapScreen() {
     useEffect(() => {
         fetchArtworks();
     }, []);
+
+    // Handle route start from ArtworkCardDetail
+    useEffect(() => {
+        console.log('Route start effect triggered');
+        console.log('Params:', params);
+        console.log('userCoord:', userCoord);
+        console.log('markers.length:', markers.length);
+        console.log('isRouteActive:', isRouteActive);
+
+        if (params.startRoute === 'true' && params.artworkLat && params.artworkLng && userCoord && markers.length > 0 && !isRouteActive) {
+            console.log('Starting route to artwork...');
+            const artworkCoord: [number, number] = [
+                parseFloat(params.artworkLng as string),
+                parseFloat(params.artworkLat as string)
+            ];
+
+            console.log('Artwork coordinate:', artworkCoord);
+
+            // Find the marker by ID to get all details
+            const marker = markers.find(m => m.id === params.artworkId);
+
+            console.log('Found marker:', marker);
+
+            if (marker) {
+                // Start route to this artwork
+                console.log('Navigating to marker:', marker.title);
+                navigateToMarker(marker);
+            } else if (params.artworkName) {
+                console.log('Creating temporary marker');
+                // Create a temporary marker if not found in list
+                const tempMarker: Marker = {
+                    id: params.artworkId as string,
+                    coordinate: artworkCoord,
+                    title: params.artworkName as string,
+                    creator: '',
+                    iconUrl: '',
+                    color: '#FF5AE5'
+                };
+                navigateToMarker(tempMarker);
+            }
+        }
+    }, [params.startRoute, params.artworkId, userCoord, markers.length]);
 
     useEffect(() => {
         (async () => {
@@ -758,29 +804,30 @@ export default function MapScreen() {
         },
         themeDropdownContainer: {
             position: "absolute",
-            left: isSmallDevice ? 16 : 20,
-            right: isSmallDevice ? 16 : 20,
-            bottom: isSmallDevice ? 100 : 110,
-            maxHeight: screenHeight * 0.3,
+            left: isSmallDevice ? 16 : (isMediumDevice ? 20 : 24),
+            right: isSmallDevice ? 16 : (isMediumDevice ? 20 : 24),
+            bottom: isSmallDevice ? 95 : (isMediumDevice ? 105 : 115),
+            maxHeight: isSmallDevice ? screenHeight * 0.25 : (isMediumDevice ? screenHeight * 0.3 : screenHeight * 0.35),
             backgroundColor: "#FF7700",
-            borderRadius: 16,
+            borderRadius: isSmallDevice ? 14 : 16,
             zIndex: 100,
             elevation: 10,
             shadowColor: "#000",
             shadowOpacity: 0.2,
             shadowRadius: 8,
+            overflow: "hidden",
         },
         themeDropdownList: {
-            maxHeight: screenHeight * 0.3,
+            maxHeight: isSmallDevice ? screenHeight * 0.25 : (isMediumDevice ? screenHeight * 0.3 : screenHeight * 0.35),
         },
         themeDropdownItem: {
-            paddingVertical: isSmallDevice ? 14 : 16,
-            paddingHorizontal: isSmallDevice ? 16 : 20,
+            paddingVertical: isSmallDevice ? 12 : (isMediumDevice ? 14 : 16),
+            paddingHorizontal: isSmallDevice ? 14 : (isMediumDevice ? 18 : 20),
             borderBottomWidth: 1,
             borderBottomColor: "rgba(255, 255, 255, 0.2)",
         },
         themeDropdownText: {
-            fontSize: isSmallDevice ? 14 : 16,
+            fontSize: isSmallDevice ? 13 : (isMediumDevice ? 15 : 16),
             fontWeight: "600",
             color: "#FFFFFF",
             fontFamily: "LeagueSpartan-medium",

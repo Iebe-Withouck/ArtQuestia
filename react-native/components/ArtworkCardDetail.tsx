@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -74,10 +75,29 @@ interface ArtworkCardDetailProps {
 }
 
 export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetailProps) {
+  const router = useRouter();
   const [fontsLoaded] = useFonts({
     Impact: require('../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
+
+  const handleStartRoute = () => {
+    // Store artwork data in global state or pass via params
+    // For now, we'll use router params
+    if (onClose) onClose();
+
+    // Navigate to map tab with artwork data
+    router.push({
+      pathname: '/(tabs)/map',
+      params: {
+        startRoute: 'true',
+        artworkId: artwork.id.toString(),
+        artworkName: attributes.Name,
+        artworkLat: lat?.toString() || '',
+        artworkLng: lon?.toString() || '',
+      }
+    });
+  };
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" style={styles.loader} />;
@@ -197,7 +217,8 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
           )}
 
           <TouchableOpacity
-            style={styles.startTochtButton}>
+            style={styles.startTochtButton}
+            onPress={handleStartRoute}>
             <ThemedText style={styles.startTochtButtonText}>Start je tocht naar {attributes.Name}</ThemedText>
           </TouchableOpacity>
         </View>
