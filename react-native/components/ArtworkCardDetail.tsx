@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -16,7 +17,7 @@ import { ThemedView } from '@/components/themed-view';
 import NextIcon from '../assets/icons/next.png';
 import Bell from '../assets/icons/doorbell_black.png';
 
-const STRAPI_URL = 'http://172.30.40.49:1337';
+const STRAPI_URL = 'http://172.30.21.177:1337';
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,6 +36,7 @@ interface ArtworkCardDetailProps {
       Year?: number;
       Theme?: string;
       Description?: string;
+      Color?: string;
       Photo?: {
         data?: {
           attributes?: {
@@ -73,10 +75,29 @@ interface ArtworkCardDetailProps {
 }
 
 export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetailProps) {
+  const router = useRouter();
   const [fontsLoaded] = useFonts({
     Impact: require('../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
+
+  const handleStartRoute = () => {
+    // Store artwork data in global state or pass via params
+    // For now, we'll use router params
+    if (onClose) onClose();
+
+    // Navigate to map tab with artwork data
+    router.push({
+      pathname: '/(tabs)/map',
+      params: {
+        startRoute: 'true',
+        artworkId: artwork.id.toString(),
+        artworkName: attributes.Name,
+        artworkLat: lat?.toString() || '',
+        artworkLng: lon?.toString() || '',
+      }
+    });
+  };
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" style={styles.loader} />;
@@ -88,7 +109,7 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
   }
 
   const attributes = artwork.attributes || artwork;
-  
+
   // Get Photo URL with multiple fallback checks like in ArtworkCard
   const photoData = attributes.Photo?.data;
   const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo?.url;
@@ -112,74 +133,79 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
   // Get location info
   const lat = attributes.Location?.lat;
   const lon = attributes.Location?.lng;
-  
+
   // Use the calculated distance from the artwork object (passed from index.tsx)
   const calculatedDistance = (artwork as any).distance;
-  const distanceText = calculatedDistance && calculatedDistance !== Infinity 
-    ? `${calculatedDistance.toFixed(1)} km` 
+  const distanceText = calculatedDistance && calculatedDistance !== Infinity
+    ? `${calculatedDistance.toFixed(1)} km`
     : 'Distance not available';
+
+  // Add # to color code if it doesn't already have it
+  const backgroundColor = attributes.Color
+    ? (attributes.Color.startsWith('#') ? attributes.Color : `#${attributes.Color}`)
+    : '#FF5AE5';
 
   return (
     <ThemedView style={styles.container}>
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent} 
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        
+
         {/* Back Button */}
         <TouchableOpacity style={[styles.nextButton]} onPress={onClose} >
           <Image source={NextIcon} style={styles.nextButtonIcon} />
         </TouchableOpacity>
 
-    <TouchableOpacity style={styles.bellButton}>
-        <Image source={Bell} style={styles.bellIcon} />
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.bellButton}>
+          <Image source={Bell} style={styles.bellIcon} />
+        </TouchableOpacity>
 
         {/* Main Photo */}
         {fullPhotoHiddenUrl && (
-          <View style={styles.imageContainer}>
+          <View style={[styles.imageContainer, { backgroundColor }]}>
             <Image source={{ uri: fullPhotoHiddenUrl }} style={styles.heroImage} />
           </View>
         )}
 
         {/* Content */}
         <View style={styles.contentContainer}>
-          
+
           {/* Title Section */}
           <ThemedText style={[styles.title, { fontFamily: 'Impact' }]}>
             {attributes.Name || 'Untitled'}
           </ThemedText>
-          
+
           <ThemedText style={[styles.creator, { fontFamily: 'LeagueSpartan' }]}>
-             {attributes.Creator || 'Unknown'}
+            {attributes.Creator || 'Unknown'}
           </ThemedText>
 
           <ThemedText style={[styles.hidden, { fontFamily: 'Impact' }]}>
             Nog Verborgen
-            </ThemedText>
+          </ThemedText>
 
-        <View style={styles.rowButtons}>
-        <TouchableOpacity style={styles.buttonContainer}>
-        <ThemedText style={styles.buttonIcon}>Jaar</ThemedText>
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>{attributes.Year || 'N/A'}</ThemedText>
-          </View>
-        </TouchableOpacity>
+          <View style={styles.rowButtons}>
+            <TouchableOpacity style={styles.buttonContainer}>
+              <ThemedText style={styles.buttonIcon}>Jaar</ThemedText>
+              <View style={styles.button}>
+                <ThemedText style={styles.buttonText}>{attributes.Year || 'N/A'}</ThemedText>
+              </View>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonContainer}>
-          <ThemedText style={styles.buttonIcon}>Afstand</ThemedText>
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>{distanceText}</ThemedText>
-          </View>
-        </TouchableOpacity>
+            <TouchableOpacity style={styles.buttonContainer}>
+              <ThemedText style={styles.buttonIcon}>Afstand</ThemedText>
+              <View style={styles.button}>
+                <ThemedText style={styles.buttonText}>{distanceText}</ThemedText>
+              </View>
+            </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonContainer}>
-          <ThemedText style={styles.buttonIcon}>Thema</ThemedText>
-          <View style={styles.button}>
-            <ThemedText style={styles.buttonText}>{attributes.Theme || 'N/A'}</ThemedText>
+            <TouchableOpacity style={styles.buttonContainer}>
+              <ThemedText style={styles.buttonIcon}>Thema</ThemedText>
+              <View style={styles.button}>
+                <ThemedText style={styles.buttonText}>{attributes.Theme || 'N/A'}</ThemedText>
+              </View>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-        </View>
 
           {/* Description */}
           {attributes.Description && (
@@ -190,10 +216,11 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
             </View>
           )}
 
-            <TouchableOpacity 
-                style={styles.readMoreButton}>
-                <ThemedText style={styles.readMoreButtonText}>Start je tocht naar {attributes.Name}</ThemedText>
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.startTochtButton}
+            onPress={handleStartRoute}>
+            <ThemedText style={styles.startTochtButtonText}>Start je tocht naar {attributes.Name}</ThemedText>
+          </TouchableOpacity>
         </View>
 
       </ScrollView>
@@ -234,7 +261,7 @@ const styles = StyleSheet.create({
     height: '60%',
     resizeMode: 'contain',
   },
-    bellButton: {
+  bellButton: {
     position: 'absolute',
     top: verticalScale(68),
     right: scale(20),
@@ -256,15 +283,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: verticalScale(400),
     borderRadius: moderateScale(30),
-    backgroundColor: '#FF5AE5',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   heroImage: {
-    width: '70%',
-    height: '75%',
-    marginLeft: '15%',
-    position: 'absolute',
-    bottom: 0,
-    resizeMode: 'cover',
+    width: '80%',
+    height: '80%',
+    resizeMode: 'contain',
   },
 
   // Content
@@ -389,16 +414,28 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(12),
     padding: scale(20),
   },
-    readMoreButton: {
+  readMoreButton: {
     backgroundColor: '#FF7700',
-    paddingVertical: verticalScale(20),
+    paddingVertical: verticalScale(12),
     borderRadius: moderateScale(50),
     marginBottom: verticalScale(10),
   },
   readMoreButtonText: {
     textAlign: 'center',
     color: '#fff',
-    fontSize: moderateScale(16),
+    fontSize: moderateScale(15),
+    fontFamily: 'Impact',
+  },
+  startTochtButton: {
+    backgroundColor: '#FF7700',
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(50),
+    marginBottom: verticalScale(10),
+  },
+  startTochtButtonText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontSize: moderateScale(15),
     fontFamily: 'Impact',
   },
 });

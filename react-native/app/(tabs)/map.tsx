@@ -9,6 +9,7 @@ import {
     type CameraRef,
 } from "@maplibre/maplibre-react-native";
 import * as Location from "expo-location";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
@@ -23,7 +24,7 @@ import {
     View
 } from "react-native";
 
-const STRAPI_URL = 'http://172.30.40.49:1337';
+const STRAPI_URL = 'http://172.30.21.177:1337';
 
 // Calculate distance between two coordinates using Haversine formula
 const calculateDistance = (
@@ -58,9 +59,13 @@ type Marker = {
     creator: string;
     iconUrl: string; // URL to the hidden photo from Strapi
     description?: string; // short description for the marker
+    color?: string; // Color from Strapi
 };
 
 export default function MapScreen() {
+    // Get route params
+    const params = useLocalSearchParams();
+
     // fallback: Kortrijk
     const center: [number, number] = [3.2649, 50.828];
 
@@ -85,6 +90,9 @@ export default function MapScreen() {
     const [isLoadingRoute, setIsLoadingRoute] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredMarkers, setFilteredMarkers] = useState<Marker[]>([]);
+    const [themeDropdownVisible, setThemeDropdownVisible] = useState(false);
+    const [themes, setThemes] = useState<string[]>([]);
+    const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 
     const cameraRef = useRef<CameraRef>(null);
 
@@ -126,6 +134,11 @@ export default function MapScreen() {
                         console.log('Final Photo URL:', fullImageUrl);
                         console.log('Location:', [attributes.Location.lng, attributes.Location.lat]);
 
+                        // Get color and add # if needed
+                        const color = attributes.Color
+                            ? (attributes.Color.startsWith('#') ? attributes.Color : `#${attributes.Color}`)
+                            : '#FF5AE5';
+
                         return {
                             id: artwork.id.toString(),
                             coordinate: [attributes.Location.lng, attributes.Location.lat],
@@ -133,12 +146,25 @@ export default function MapScreen() {
                             creator: attributes.Creator || 'Onbekend',
                             iconUrl: fullImageUrl,
                             description: attributes.Description || '',
+                            color: color,
                         };
                     });
 
                 console.log('Transformed markers:', transformedMarkers.length);
                 console.log('Markers:', JSON.stringify(transformedMarkers, null, 2));
                 setMarkers(transformedMarkers);
+
+                // Extract unique themes from artworks
+                const uniqueThemes = [...new Set(
+                    data.data
+                        .map((artwork: any) => {
+                            const attributes = artwork.attributes || artwork;
+                            return attributes.Theme;
+                        })
+                        .filter((theme: string) => theme)
+                )];
+                setThemes(uniqueThemes as string[]);
+                console.log('Themes extracted:', uniqueThemes);
             }
         } catch (error) {
             console.error('Error fetching artworks:', error);
@@ -270,6 +296,48 @@ export default function MapScreen() {
         fetchArtworks();
     }, []);
 
+    // Handle route start from ArtworkCardDetail
+    useEffect(() => {
+        console.log('Route start effect triggered');
+        console.log('Params:', params);
+        console.log('userCoord:', userCoord);
+        console.log('markers.length:', markers.length);
+        console.log('isRouteActive:', isRouteActive);
+
+        if (params.startRoute === 'true' && params.artworkLat && params.artworkLng && userCoord && markers.length > 0 && !isRouteActive) {
+            console.log('Starting route to artwork...');
+            const artworkCoord: [number, number] = [
+                parseFloat(params.artworkLng as string),
+                parseFloat(params.artworkLat as string)
+            ];
+
+            console.log('Artwork coordinate:', artworkCoord);
+
+            // Find the marker by ID to get all details
+            const marker = markers.find(m => m.id === params.artworkId);
+
+            console.log('Found marker:', marker);
+
+            if (marker) {
+                // Start route to this artwork
+                console.log('Navigating to marker:', marker.title);
+                navigateToMarker(marker);
+            } else if (params.artworkName) {
+                console.log('Creating temporary marker');
+                // Create a temporary marker if not found in list
+                const tempMarker: Marker = {
+                    id: params.artworkId as string,
+                    coordinate: artworkCoord,
+                    title: params.artworkName as string,
+                    creator: '',
+                    iconUrl: '',
+                    color: '#FF5AE5'
+                };
+                navigateToMarker(tempMarker);
+            }
+        }
+    }, [params.startRoute, params.artworkId, userCoord, markers.length]);
+
     useEffect(() => {
         (async () => {
             const { status } =
@@ -357,6 +425,14 @@ export default function MapScreen() {
         }
     };
 
+    // Handle theme selection
+    const handleThemeSelect = (theme: string) => {
+        setSelectedTheme(theme);
+        setThemeDropdownVisible(false);
+        console.log('Selected theme:', theme);
+        // Here you can add logic to filter markers or create a route based on theme
+    };
+
     // Handle search result click
     const handleSearchResultClick = (marker: Marker) => {
         setSearchQuery('');
@@ -420,7 +496,7 @@ export default function MapScreen() {
             top: isSmallDevice ? 100 : 115,
             left: isSmallDevice ? 16 : 20,
             right: isSmallDevice ? 16 : 20,
-            maxHeight: screenHeight * 0.4,
+            maxHeight: screenHeight * 0.25,
             backgroundColor: "#fff",
             borderRadius: 16,
             zIndex: 9,
@@ -430,7 +506,7 @@ export default function MapScreen() {
             shadowRadius: 4,
         },
         searchResultsList: {
-            maxHeight: screenHeight * 0.4,
+            maxHeight: screenHeight * 0.25,
         },
         searchResultItem: {
             flexDirection: "row",
@@ -512,12 +588,19 @@ export default function MapScreen() {
             shadowColor: "#000",
             shadowOpacity: 0.15,
             shadowRadius: 4,
+            flexDirection: "row",
+            gap: 8,
         },
         bottomButtonText: {
             color: "#FFFFFF",
-            fontSize: isSmallDevice ? 14 : 16,
+            fontSize: isSmallDevice ? 16 : 18,
             fontWeight: "700",
-            fontFamily: "Impact",
+            fontFamily: "LeagueSpartan-medium",
+        },
+        buttonArrowIcon: {
+            width: isSmallDevice ? 8 : 10,
+            height: isSmallDevice ? 8 : 10,
+            tintColor: "#FFFFFF",
         },
         popupContainer: {
             position: "absolute",
@@ -544,7 +627,6 @@ export default function MapScreen() {
         },
         popupImageContainer: {
             width: isSmallDevice ? 130 : 150,
-            backgroundColor: "#FF5AE5",
             justifyContent: "center",
             alignItems: "center",
         },
@@ -720,6 +802,37 @@ export default function MapScreen() {
         routeInfoValuePlaceholder: {
             flex: 1,
         },
+        themeDropdownContainer: {
+            position: "absolute",
+            left: isSmallDevice ? 16 : (isMediumDevice ? 20 : 24),
+            right: isSmallDevice ? 16 : (isMediumDevice ? 20 : 24),
+            bottom: isSmallDevice ? 95 : (isMediumDevice ? 105 : 115),
+            maxHeight: isSmallDevice ? screenHeight * 0.25 : (isMediumDevice ? screenHeight * 0.3 : screenHeight * 0.35),
+            backgroundColor: "#FF7700",
+            borderRadius: isSmallDevice ? 14 : 16,
+            zIndex: 100,
+            elevation: 10,
+            shadowColor: "#000",
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            overflow: "hidden",
+        },
+        themeDropdownList: {
+            maxHeight: isSmallDevice ? screenHeight * 0.25 : (isMediumDevice ? screenHeight * 0.3 : screenHeight * 0.35),
+        },
+        themeDropdownItem: {
+            paddingVertical: isSmallDevice ? 12 : (isMediumDevice ? 14 : 16),
+            paddingHorizontal: isSmallDevice ? 14 : (isMediumDevice ? 18 : 20),
+            borderBottomWidth: 1,
+            borderBottomColor: "rgba(255, 255, 255, 0.2)",
+        },
+        themeDropdownText: {
+            fontSize: isSmallDevice ? 13 : (isMediumDevice ? 15 : 16),
+            fontWeight: "600",
+            color: "#FFFFFF",
+            fontFamily: "LeagueSpartan-medium",
+            textAlign: "center",
+        },
     });
 
     if (hasPermission === false) {
@@ -768,7 +881,7 @@ export default function MapScreen() {
                             style={{
                                 width: 60,
                                 height: 60,
-                                backgroundColor: '#FF5AE5',
+                                backgroundColor: marker.color || '#FF5AE5',
                                 borderRadius: 30,
                                 borderWidth: 3,
                                 borderColor: '#FFFFFF',
@@ -889,10 +1002,37 @@ export default function MapScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.followRouteButton}
-                        onPress={() => console.log("Volg een route")}
+                        onPress={() => setThemeDropdownVisible(!themeDropdownVisible)}
                     >
-                        <Text style={styles.bottomButtonText}>Volg een route</Text>
+                        <Text style={styles.bottomButtonText}>
+                            {selectedTheme || 'Quest volgen'}
+                        </Text>
+                        <Image
+                            source={require('@/assets/icons/arrow.png')}
+                            style={[styles.buttonArrowIcon, { transform: [{ rotate: themeDropdownVisible ? '180deg' : '0deg' }] }]}
+                            resizeMode="contain"
+                        />
                     </TouchableOpacity>
+                </View>
+            )}
+
+            {/* Theme dropdown menu */}
+            {!isRouteActive && themeDropdownVisible && (
+                <View style={styles.themeDropdownContainer}>
+                    <FlatList
+                        data={themes}
+                        keyExtractor={(item, index) => index.toString()}
+                        style={styles.themeDropdownList}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                style={styles.themeDropdownItem}
+                                onPress={() => handleThemeSelect(item)}
+                                activeOpacity={0.7}
+                            >
+                                <Text style={styles.themeDropdownText}>{item}</Text>
+                            </TouchableOpacity>
+                        )}
+                    />
                 </View>
             )}
 
@@ -906,8 +1046,8 @@ export default function MapScreen() {
                         style={styles.popupCard}
                         onPress={(e) => e.stopPropagation()}
                     >
-                        {/* Left side: Image with pink background - full height */}
-                        <View style={styles.popupImageContainer}>
+                        {/* Left side: Image with dynamic color background - full height */}
+                        <View style={[styles.popupImageContainer, { backgroundColor: selectedMarker.color || '#FF5AE5' }]}>
                             {selectedMarker.iconUrl ? (
                                 <Image
                                     source={{ uri: selectedMarker.iconUrl }}

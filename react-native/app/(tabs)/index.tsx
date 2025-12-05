@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import * as Location from 'expo-location';
+import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -25,7 +26,7 @@ import Icon2 from '../../assets/icons/stickers.png';
 import ArtworkCard from '@/components/ArtworkCard';
 import ArtworkCardDetail from '@/components/ArtworkCardDetail';
 
-const STRAPI_URL = 'http://172.30.40.49:1337';
+const STRAPI_URL = 'http://172.30.21.177:1337';
 
 const { width, height } = Dimensions.get('window');
 
@@ -33,8 +34,9 @@ const { width, height } = Dimensions.get('window');
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
-
 export default function SettingsScreen() {
+  const router = useRouter();
+
   const [fontsLoaded] = useFonts({
     Impact: require('../../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
@@ -53,6 +55,19 @@ export default function SettingsScreen() {
     getUserLocation();
     fetchArtworks();
   }, []);
+
+  // Filter artworks based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredArtworks([]);
+    } else {
+      const filtered = artworks.filter(artwork => {
+        const attributes = artwork.attributes || artwork;
+        return attributes.Name?.toLowerCase().includes(searchQuery.toLowerCase());
+      });
+      setFilteredArtworks(filtered);
+    }
+  }, [searchQuery, artworks]);
 
   const getUserLocation = async () => {
     try {
@@ -114,26 +129,6 @@ export default function SettingsScreen() {
     }
   };
 
-  // Filter artworks based on search query
-  useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredArtworks([]);
-    } else {
-      const filtered = artworks.filter(artwork => {
-        const attributes = artwork.attributes || artwork;
-        return attributes.Name?.toLowerCase().includes(searchQuery.toLowerCase());
-      });
-      setFilteredArtworks(filtered);
-    }
-  }, [searchQuery, artworks]);
-
-  // Handle search result click
-  const handleSearchResultClick = (artwork: any) => {
-    setSearchQuery('');
-    setFilteredArtworks([]);
-    setSelectedArtwork(artwork);
-  };
-
   if (!fontsLoaded || loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
@@ -151,19 +146,19 @@ export default function SettingsScreen() {
           <Image source={Bell} style={styles.bellIcon} />
         </TouchableOpacity>
 
-        <ThemedText type="title" style={[styles.mainTitle, { fontFamily: 'Impact' }]}>
+        <ThemedText style={[styles.mainTitle]}>
           ArtQuestia
         </ThemedText>
 
-        <ThemedText type="title" style={[styles.subtitle, { fontFamily: 'LeagueSpartan' }]}>
-          Beleef, ontdek, verbind
+        <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
+          Ontdek Kortrijk, beleef de quest & scoor beloningen
         </ThemedText>
 
         <View style={styles.container}>
           <TextInput
             placeholder="Zoek naar kunstwerken"
             placeholderTextColor="#666666"
-            style={[styles.input, { fontFamily: 'LeagueSpartan' }]}
+            style={[styles.input, { fontFamily: 'LeagueSpartan-regular' }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -181,15 +176,29 @@ export default function SettingsScreen() {
               style={styles.searchResultsList}
               renderItem={({ item }) => {
                 const attributes = item.attributes || item;
+                const lat = attributes.Location?.lat;
+                const lon = attributes.Location?.lng;
+                const distance = userLocation && lat && lon
+                  ? calculateDistance(userLocation.latitude, userLocation.longitude, lat, lon)
+                  : null;
+
                 return (
                   <TouchableOpacity
                     style={styles.searchResultItem}
-                    onPress={() => handleSearchResultClick(item)}
+                    onPress={() => {
+                      setSearchQuery('');
+                      setFilteredArtworks([]);
+                      const artworkWithDistance = {
+                        ...item,
+                        distance: distance || Infinity
+                      };
+                      setSelectedArtwork(artworkWithDistance);
+                    }}
                     activeOpacity={0.7}
                   >
                     <View style={styles.searchResultTextContainer}>
                       <ThemedText style={styles.searchResultTitle}>
-                        {attributes.Name || 'Untitled'}
+                        {attributes.Name || 'Onbekend'}
                       </ThemedText>
                     </View>
                   </TouchableOpacity>
@@ -199,22 +208,22 @@ export default function SettingsScreen() {
           </View>
         )}
 
-        <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
+        <ThemedText style={[styles.title]}>
           Begin de zoektocht!
         </ThemedText>
 
         <View style={styles.rowButtons}>
-          <TouchableOpacity style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/map')}>
             <Image source={Icon1} style={styles.buttonIcon} />
             <View style={styles.button}>
               <ThemedText style={styles.buttonText}>Kies je route</ThemedText>
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/stickers')}>
             <Image source={Icon2} style={styles.buttonIcon} />
             <View style={styles.button}>
-              <ThemedText style={styles.buttonText}>Verzamel stickers!</ThemedText>
+              <ThemedText style={styles.buttonText}>Verzamel{'\n'}stickers!</ThemedText>
             </View>
           </TouchableOpacity>
 
@@ -226,7 +235,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        <ThemedText type="title" style={[styles.title, { fontFamily: 'LeagueSpartan' }]}>
+        <ThemedText style={[styles.title]}>
           Dichtstbijzijnde kunstwerken
         </ThemedText>
 
@@ -291,7 +300,12 @@ export default function SettingsScreen() {
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
-                scrollEnabled={false}
+                scrollEnabled={true}
+                onMomentumScrollEnd={(event) => {
+                  const contentOffsetX = event.nativeEvent.contentOffset.x;
+                  const newIndex = Math.round(contentOffsetX / width);
+                  setCurrentArtworkIndex(newIndex);
+                }}
               >
                 {artworksWithDistance.map((artwork, index) => (
                   <View key={artwork.id || index} style={styles.artworkCardWrapper}>
@@ -347,17 +361,19 @@ const styles = StyleSheet.create({
   },
 
   mainTitle: {
+    fontFamily: 'Impact',
     fontSize: moderateScale(32),
     color: '#fff',
+    lineHeight: moderateScale(38),
   },
   subtitle: {
-    fontSize: moderateScale(16),
-    marginTop: verticalScale(8),
+    fontSize: moderateScale(15),
     color: '#fff',
   },
   title: {
-    fontSize: moderateScale(20),
-    marginTop: verticalScale(20),
+    marginTop: verticalScale(40),
+    fontFamily: 'Impact',
+    fontSize: moderateScale(24),
     color: '#fff',
   },
   artworkScrollView: {
@@ -370,7 +386,7 @@ const styles = StyleSheet.create({
   },
   artworkContainer: {
     width: '110%',
-    marginTop: verticalScale(10),
+    marginTop: verticalScale(5),
     marginLeft: scale(-20),
     marginRight: scale(-20),
   },
@@ -408,17 +424,17 @@ const styles = StyleSheet.create({
 
   searchResultsContainer: {
     marginTop: verticalScale(10),
-    maxHeight: height * 0.4,
+    maxHeight: height * 0.25,
     backgroundColor: '#fff',
     borderRadius: moderateScale(16),
-    overflow: 'hidden',
+    zIndex: 9,
+    elevation: 5,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 5,
   },
   searchResultsList: {
-    maxHeight: height * 0.4,
+    maxHeight: height * 0.25,
   },
   searchResultItem: {
     flexDirection: 'row',
@@ -431,12 +447,19 @@ const styles = StyleSheet.create({
   },
   searchResultTextContainer: {
     flex: 1,
+    marginRight: scale(12),
   },
   searchResultTitle: {
     fontSize: moderateScale(16),
     fontWeight: '600',
     color: '#000',
-    fontFamily: 'LeagueSpartan',
+    marginBottom: verticalScale(4),
+    fontFamily: 'LeagueSpartan-regular',
+  },
+  searchResultDistance: {
+    fontSize: moderateScale(14),
+    color: '#000000',
+    fontFamily: 'LeagueSpartan-regular',
   },
 
   rowButtons: {
@@ -472,7 +495,8 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
+    margin: -10,
   },
 });
