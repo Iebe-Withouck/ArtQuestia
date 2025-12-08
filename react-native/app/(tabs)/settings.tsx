@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     alignItems: 'center',
     marginTop: verticalScale(-10),
-    marginBottom: verticalScale(20),
+    marginBottom: verticalScale(40),
     paddingHorizontal: scale(20),
   },
   profilePicWrapper: {
