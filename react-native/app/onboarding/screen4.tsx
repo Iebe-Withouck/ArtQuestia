@@ -11,7 +11,7 @@ import Phone from '../../assets/images/phone4.png';
 
 export default function Screen4() {
   const handleNext = () => {
-    router.push("/onboarding/locatiePermission");
+    router.push("/onboarding/login");
   };
 
   return (

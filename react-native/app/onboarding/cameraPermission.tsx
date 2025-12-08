@@ -1,7 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from "react-native";
 import { router } from "expo-router";
-import * as Location from 'expo-location';
-
 const { width, height } = Dimensions.get('window');
 
 const scale = (size: number) => (width / 375) * size;
@@ -10,34 +8,21 @@ const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size
 
 import Phone from '../../assets/images/phone5.png';
 
-export default function LocatiePermission() {
+export default function CameraPermission() {
   const handleFinish = () => {
     router.replace("/(tabs)");
   };
 
   const handleSkip = () => {
-    // User explicitly chose to skip location services
-    // No need to request permissions - just navigate to camera permission
-    console.log('User skipped location permission');
-    router.push("/onboarding/cameraPermission");
+    // User explicitly chose to skip camera permissions
+    // No need to request permissions - just navigate
+    console.log('User skipped camera permission');
+    router.replace("/(tabs)");
   };
 
   const handleNext = async () => {
-    try {
-      // Request location permissions
-      const { status } = await Location.requestForegroundPermissionsAsync();
-
-      if (status === 'granted') {
-        console.log('Location permission granted');
-      } else {
-        console.log('Location permission denied');
-      }
-    } catch (error) {
-      console.error('Error requesting location permission:', error);
-    }
-
-    // Navigate to camera permission screen
-    router.push("/onboarding/cameraPermission");
+    // Navigate to main app without requesting permissions
+    router.replace("/(tabs)");
   };
 
   return (
@@ -48,14 +33,14 @@ export default function LocatiePermission() {
       {/* Pop-up overlay */}
       <View style={styles.popupOverlay}>
         <View style={styles.popupCard}>
-          <Text style={styles.popupTitle}>Locatie aanzetten?</Text>
-          <Text style={styles.popupText}>Zet je locatie aan en krijg een heads‑up als er toffe kunstspots vlak bij jou opduiken, zodat je sneller nieuwe stickers scoort en vlotter rewards vrijspeelt. </Text>
+          <Text style={styles.popupTitle}>Toegang tot je camera is nodig voor de AR-experience</Text>
+          <Text style={styles.popupText}>Geef toegang tot je camera zodat je de AR-experience kan bekijken en de stickers kan sparen.</Text>
 
           <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-            <Text style={styles.nextButtonText}>Ja, ik zet het aan!</Text>
+            <Text style={styles.nextButtonText}>Ja, ik geef toegang</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-            <Text style={styles.skipButtonText}>Verdergaan zonder locatie</Text>
+            <Text style={styles.skipButtonText}>Nee, geen toegang</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -91,7 +76,7 @@ const styles = StyleSheet.create({
     height: verticalScale(250),
     resizeMode: 'contain',
     marginBottom: verticalScale(30),
-    marginTop: verticalScale(-280),
+    marginTop: verticalScale(-350),
   },
   title: {
     fontSize: 28,
@@ -136,7 +121,7 @@ const styles = StyleSheet.create({
   nextButton: {
     backgroundColor: '#FF7700',
     paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(60),
+    paddingHorizontal: scale(50),
     borderRadius: moderateScale(25),
     marginTop: verticalScale(10),
     alignSelf: 'center',
@@ -151,7 +136,7 @@ const styles = StyleSheet.create({
   skipButton: {
     backgroundColor: '#215AFF',
     paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(20),
+    paddingHorizontal: scale(50),
     borderRadius: moderateScale(25),
     marginTop: verticalScale(15),
     marginBottom: verticalScale(10),
