@@ -18,10 +18,11 @@ import {
     Image,
     Text,
     ScrollView,
-    Dimensions
+    Dimensions,
+    Modal
 } from 'react-native';
 
-const STRAPI_URL = 'http://172.30.21.177:1337';
+const STRAPI_URL = 'http://192.168.0.155:1337';
 const { width, height } = Dimensions.get('window');
 
 // Responsive scaling functions
@@ -91,11 +92,13 @@ interface ARScene3Props {
 }
 
 // Internal AR Scene Component
-function ARScene3Scene({ userLocation, targetLatitude, targetLongitude }: {
+function ARScene3Scene({ userLocation, targetLatitude, targetLongitude, onAnimationFinish }: {
     userLocation: Location.LocationObject | null;
     targetLatitude: number;
     targetLongitude: number;
+    onAnimationFinish: () => void;
 }) {
+    const [animationPlayed, setAnimationPlayed] = useState(false);
     // Calculate AR position based on GPS coordinates
     const arPosition: [number, number, number] = userLocation
         ? gpsToARPosition(
@@ -162,7 +165,16 @@ function ARScene3Scene({ userLocation, targetLatitude, targetLongitude }: {
                     lightReceivingBitMask={1}
                     shadowCastingBitMask={1}
                     onLoadStart={() => console.log('ARScene3: Bomb loading...')}
-                    onLoadEnd={() => console.log('ARScene3: Bomb loaded at GPS coordinates')}
+                    onLoadEnd={() => {
+                        console.log('ARScene3: Bomb loaded at GPS coordinates');
+                        // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
+                        setTimeout(() => {
+                            if (!animationPlayed) {
+                                setAnimationPlayed(true);
+                                onAnimationFinish();
+                            }
+                        }, 16000);
+                    }}
                     onError={(event) => {
                         console.error('ARScene3: Error loading bomb (message):', event.nativeEvent?.error);
                         console.error(
@@ -181,93 +193,233 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
     const [isMenuExpanded, setIsMenuExpanded] = useState(false);
     const [menuHeight] = useState(new Animated.Value(verticalScale(120)));
     const [artworkData, setArtworkData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [showStickerPopup, setShowStickerPopup] = useState(false);
 
     const [fontsLoaded] = useFonts({
         Impact: require('../../assets/fonts/impact.ttf'),
         LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
     });
 
-    const TARGET_LATITUDE = 50.833000;
-    const TARGET_LONGITUDE = 3.265000;
+    // Target GPS coordinates for this scene
+    const TARGET_LATITUDE = 50.818523;
+    const TARGET_LONGITUDE = 3.436097;
 
+    // Fetch artwork data from Strapi
     useEffect(() => {
         const fetchArtwork = async () => {
             try {
                 const response = await fetch(`${STRAPI_URL}/api/artworks?populate=*`);
                 const data = await response.json();
 
-                // Try to find "Het Leiegedenkteken" with flexible matching
-                const artwork = data.data?.find((artwork: any) =>
-                    artwork.Name === 'Het Leiegedenkteken' ||
-                    artwork.Name === 'Leiegedenkteken' ||
-                    artwork.Name?.toLowerCase().includes('leiegedenkteken')
-                );
+                if (data.data && data.data.length > 0) {
+                    // Find the specific artwork for ARScene3
+                    const targetArtwork = data.data.find(
+                        (artwork: any) => artwork.Name === 'Het Leiegedenkteken'
+                    );
 
-                if (artwork) {
-                    setArtworkData(artwork);
-                } else {
-                    // Fallback to first artwork if not found
-                    if (data.data && data.data.length > 0) {
+                    if (targetArtwork) {
+                        setArtworkData(targetArtwork);
+                    } else {
                         setArtworkData(data.data[0]);
                     }
                 }
+                setLoading(false);
             } catch (error) {
                 console.error('ARScene3: Error fetching artwork:', error);
+                setLoading(false);
             }
         };
+
         fetchArtwork();
     }, []);
 
+    // Toggle menu expansion
     const toggleMenu = () => {
         const toValue = isMenuExpanded ? verticalScale(120) : verticalScale(380);
-        Animated.spring(menuHeight, { toValue, useNativeDriver: false, tension: 50, friction: 7 }).start();
+
+        Animated.spring(menuHeight, {
+            toValue,
+            useNativeDriver: false,
+            tension: 50,
+            friction: 7,
+        }).start();
+
         setIsMenuExpanded(!isMenuExpanded);
     };
 
+    // Handle animation finish
+    const handleAnimationFinish = () => {
+        setShowStickerPopup(true);
+    };
+
+    // Wrapper function to pass props to AR Scene
     const ARSceneWrapper = () => (
-        <ARScene3Scene userLocation={userLocation} targetLatitude={TARGET_LATITUDE} targetLongitude={TARGET_LONGITUDE} />
+        <ARScene3Scene
+            userLocation={userLocation}
+            targetLatitude={TARGET_LATITUDE}
+            targetLongitude={TARGET_LONGITUDE}
+            onAnimationFinish={handleAnimationFinish}
+        />
     );
 
+    // Get artwork details
     const artwork = artworkData || {};
+
+    // Get Stickers URL
     const stickersUrl = artwork.Stickers?.url;
     const fullStickersUrl = stickersUrl ? `${STRAPI_URL}${stickersUrl}` : null;
+
+    // Calculate distance
     const calculatedDistance = userLocation && artwork.Location?.lat && artwork.Location?.lng
-        ? (calculateDistance(userLocation.coords.latitude, userLocation.coords.longitude, artwork.Location.lat, artwork.Location.lng) / 1000).toFixed(1) : 'N/A';
+        ? (calculateDistance(
+            userLocation.coords.latitude,
+            userLocation.coords.longitude,
+            artwork.Location.lat,
+            artwork.Location.lng
+        ) / 1000).toFixed(1)
+        : 'N/A';
 
     return (
         <View style={{ flex: 1 }}>
-            <ViroARSceneNavigator key={sceneKey} autofocus={true} initialScene={{ scene: ARSceneWrapper }} worldAlignment="GravityAndHeading" style={{ flex: 1 }} />
+            <ViroARSceneNavigator
+                key={sceneKey}
+                autofocus={true}
+                initialScene={{ scene: ARSceneWrapper }}
+                worldAlignment="GravityAndHeading"
+                style={{ flex: 1 }}
+            />
+
+            {/* Sticker Popup Modal */}
+            <Modal
+                visible={showStickerPopup}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowStickerPopup(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={[styles.modalTitle, { fontFamily: 'Impact' }]}>
+                            Sticker gescoord!
+                        </Text>
+                        <Text style={[styles.modalSubtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
+                            Weer een stapje dichter{'\n'}bij de volledige set.
+                        </Text>
+
+                        {/* Sticker Image */}
+                        {fullStickersUrl && (
+                            <View style={styles.stickerContainer}>
+                                <Image
+                                    source={{ uri: fullStickersUrl }}
+                                    style={styles.popupStickerImage}
+                                    resizeMode="contain"
+                                />
+                            </View>
+                        )}
+
+                        {/* Sticker Info */}
+                        <Text style={[styles.stickerTitle, { fontFamily: 'Impact' }]}>
+                            {artwork.Name || 'Untitled'}
+                        </Text>
+                        <Text style={[styles.stickerCreator, { fontFamily: 'LeagueSpartan-regular' }]}>
+                            {artwork.Creator || 'Unknown'}
+                        </Text>
+
+                        {/* Claim Button */}
+                        <TouchableOpacity
+                            style={styles.claimButton}
+                            onPress={() => setShowStickerPopup(false)}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={[styles.claimButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>
+                                Claim sticker
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Collapsible Bottom Menu */}
             {artworkData && fontsLoaded && (
                 <Animated.View style={[styles.bottomMenu, { height: menuHeight, backgroundColor: '#000' }]}>
-                    <TouchableOpacity style={styles.toggleButton} onPress={toggleMenu} activeOpacity={0.8}>
-                        <Image source={require('../../assets/icons/arrow2.png')} style={[styles.toggleIcon, { transform: [{ rotate: isMenuExpanded ? '0deg' : '180deg' }] }]} />
+                    {/* Toggle Button */}
+                    <TouchableOpacity
+                        style={styles.toggleButton}
+                        onPress={toggleMenu}
+                        activeOpacity={0.8}
+                    >
+                        <Image
+                            source={require('../../assets/icons/arrow2.png')}
+                            style={[
+                                styles.toggleIcon,
+                                { transform: [{ rotate: isMenuExpanded ? '0deg' : '180deg' }] }
+                            ]}
+                        />
                     </TouchableOpacity>
+
+                    {/* Collapsed View Content */}
                     <View style={styles.collapsedContent}>
-                        {fullStickersUrl && <Image source={{ uri: fullStickersUrl }} style={styles.stickerImage} />}
+                        {/* Sticker Image */}
+                        {fullStickersUrl && (
+                            <Image
+                                source={{ uri: fullStickersUrl }}
+                                style={styles.stickerImage}
+                            />
+                        )}
+
+                        {/* Text Content */}
                         <View style={styles.textContent}>
-                            <Text style={[styles.artworkName, { fontFamily: 'Impact' }]}>{artwork.Name || 'Untitled'}</Text>
-                            <Text style={[styles.creatorName, { fontFamily: 'LeagueSpartan-regular' }]}>{artwork.Creator || 'Unknown'}</Text>
+                            <Text style={[styles.artworkName, { fontFamily: 'Impact' }]}>
+                                {artwork.Name || 'Untitled'}
+                            </Text>
+                            <Text style={[styles.creatorName, { fontFamily: 'LeagueSpartan-regular' }]}>
+                                {artwork.Creator || 'Unknown'}
+                            </Text>
                         </View>
                     </View>
+
+                    {/* Expanded View Content */}
                     {isMenuExpanded && (
-                        <ScrollView style={styles.expandedContent} showsVerticalScrollIndicator={false}>
+                        <ScrollView
+                            style={styles.expandedContent}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            {/* Info Buttons Row */}
                             <View style={styles.infoButtonsRow}>
                                 <TouchableOpacity style={styles.buttonContainer}>
                                     <Text style={[styles.buttonIcon, { fontFamily: 'Impact' }]}>Jaar</Text>
-                                    <View style={styles.button}><Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan-regular' }]}>{artwork.Year || 'N/A'}</Text></View>
+                                    <View style={styles.button}>
+                                        <Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan-regular' }]}>
+                                            {artwork.Year || 'N/A'}
+                                        </Text>
+                                    </View>
                                 </TouchableOpacity>
+
                                 <TouchableOpacity style={styles.buttonContainer}>
                                     <Text style={[styles.buttonIcon, { fontFamily: 'Impact' }]}>Locatie</Text>
-                                    <View style={styles.button}><Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan-regular' }]}>{calculatedDistance} km</Text></View>
+                                    <View style={styles.button}>
+                                        <Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan-regular' }]}>
+                                            {calculatedDistance} km
+                                        </Text>
+                                    </View>
                                 </TouchableOpacity>
+
                                 <TouchableOpacity style={styles.buttonContainer}>
                                     <Text style={[styles.buttonIcon, { fontFamily: 'Impact' }]}>Thema</Text>
-                                    <View style={styles.button}><Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan-regular' }]}>{artwork.Theme || 'N/A'}</Text></View>
+                                    <View style={styles.button}>
+                                        <Text style={[styles.buttonText, { fontFamily: 'LeagueSpartan-regular' }]}>
+                                            {artwork.Theme || 'N/A'}
+                                        </Text>
+                                    </View>
                                 </TouchableOpacity>
                             </View>
+
+                            {/* Description */}
                             {artwork.Description && (
                                 <View style={styles.descriptionContainer}>
-                                    <Text style={[styles.description, { fontFamily: 'LeagueSpartan-regular' }]}>{artwork.Description}</Text>
+                                    <Text style={[styles.description, { fontFamily: 'LeagueSpartan-regular' }]}>
+                                        {artwork.Description}
+                                    </Text>
                                 </View>
                             )}
                         </ScrollView>
@@ -279,21 +431,194 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
 }
 
 const styles = StyleSheet.create({
-    helloText: { fontSize: 30, color: '#ffffff', textAlignVertical: 'center', textAlign: 'center' },
-    bottomMenu: { position: 'absolute', bottom: 0, left: 0, right: 0, borderTopLeftRadius: moderateScale(30), borderTopRightRadius: moderateScale(30), paddingHorizontal: scale(20), paddingTop: verticalScale(20), paddingBottom: verticalScale(20), shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 10 },
-    toggleButton: { position: 'absolute', top: verticalScale(-25), left: '55%', transform: [{ translateX: -moderateScale(25) }], width: moderateScale(50), height: moderateScale(50), borderRadius: moderateScale(25), backgroundColor: '#FF7700', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4, elevation: 5, zIndex: 100 },
-    toggleIcon: { width: moderateScale(20), height: moderateScale(20), resizeMode: 'contain', tintColor: '#fff' },
-    collapsedContent: { flexDirection: 'row', alignItems: 'center', paddingTop: verticalScale(10) },
-    stickerImage: { width: moderateScale(70), height: moderateScale(70), resizeMode: 'contain', marginRight: scale(15) },
-    textContent: { flex: 1, justifyContent: 'center' },
-    artworkName: { fontSize: moderateScale(22), color: '#fff', marginBottom: verticalScale(5) },
-    creatorName: { fontSize: moderateScale(16), color: '#fff', opacity: 0.9 },
-    expandedContent: { marginTop: verticalScale(20) },
-    infoButtonsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: verticalScale(20), marginBottom: verticalScale(20) },
-    buttonContainer: { alignItems: 'center', position: 'relative', flex: 1, maxWidth: scale(100), marginHorizontal: scale(0) },
-    buttonIcon: { width: moderateScale(100), height: moderateScale(100), position: 'absolute', top: verticalScale(-5), zIndex: 10, color: '#fff', fontSize: moderateScale(20), textAlign: 'center' },
-    button: { width: '100%', paddingVertical: verticalScale(10), borderRadius: moderateScale(14), justifyContent: 'center', alignItems: 'center', marginTop: verticalScale(8), backgroundColor: '#292929', paddingTop: verticalScale(20), minHeight: verticalScale(70) },
-    buttonText: { color: '#fff', fontSize: moderateScale(15), textAlign: 'center' },
-    descriptionContainer: { marginBottom: verticalScale(30), marginTop: verticalScale(10) },
-    description: { fontSize: moderateScale(15), color: '#fff', lineHeight: moderateScale(22) },
+    helloText: {
+        fontSize: 30,
+        color: '#ffffff',
+        textAlignVertical: 'center',
+        textAlign: 'center',
+    },
+    bottomMenu: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        borderTopLeftRadius: moderateScale(30),
+        borderTopRightRadius: moderateScale(30),
+        paddingHorizontal: scale(20),
+        paddingTop: verticalScale(20),
+        paddingBottom: verticalScale(20),
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: -4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 10,
+    },
+    toggleButton: {
+        position: 'absolute',
+        top: verticalScale(-25),
+        left: '55%',
+        transform: [{ translateX: -moderateScale(25) }],
+        width: moderateScale(50),
+        height: moderateScale(50),
+        borderRadius: moderateScale(25),
+        backgroundColor: '#FF7700',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5,
+        zIndex: 100,
+    },
+    toggleIcon: {
+        width: moderateScale(20),
+        height: moderateScale(20),
+        resizeMode: 'contain',
+        tintColor: '#fff',
+    },
+    collapsedContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingTop: verticalScale(10),
+    },
+    stickerImage: {
+        width: moderateScale(70),
+        height: moderateScale(70),
+        resizeMode: 'contain',
+        marginRight: scale(15),
+    },
+    textContent: {
+        flex: 1,
+        justifyContent: 'center',
+    },
+    artworkName: {
+        fontSize: moderateScale(22),
+        color: '#fff',
+        marginBottom: verticalScale(5),
+    },
+    creatorName: {
+        fontSize: moderateScale(16),
+        color: '#fff',
+        opacity: 0.9,
+    },
+    expandedContent: {
+        marginTop: verticalScale(20),
+    },
+    infoButtonsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: verticalScale(20),
+        marginBottom: verticalScale(20),
+    },
+    buttonContainer: {
+        alignItems: 'center',
+        position: 'relative',
+        flex: 1,
+        maxWidth: scale(100),
+        marginHorizontal: scale(0),
+    },
+    buttonIcon: {
+        width: moderateScale(100),
+        height: moderateScale(100),
+        position: 'absolute',
+        top: verticalScale(-5),
+        zIndex: 10,
+        color: '#fff',
+        fontSize: moderateScale(20),
+        textAlign: 'center',
+    },
+    button: {
+        width: '100%',
+        paddingVertical: verticalScale(10),
+        borderRadius: moderateScale(14),
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: verticalScale(8),
+        backgroundColor: '#292929',
+        paddingTop: verticalScale(20),
+        minHeight: verticalScale(70),
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: moderateScale(15),
+        textAlign: 'center',
+    },
+    descriptionContainer: {
+        marginBottom: verticalScale(30),
+        marginTop: verticalScale(10),
+    },
+    description: {
+        fontSize: moderateScale(15),
+        color: '#fff',
+        lineHeight: moderateScale(22),
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: '#000',
+        borderRadius: moderateScale(20),
+        padding: scale(30),
+        alignItems: 'center',
+        width: scale(320),
+    },
+    modalTitle: {
+        fontSize: moderateScale(32),
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: verticalScale(10),
+    },
+    modalSubtitle: {
+        fontSize: moderateScale(16),
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: verticalScale(30),
+        lineHeight: moderateScale(22),
+    },
+    stickerContainer: {
+        width: scale(200),
+        height: scale(200),
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: verticalScale(20),
+    },
+    popupStickerImage: {
+        width: '100%',
+        height: '100%',
+    },
+    stickerTitle: {
+        fontSize: moderateScale(24),
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: verticalScale(5),
+    },
+    stickerCreator: {
+        fontSize: moderateScale(16),
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: verticalScale(30),
+        opacity: 0.8,
+    },
+    claimButton: {
+        backgroundColor: '#FF7700',
+        paddingVertical: verticalScale(15),
+        paddingHorizontal: scale(60),
+        borderRadius: moderateScale(30),
+        width: '100%',
+    },
+    claimButtonText: {
+        fontSize: moderateScale(18),
+        color: '#fff',
+        textAlign: 'center',
+    },
 });

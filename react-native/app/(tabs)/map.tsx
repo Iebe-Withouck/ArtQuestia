@@ -8,6 +8,7 @@ import {
     UserLocation,
     type CameraRef,
 } from "@maplibre/maplibre-react-native";
+import * as Haptics from "expo-haptics";
 import * as Location from "expo-location";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -25,7 +26,7 @@ import {
     View
 } from "react-native";
 
-const STRAPI_URL = 'http://172.30.21.177:1337';
+const STRAPI_URL = 'http://192.168.0.155:1337';
 
 // Calculate distance between two coordinates using Haversine formula
 const calculateDistance = (
@@ -426,6 +427,8 @@ export default function MapScreen() {
                 setNearbyArtwork(marker);
                 setShowProximityPopup(true);
                 shownProximityAlerts.current.add(marker.id);
+                // Trigger haptic feedback to notify user
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
         });
     }, [userCoord, markers]);

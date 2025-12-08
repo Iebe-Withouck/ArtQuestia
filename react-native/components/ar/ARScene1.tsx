@@ -18,10 +18,11 @@ import {
     Image,
     Text,
     ScrollView,
-    Dimensions
+    Dimensions,
+    Modal
 } from 'react-native';
 
-const STRAPI_URL = 'http://172.30.21.177:1337';
+const STRAPI_URL = 'http://192.168.0.155:1337';
 const { width, height } = Dimensions.get('window');
 
 // Responsive scaling functions
@@ -91,11 +92,13 @@ interface ARScene1Props {
 }
 
 // Internal AR Scene Component
-function ARScene1Scene({ userLocation, targetLatitude, targetLongitude }: {
+function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimationFinish }: {
     userLocation: Location.LocationObject | null;
     targetLatitude: number;
     targetLongitude: number;
+    onAnimationFinish: () => void;
 }) {
+    const [animationPlayed, setAnimationPlayed] = useState(false);
     // Calculate AR position based on GPS coordinates
     const arPosition: [number, number, number] = userLocation
         ? gpsToARPosition(
@@ -162,7 +165,16 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude }: {
                     lightReceivingBitMask={1}
                     shadowCastingBitMask={1}
                     onLoadStart={() => console.log('ARScene1: Bomb loading...')}
-                    onLoadEnd={() => console.log('ARScene1: Bomb loaded at GPS coordinates')}
+                    onLoadEnd={() => {
+                        console.log('ARScene1: Bomb loaded at GPS coordinates');
+                        // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
+                        setTimeout(() => {
+                            if (!animationPlayed) {
+                                setAnimationPlayed(true);
+                                onAnimationFinish();
+                            }
+                        }, 16000);
+                    }}
                     onError={(event) => {
                         console.error('ARScene1: Error loading bomb (message):', event.nativeEvent?.error);
                         console.error(
@@ -182,6 +194,7 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
     const [menuHeight] = useState(new Animated.Value(verticalScale(120)));
     const [artworkData, setArtworkData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [showStickerPopup, setShowStickerPopup] = useState(false);
 
     const [fontsLoaded] = useFonts({
         Impact: require('../../assets/fonts/impact.ttf'),
@@ -189,8 +202,8 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
     });
 
     // Target GPS coordinates for this scene
-    const TARGET_LATITUDE = 50.831368;
-    const TARGET_LONGITUDE = 3.263218;
+    const TARGET_LATITUDE = 50.818523;
+    const TARGET_LONGITUDE = 3.436097;
 
     // Fetch artwork data from Strapi
     useEffect(() => {
@@ -235,12 +248,18 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         setIsMenuExpanded(!isMenuExpanded);
     };
 
+    // Handle animation finish
+    const handleAnimationFinish = () => {
+        setShowStickerPopup(true);
+    };
+
     // Wrapper function to pass props to AR Scene
     const ARSceneWrapper = () => (
         <ARScene1Scene
             userLocation={userLocation}
             targetLatitude={TARGET_LATITUDE}
             targetLongitude={TARGET_LONGITUDE}
+            onAnimationFinish={handleAnimationFinish}
         />
     );
 
@@ -270,6 +289,55 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                 worldAlignment="GravityAndHeading"
                 style={{ flex: 1 }}
             />
+
+            {/* Sticker Popup Modal */}
+            <Modal
+                visible={showStickerPopup}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowStickerPopup(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={[styles.modalTitle, { fontFamily: 'Impact' }]}>
+                            Sticker gescoord!
+                        </Text>
+                        <Text style={[styles.modalSubtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
+                            Weer een stapje dichter{'\n'}bij de volledige set.
+                        </Text>
+
+                        {/* Sticker Image */}
+                        {fullStickersUrl && (
+                            <View style={styles.stickerContainer}>
+                                <Image
+                                    source={{ uri: fullStickersUrl }}
+                                    style={styles.popupStickerImage}
+                                    resizeMode="contain"
+                                />
+                            </View>
+                        )}
+
+                        {/* Sticker Info */}
+                        <Text style={[styles.stickerTitle, { fontFamily: 'Impact' }]}>
+                            {artwork.Name || 'Untitled'}
+                        </Text>
+                        <Text style={[styles.stickerCreator, { fontFamily: 'LeagueSpartan-regular' }]}>
+                            {artwork.Creator || 'Unknown'}
+                        </Text>
+
+                        {/* Claim Button */}
+                        <TouchableOpacity
+                            style={styles.claimButton}
+                            onPress={() => setShowStickerPopup(false)}
+                            activeOpacity={0.8}
+                        >
+                            <Text style={[styles.claimButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>
+                                Claim sticker
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
 
             {/* Collapsible Bottom Menu */}
             {artworkData && fontsLoaded && (
@@ -490,5 +558,67 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(15),
         color: '#fff',
         lineHeight: moderateScale(22),
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: '#000',
+        borderRadius: moderateScale(20),
+        padding: scale(30),
+        alignItems: 'center',
+        width: scale(320),
+    },
+    modalTitle: {
+        fontSize: moderateScale(32),
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: verticalScale(10),
+    },
+    modalSubtitle: {
+        fontSize: moderateScale(16),
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: verticalScale(30),
+        lineHeight: moderateScale(22),
+    },
+    stickerContainer: {
+        width: scale(200),
+        height: scale(200),
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: verticalScale(20),
+    },
+    popupStickerImage: {
+        width: '100%',
+        height: '100%',
+    },
+    stickerTitle: {
+        fontSize: moderateScale(24),
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: verticalScale(5),
+    },
+    stickerCreator: {
+        fontSize: moderateScale(16),
+        color: '#fff',
+        textAlign: 'center',
+        marginBottom: verticalScale(30),
+        opacity: 0.8,
+    },
+    claimButton: {
+        backgroundColor: '#FF7700',
+        paddingVertical: verticalScale(15),
+        paddingHorizontal: scale(60),
+        borderRadius: moderateScale(30),
+        width: '100%',
+    },
+    claimButtonText: {
+        fontSize: moderateScale(18),
+        color: '#fff',
+        textAlign: 'center',
     },
 });
