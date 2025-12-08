@@ -25,6 +25,7 @@ const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import ArtworkCardDetail from '@/components/ArtworkCardDetail';
+import Notifications from '@/components/Notifications';
 
 import Bell from '../../assets/icons/doorbell.png';
 import Icon11 from '../../assets/prestaties/11.png';
@@ -53,6 +54,7 @@ export default function SettingsScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSticker, setSelectedSticker] = useState<any>(null);
   const [showDetailView, setShowDetailView] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const stickerTypes = ['Alle stickers', 'Gevonden stickers', 'Verborgen stickers'];
@@ -190,6 +192,11 @@ export default function SettingsScreen() {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
+  // Show notifications if opened
+  if (showNotifications) {
+    return <Notifications onClose={() => setShowNotifications(false)} />;
+  }
+
   // Show detail view if artwork is selected
   if (showDetailView && selectedSticker) {
     return <ArtworkCardDetail artwork={selectedSticker} onClose={() => setShowDetailView(false)} />;
@@ -199,7 +206,7 @@ export default function SettingsScreen() {
     <ThemedView style={styles.titleContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-        <TouchableOpacity style={styles.bellButton}>
+        <TouchableOpacity style={styles.bellButton} onPress={() => setShowNotifications(true)}>
           <Image source={Bell} style={styles.bellIcon} />
         </TouchableOpacity>
 

@@ -21,6 +21,7 @@ const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import Notifications from '@/components/Notifications';
 
 import Bell from '../assets/icons/doorbell.png';
 import Info from '../assets/icons/info.png';
@@ -44,16 +45,24 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
   const [name, setName] = useState(userName);
   const [age, setAge] = useState(userAge);
   const [email, setEmail] = useState('');
+  const [showNotifications, setShowNotifications] = useState(false);
   const [language, setLanguage] = useState('nl');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [camera, setCamera] = useState('False');
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [location, setLocation] = useState('False');
   const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [notificaties, setNotificaties] = useState('False');
+  const [isNotificatiesOpen, setIsNotificatiesOpen] = useState(false);
 
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" style={styles.loader} />;
+  }
+
+  // Show notifications if opened
+  if (showNotifications) {
+    return <Notifications onClose={() => setShowNotifications(false)} />;
   }
 
   return (
@@ -61,7 +70,7 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         <View style={styles.profileSection}>
-          <TouchableOpacity style={styles.bellButton}>
+          <TouchableOpacity style={styles.bellButton} onPress={() => setShowNotifications(true)}>
             <Image source={Bell} style={styles.bellIcon} />
           </TouchableOpacity>
 
@@ -232,6 +241,41 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
               <TouchableOpacity
                 style={styles.dropdownOption}
                 onPress={() => { setLocation('True'); setIsLocationOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>Toegelaten</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.notificatiesSection}>
+          <View style={styles.rowWithLabel}>
+            <ThemedText style={styles.labelInline}>Notificaties</ThemedText>
+            <TouchableOpacity
+              style={[
+                styles.dropdownNotificaties,
+                notificaties === 'False' && styles.dropdownNotificatiesRed,
+                notificaties === 'True' && styles.dropdownNotificatiesGreen
+              ]}
+              onPress={() => setIsNotificatiesOpen(!isNotificatiesOpen)}
+            >
+              <ThemedText style={[styles.dropdownText, notificaties === 'True' && styles.dropdownTextGreen]}>
+                {notificaties === 'False' ? 'Niet-toegelaten' : notificaties === 'True' ? 'Toegelaten' : ''}
+              </ThemedText>
+              <Image source={Arrow} style={[styles.dropdownArrowImage, notificaties === 'True' && { tintColor: '#000' }, { transform: [{ rotate: isNotificatiesOpen ? '0deg' : '180deg' }] }]} />
+            </TouchableOpacity>
+          </View>
+          {isNotificatiesOpen && (
+            <View style={styles.dropdownOptions}>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setNotificaties('False'); setIsNotificatiesOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>Niet-toegelaten</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setNotificaties('True'); setIsNotificatiesOpen(false); }}
               >
                 <ThemedText style={styles.dropdownOptionText}>Toegelaten</ThemedText>
               </TouchableOpacity>
@@ -435,6 +479,11 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: verticalScale(20),
     paddingHorizontal: scale(20),
+  },
+  notificatiesSection: {
+    width: '100%',
+    marginTop: verticalScale(20),
+    paddingHorizontal: scale(20),
     marginBottom: verticalScale(20),
   },
   dropdown: {
@@ -476,6 +525,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#292929',
   },
   dropdownLocationGreen: {
+    backgroundColor: '#1AF7A2',
+  },
+  dropdownNotificaties: {
+    backgroundColor: '#292929',
+    borderRadius: moderateScale(12),
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(15),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minWidth: scale(180),
+  },
+  dropdownNotificatiesRed: {
+    backgroundColor: '#292929',
+  },
+  dropdownNotificatiesGreen: {
     backgroundColor: '#1AF7A2',
   },
   dropdownText: {

@@ -25,6 +25,7 @@ import Icon2 from '../../assets/icons/stickers.png';
 
 import ArtworkCard from '@/components/ArtworkCard';
 import ArtworkCardDetail from '@/components/ArtworkCardDetail';
+import Notifications from '@/components/Notifications';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
@@ -49,6 +50,7 @@ export default function SettingsScreen() {
   const [selectedArtwork, setSelectedArtwork] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredArtworks, setFilteredArtworks] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -133,6 +135,11 @@ export default function SettingsScreen() {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
+  // Show notifications if opened
+  if (showNotifications) {
+    return <Notifications onClose={() => setShowNotifications(false)} />;
+  }
+
   // Show detail view if artwork is selected
   if (selectedArtwork) {
     return <ArtworkCardDetail artwork={selectedArtwork} onClose={() => setSelectedArtwork(null)} />;
@@ -142,7 +149,7 @@ export default function SettingsScreen() {
     <ThemedView style={styles.titleContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-        <TouchableOpacity style={styles.bellButton}>
+        <TouchableOpacity style={styles.bellButton} onPress={() => setShowNotifications(true)}>
           <Image source={Bell} style={styles.bellIcon} />
         </TouchableOpacity>
 

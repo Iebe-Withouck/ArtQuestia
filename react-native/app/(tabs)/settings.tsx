@@ -27,6 +27,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import ArtworkCardDetail from '@/components/ArtworkCardDetail';
 import SettingsEdit from '@/components/SettingsEdit';
+import Notifications from '@/components/Notifications';
 
 import Bell from '../../assets/icons/doorbell.png';
 import Oorlog from '../../assets/profile-info/oorlogsmonumenten.png';
@@ -58,6 +59,7 @@ export default function SettingsScreen() {
   const [selectedSticker, setSelectedSticker] = useState<any>(null);
   const [showDetailView, setShowDetailView] = useState(false);
   const [showEditView, setShowEditView] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [userName, setUserName] = useState('Jane Doe');
   const [userAge, setUserAge] = useState('22');
@@ -197,6 +199,11 @@ export default function SettingsScreen() {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
+  // Show notifications if opened
+  if (showNotifications) {
+    return <Notifications onClose={() => setShowNotifications(false)} />;
+  }
+
   // Show detail view if artwork is selected
   if (showDetailView && selectedSticker) {
     return <ArtworkCardDetail artwork={selectedSticker} onClose={() => setShowDetailView(false)} />;
@@ -223,11 +230,9 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         <View style={styles.profileSection}>
-          <TouchableOpacity style={styles.bellButton}>
-            <Image source={Bell} style={styles.bellIcon} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.infoButton}>
+        <TouchableOpacity style={styles.bellButton} onPress={() => setShowNotifications(true)}>
+          <Image source={Bell} style={styles.bellIcon} />
+        </TouchableOpacity>          <TouchableOpacity style={styles.infoButton}>
             <Image source={Info} style={styles.infoIcon} />
           </TouchableOpacity>
 

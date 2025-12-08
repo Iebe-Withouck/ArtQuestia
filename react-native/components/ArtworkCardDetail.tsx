@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import Notifications from '@/components/Notifications';
 
 import NextIcon from '../assets/icons/next.png';
 import Bell from '../assets/icons/doorbell_black.png';
@@ -80,6 +81,7 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
     Impact: require('../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const handleStartRoute = () => {
     // Store artwork data in global state or pass via params
@@ -101,6 +103,11 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" style={styles.loader} />;
+  }
+
+  // Show notifications if opened
+  if (showNotifications) {
+    return <Notifications onClose={() => setShowNotifications(false)} />;
   }
 
   if (!artwork) {
@@ -157,7 +164,7 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
           <Image source={NextIcon} style={styles.nextButtonIcon} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.bellButton}>
+        <TouchableOpacity style={styles.bellButton} onPress={() => setShowNotifications(true)}>
           <Image source={Bell} style={styles.bellIcon} />
         </TouchableOpacity>
 
