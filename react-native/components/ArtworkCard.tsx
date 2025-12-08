@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
   distanceText: {
     color: '#fff',
     fontSize: 11,
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
   },
 
   artImage: {

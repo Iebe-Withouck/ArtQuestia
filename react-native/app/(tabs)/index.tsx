@@ -230,7 +230,7 @@ export default function SettingsScreen() {
           <TouchableOpacity style={styles.buttonContainer}>
             <Image source={Icon3} style={styles.buttonIcon} />
             <View style={styles.button}>
-              <ThemedText style={styles.buttonText}>Deel je ervaring</ThemedText>
+              <ThemedText style={styles.buttonText}>Deel je{"\n"}ervaring</ThemedText>
             </View>
           </TouchableOpacity>
         </View>
@@ -498,5 +498,6 @@ const styles = StyleSheet.create({
     fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
     margin: -10,
+    lineHeight: moderateScale(16),
   },
 });

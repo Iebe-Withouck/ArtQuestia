@@ -223,7 +223,7 @@ export default function SettingsScreen() {
             <ThemedText style={[styles.title, { marginTop: 0 }]}>
               {selectedThemeQuest} thema quest
             </ThemedText>
-            <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
+            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: themeQuestDropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
           <ThemedText style={[styles.percentage, { marginTop: 0 }]}>
             55% compleet
@@ -259,7 +259,7 @@ export default function SettingsScreen() {
             }}
           >
             <ThemedText style={styles.buttonTextStickers}>{selectedStickerType}</ThemedText>
-            <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
+            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: stickerTypeDropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.buttonStickers2}
@@ -269,7 +269,7 @@ export default function SettingsScreen() {
             }}
           >
             <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Thema's" : selectedTheme}</ThemedText>
-            <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
+            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: dropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
         </View>
 
@@ -591,9 +591,9 @@ const styles = StyleSheet.create({
     gap: scale(5),
   },
   dropdownArrow: {
-    color: '#fff',
-    fontSize: 12,
-    fontFamily: 'Impact',
+    width: moderateScale(10),
+    height: moderateScale(10),
+    tintColor: '#fff',
   },
   dropdownContainerBlue: {
     backgroundColor: '#215AFF',
@@ -657,7 +657,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: moderateScale(15),
     lineHeight: moderateScale(14),
-    fontFamily: 'Impact',
+    fontFamily: 'LeagueSpartan-semibold',
+    fontWeight: '600',
     textAlign: 'center',
     marginTop: verticalScale(85),
     paddingHorizontal: scale(2),

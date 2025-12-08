@@ -36,7 +36,7 @@ import Info from '../../assets/icons/info.png';
 import Age from '../../assets/profile-info/age.png';
 import RoutesComplete from '../../assets/profile-info/routesComplete.png'
 import FoundedStickers from "../../assets/profile-info/foundedStickers.png"
-import ProfilePic from '../../assets/profile-info/Group 97.png'
+import ProfilePic from '../../assets/profile-info/profile-pic.png';
 import Potlood from '../../assets/profile-info/potlood.png'
 
 export default function SettingsScreen() {
@@ -232,18 +232,26 @@ export default function SettingsScreen() {
           </TouchableOpacity>
 
           <View style={styles.profileContainer}>
-            <TouchableOpacity
-              onPress={() => {
-                console.log('Edit icon pressed!');
-                setShowEditView(true);
-              }}
-              activeOpacity={0.9}
-              style={styles.profilePicWrapper}
-            >
-              <Image source={ProfilePic} style={styles.profilePic} />
-              <Image source={Potlood} style={styles.editIconImage} />
-            </TouchableOpacity>
-            <ThemedText style={styles.profileName}>{userName}</ThemedText>
+            <View style={styles.profilePicWrapper}>
+              <View style={styles.profilePicCircle}>
+                <Image
+                  source={ProfilePic}
+                  style={styles.profilePic}
+                  resizeMode="cover"
+                />
+              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  console.log('Edit icon pressed!');
+                  setShowEditView(true);
+                }}
+                activeOpacity={0.9}
+                style={styles.editIconTouchable}
+              >
+                <Image source={Potlood} style={styles.editIconImage} />
+              </TouchableOpacity>
+            </View>
+            <ThemedText style={styles.profileName} numberOfLines={2}>{userName}</ThemedText>
           </View>
 
           <View style={styles.rowInfo}>
@@ -259,7 +267,7 @@ export default function SettingsScreen() {
               <Image source={RoutesComplete} style={styles.infoIcons} />
               <ThemedText style={styles.infoNumberRoutes}>5</ThemedText>
               <View style={styles.info}>
-                <ThemedText style={styles.infoText}>Complete routes</ThemedText>
+                <ThemedText style={styles.infoText}>Complete{"\n"}routes</ThemedText>
               </View>
             </TouchableOpacity>
 
@@ -267,7 +275,7 @@ export default function SettingsScreen() {
               <Image source={FoundedStickers} style={styles.infoIcons} />
               <ThemedText style={styles.infoNumberStickers}>12</ThemedText>
               <View style={styles.info}>
-                <ThemedText style={styles.infoText}>Gevonden stickers</ThemedText>
+                <ThemedText style={styles.infoText}>Gevonden{"\n"}stickers</ThemedText>
               </View>
             </TouchableOpacity>
           </View>
@@ -275,7 +283,7 @@ export default function SettingsScreen() {
 
         <View style={styles.themaRoute}>
           <ThemedText style={[styles.title]}>
-            Thema routes
+            Quest routes
           </ThemedText>
         </View>
         <View style={styles.themaRouteRow}>
@@ -292,7 +300,7 @@ export default function SettingsScreen() {
           }}
         >
           <ThemedText style={styles.themaRouteButtonText}>{selectedThemaRoute}</ThemedText>
-          <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
+          <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: themaRouteDropdownVisible ? '180deg' : '0deg' }] }]} />
         </TouchableOpacity>
 
         {themaRouteDropdownVisible && (
@@ -321,7 +329,7 @@ export default function SettingsScreen() {
             }}
           >
             <ThemedText style={styles.buttonTextStickers}>{selectedStickerType}</ThemedText>
-            <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
+            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: stickerTypeDropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.buttonStickers2}
@@ -331,7 +339,7 @@ export default function SettingsScreen() {
             }}
           >
             <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Thema's" : selectedTheme}</ThemedText>
-            <ThemedText style={styles.dropdownArrow}>▼</ThemedText>
+            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: dropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
         </View>
 
@@ -529,28 +537,34 @@ const styles = StyleSheet.create({
   profileSection: {
     backgroundColor: '#292929',
     paddingTop: verticalScale(80),
-    paddingBottom: verticalScale(40),
+    paddingBottom: verticalScale(20),
     paddingHorizontal: scale(20),
     marginHorizontal: scale(-20),
     marginTop: verticalScale(-70),
-    marginBottom: verticalScale(30),
     borderRadius: moderateScale(30),
   },
   profileContainer: {
     alignItems: 'center',
     marginTop: verticalScale(-10),
     marginBottom: verticalScale(20),
+    paddingHorizontal: scale(20),
   },
   profilePicWrapper: {
     position: 'relative',
     width: moderateScale(100),
     height: moderateScale(100),
+    marginBottom: verticalScale(10),
+  },
+  profilePicCircle: {
+    width: moderateScale(100),
+    height: moderateScale(100),
+    borderRadius: moderateScale(50),
+    overflow: 'hidden',
+    backgroundColor: '#444',
   },
   profilePic: {
     width: moderateScale(100),
     height: moderateScale(100),
-    borderRadius: moderateScale(50),
-    resizeMode: 'contain',
   },
   editIcon: {
     position: 'absolute',
@@ -562,27 +576,30 @@ const styles = StyleSheet.create({
   },
   editIconTouchable: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: moderateScale(30),
-    height: moderateScale(30),
+    bottom: -5,
+    right: -5,
+    width: moderateScale(35),
+    height: moderateScale(35),
     zIndex: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   editIconImage: {
-    width: '100%',
-    height: '100%',
+    width: moderateScale(30),
+    height: moderateScale(30),
     resizeMode: 'contain',
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: moderateScale(30),
-    height: moderateScale(30),
   },
   profileName: {
-    fontSize: moderateScale(30),
+    fontSize: moderateScale(26),
     color: '#fff',
     fontFamily: 'Impact',
-    marginTop: verticalScale(20),
+    marginTop: verticalScale(10),
+    textAlign: 'center',
+    width: '100%',
+    lineHeight: moderateScale(30),
   },
 
   mainTitle: {
@@ -746,9 +763,9 @@ const styles = StyleSheet.create({
     gap: scale(5),
   },
   dropdownArrow: {
-    color: '#fff',
-    fontSize: 12,
-    fontFamily: 'Impact',
+    width: moderateScale(10),
+    height: moderateScale(10),
+    tintColor: '#fff',
   },
   dropdownContainerBlue: {
     backgroundColor: '#215AFF',
@@ -813,7 +830,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: moderateScale(15),
     lineHeight: moderateScale(14),
-    fontFamily: 'Impact',
+    fontFamily: 'LeagueSpartan-semibold',
+    fontWeight: '600',
     textAlign: 'center',
     marginTop: verticalScale(85),
     paddingHorizontal: scale(2),
@@ -891,15 +909,13 @@ const styles = StyleSheet.create({
   rowInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: verticalScale(40),
-    paddingHorizontal: scale(0),
   },
   infoContainer: {
     alignItems: 'center',
     position: 'relative',
     flex: 1,
-    maxWidth: scale(100),
-    marginHorizontal: scale(0),
+    minWidth: scale(100),
+    marginHorizontal: scale(2),
   },
   infoIcons: {
     width: moderateScale(50),
@@ -910,31 +926,28 @@ const styles = StyleSheet.create({
   },
   infoNumberAge: {
     position: 'absolute',
-    top: verticalScale(-12),
-    left: '50%',
-    transform: [{ translateX: -moderateScale(12) }],
+    top: verticalScale(-10),
+    alignSelf: 'center',
     zIndex: 11,
-    fontSize: moderateScale(24),
-    color: '#fff',
+    fontSize: moderateScale(22),
+    color: '#000',
     fontFamily: 'Impact',
   },
   infoNumberRoutes: {
     position: 'absolute',
-    top: verticalScale(-11),
-    left: '50%',
-    transform: [{ translateX: -moderateScale(6) }],
+    top: verticalScale(-10),
+    alignSelf: 'center',
     zIndex: 11,
-    fontSize: moderateScale(24),
-    color: '#fff',
+    fontSize: moderateScale(22),
+    color: '#000',
     fontFamily: 'Impact',
   },
   infoNumberStickers: {
     position: 'absolute',
-    top: verticalScale(-12),
-    left: '50%',
-    transform: [{ translateX: -moderateScale(11) }],
+    top: verticalScale(-10),
+    alignSelf: 'center',
     zIndex: 11,
-    fontSize: moderateScale(24),
+    fontSize: moderateScale(22),
     color: '#000000ff',
     fontFamily: 'Impact',
   },
@@ -947,13 +960,16 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(8),
     backgroundColor: '#000000ff',
     paddingTop: verticalScale(20),
-    minHeight: verticalScale(70),
+    height: verticalScale(70),
   },
   infoText: {
     color: '#fff',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: scale(2),
+    lineHeight: moderateScale(16),
   },
   deelButton: {
     backgroundColor: '#215AFF',

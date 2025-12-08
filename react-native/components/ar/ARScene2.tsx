@@ -359,7 +359,7 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                         activeOpacity={0.8}
                     >
                         <Image
-                            source={require('../../assets/icons/arrow2.png')}
+                            source={require('../../assets/icons/arrow.png')}
                             style={[
                                 styles.toggleIcon,
                                 { transform: [{ rotate: isMenuExpanded ? '0deg' : '180deg' }] }

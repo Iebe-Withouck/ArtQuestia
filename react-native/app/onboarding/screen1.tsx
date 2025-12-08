@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
+import { useFonts } from 'expo-font';
 
 const { width, height } = Dimensions.get('window');
 
@@ -10,6 +11,10 @@ const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size
 import Phone from '../../assets/images/phone1.png';
 
 export default function Screen1() {
+  const [fontsLoaded] = useFonts({
+    'LeagueSpartan': require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
+  });
+
   const handleNext = () => {
     router.push("/onboarding/screen2");
   };
@@ -17,6 +22,10 @@ export default function Screen1() {
   const handleSkip = () => {
     router.replace("/(tabs)");
   };
+
+  if (!fontsLoaded) {
+    return <ActivityIndicator size="large" style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }} />;
+  }
 
   return (
     <View style={styles.container}>

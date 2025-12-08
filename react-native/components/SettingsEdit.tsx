@@ -24,8 +24,9 @@ import { ThemedView } from '@/components/themed-view';
 
 import Bell from '../assets/icons/doorbell.png';
 import Info from '../assets/icons/info.png';
-import ProfilePic from '../assets/profile-info/Group 97.png'
+import ProfilePic from '../assets/profile-info/profile-pic.png';
 import Plus from '../assets/profile-info/newPic.png'
+import Arrow from '../assets/icons/arrow2.png';
 
 interface SettingsEditProps {
   onClose: () => void;
@@ -59,186 +60,198 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
     <ThemedView style={styles.titleContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-      <View style={styles.profileSection}>
-        <TouchableOpacity style={styles.bellButton}>
-          <Image source={Bell} style={styles.bellIcon} />
-        </TouchableOpacity>
+        <View style={styles.profileSection}>
+          <TouchableOpacity style={styles.bellButton}>
+            <Image source={Bell} style={styles.bellIcon} />
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.infoButton}>
-          <Image source={Info} style={styles.infoIcon} />
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.infoButton}>
+            <Image source={Info} style={styles.infoIcon} />
+          </TouchableOpacity>
 
-        <View style={styles.profileContainer}>
-          <View style={styles.profilePicWrapper}>
-            <Image source={ProfilePic} style={styles.profilePic} />
-            <Image source={Plus} style={styles.editIconImage} />
+          <View style={styles.profileContainer}>
+            <View style={styles.profilePicWrapper}>
+              <View style={styles.profilePicCircle}>
+                <Image source={ProfilePic} style={styles.profilePic} resizeMode="cover" />
+              </View>
+              <TouchableOpacity
+                onPress={() => { }}
+                activeOpacity={0.9}
+                style={styles.editIconTouchable}
+              >
+                <Image source={Plus} style={styles.editIconImage} />
+              </TouchableOpacity>
+            </View>
+            <ThemedText style={styles.profileName} numberOfLines={2}>{userName}</ThemedText>
           </View>
-          <ThemedText style={styles.profileName}>{userName}</ThemedText>
-        </View>
 
-        <View style={styles.formContainer}>
-        <View style={styles.inputGroup}>
-          <ThemedText style={styles.label}>Naam</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="Voer je naam in"
-            placeholderTextColor="#999"
-          />
-        </View>
+          <View style={styles.formContainer}>
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.label}>Naam</ThemedText>
+              <TextInput
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="Voer je naam in"
+                placeholderTextColor="#999"
+              />
+            </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText style={styles.label}>Leeftijd</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={age}
-            onChangeText={setAge}
-            placeholder="Voer je leeftijd in"
-            placeholderTextColor="#999"
-            keyboardType="numeric"
-          />
-        </View>
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.label}>Leeftijd</ThemedText>
+              <TextInput
+                style={styles.input}
+                value={age}
+                onChangeText={setAge}
+                placeholder="Voer je leeftijd in"
+                placeholderTextColor="#999"
+                keyboardType="numeric"
+              />
+            </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText style={styles.label}>E-mail</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Voer je e-mail in"
-            placeholderTextColor="#999"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
-      </View>
-      </View>
-
-      <View style={styles.languageSection}>
-        <ThemedText style={styles.label}>Taal</ThemedText>
-        <TouchableOpacity 
-          style={styles.dropdown}
-          onPress={() => setIsLanguageOpen(!isLanguageOpen)}
-        >
-          <ThemedText style={styles.dropdownText}>
-            {language === 'nl' ? 'Nederlands' : language === 'en' ? 'English' : language === 'fr' ? 'Français' : 'Deutsch'}
-          </ThemedText>
-          <ThemedText style={styles.dropdownArrow}>{isLanguageOpen ? '▲' : '▼'}</ThemedText>
-        </TouchableOpacity>
-        {isLanguageOpen && (
-          <View style={styles.dropdownOptions}>
-            <TouchableOpacity 
-              style={styles.dropdownOption}
-              onPress={() => { setLanguage('nl'); setIsLanguageOpen(false); }}
-            >
-              <ThemedText style={styles.dropdownOptionText}>Nederlands</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.dropdownOption}
-              onPress={() => { setLanguage('en'); setIsLanguageOpen(false); }}
-            >
-              <ThemedText style={styles.dropdownOptionText}>English</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.dropdownOption}
-              onPress={() => { setLanguage('fr'); setIsLanguageOpen(false); }}
-            >
-              <ThemedText style={styles.dropdownOptionText}>Français</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.dropdownOption}
-              onPress={() => { setLanguage('de'); setIsLanguageOpen(false); }}
-            >
-              <ThemedText style={styles.dropdownOptionText}>Deutsch</ThemedText>
-            </TouchableOpacity>
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.label}>E-mail</ThemedText>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Voer je e-mail in"
+                placeholderTextColor="#999"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
           </View>
-        )}
-      </View>
+        </View>
 
-      <View style={styles.machtigingenSection}>
-        <ThemedText style={styles.labelHeader}>App-machtigingen</ThemedText>
-      </View>
+        <View style={styles.languageSection}>
+          <ThemedText style={styles.label}>Taal</ThemedText>
+          <TouchableOpacity
+            style={styles.dropdown}
+            onPress={() => setIsLanguageOpen(!isLanguageOpen)}
+          >
+            <ThemedText style={styles.dropdownText}>
+              {language === 'nl' ? 'Nederlands' : language === 'en' ? 'English' : language === 'fr' ? 'Français' : 'Deutsch'}
+            </ThemedText>
+            <Image source={Arrow} style={[styles.dropdownArrowImage, { transform: [{ rotate: isLanguageOpen ? '0deg' : '180deg' }] }]} />
+          </TouchableOpacity>
+          {isLanguageOpen && (
+            <View style={styles.dropdownOptions}>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setLanguage('nl'); setIsLanguageOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>Nederlands</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setLanguage('en'); setIsLanguageOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>English</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setLanguage('fr'); setIsLanguageOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>Français</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setLanguage('de'); setIsLanguageOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>Deutsch</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.machtigingenSection}>
+          <ThemedText style={styles.labelHeader}>App-machtigingen</ThemedText>
+        </View>
 
         <View style={styles.cameraSection}>
-        <ThemedText style={styles.label}>Camera</ThemedText>
-        <TouchableOpacity 
-          style={[
-            styles.dropdownCamera,
-            camera === 'False' && styles.dropdownCameraRed,
-            camera === 'True' && styles.dropdownCameraGreen
-          ]}
-          onPress={() => setIsCameraOpen(!isCameraOpen)}
-        >
-          <ThemedText style={[styles.dropdownText, camera === 'True' && styles.dropdownTextGreen]}>
-            {camera === 'False' ? 'Niet-toegelaten' : camera === 'True' ? 'Toegelaten' : ''}
-          </ThemedText>
-          <ThemedText style={[styles.dropdownArrow, camera === 'True' && styles.dropdownTextGreen]}>{isCameraOpen ? '▲' : '▼'}</ThemedText>
-        </TouchableOpacity>
-        {isCameraOpen && (
-          <View style={styles.dropdownOptions}>
-            <TouchableOpacity 
-              style={styles.dropdownOption}
-              onPress={() => { setCamera('False'); setIsCameraOpen(false); }}
+          <View style={styles.rowWithLabel}>
+            <ThemedText style={styles.labelInline}>Camera</ThemedText>
+            <TouchableOpacity
+              style={[
+                styles.dropdownCamera,
+                camera === 'False' && styles.dropdownCameraRed,
+                camera === 'True' && styles.dropdownCameraGreen
+              ]}
+              onPress={() => setIsCameraOpen(!isCameraOpen)}
             >
-              <ThemedText style={styles.dropdownOptionText}>Niet-toegelaten</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.dropdownOption}
-              onPress={() => { setCamera('True'); setIsCameraOpen(false); }}
-            >
-              <ThemedText style={styles.dropdownOptionText}>Toegelaten</ThemedText>
+              <ThemedText style={[styles.dropdownText, camera === 'True' && styles.dropdownTextGreen]}>
+                {camera === 'False' ? 'Niet-toegelaten' : camera === 'True' ? 'Toegelaten' : ''}
+              </ThemedText>
+              <Image source={Arrow} style={[styles.dropdownArrowImage, camera === 'True' && { tintColor: '#000' }, { transform: [{ rotate: isCameraOpen ? '0deg' : '180deg' }] }]} />
             </TouchableOpacity>
           </View>
-        )}
-      </View>
+          {isCameraOpen && (
+            <View style={styles.dropdownOptions}>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setCamera('False'); setIsCameraOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>Niet-toegelaten</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setCamera('True'); setIsCameraOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>Toegelaten</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
 
-    <View style={styles.locatieSection}>
-        <ThemedText style={styles.label}>Locatie</ThemedText>
-        <TouchableOpacity 
-          style={[
-            styles.dropdownLocation,
-            location === 'False' && styles.dropdownLocationRed,
-            location === 'True' && styles.dropdownLocationGreen
-          ]}
-          onPress={() => setIsLocationOpen(!isLocationOpen)}
-        >
-          <ThemedText style={[styles.dropdownText, location === 'True' && styles.dropdownTextGreen]}>
-            {location === 'False' ? 'Niet-toegelaten' : location === 'True' ? 'Toegelaten' : ''}
-          </ThemedText>
-          <ThemedText style={[styles.dropdownArrow, location === 'True' && styles.dropdownTextGreen]}>{isLocationOpen ? '▲' : '▼'}</ThemedText>
-        </TouchableOpacity>
-        {isLocationOpen && (
-          <View style={styles.dropdownOptions}>
-            <TouchableOpacity 
-              style={styles.dropdownOption}
-              onPress={() => { setLocation('False'); setIsLocationOpen(false); }}
+        <View style={styles.locatieSection}>
+          <View style={styles.rowWithLabel}>
+            <ThemedText style={styles.labelInline}>Locatie</ThemedText>
+            <TouchableOpacity
+              style={[
+                styles.dropdownLocation,
+                location === 'False' && styles.dropdownLocationRed,
+                location === 'True' && styles.dropdownLocationGreen
+              ]}
+              onPress={() => setIsLocationOpen(!isLocationOpen)}
             >
-              <ThemedText style={styles.dropdownOptionText}>Niet-toegelaten</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.dropdownOption}
-              onPress={() => { setLocation('True'); setIsLocationOpen(false); }}
-            >
-              <ThemedText style={styles.dropdownOptionText}>Toegelaten</ThemedText>
+              <ThemedText style={[styles.dropdownText, location === 'True' && styles.dropdownTextGreen]}>
+                {location === 'False' ? 'Niet-toegelaten' : location === 'True' ? 'Toegelaten' : ''}
+              </ThemedText>
+              <Image source={Arrow} style={[styles.dropdownArrowImage, location === 'True' && { tintColor: '#000' }, { transform: [{ rotate: isLocationOpen ? '0deg' : '180deg' }] }]} />
             </TouchableOpacity>
           </View>
-        )}
-      </View>
+          {isLocationOpen && (
+            <View style={styles.dropdownOptions}>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setLocation('False'); setIsLocationOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>Niet-toegelaten</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.dropdownOption}
+                onPress={() => { setLocation('True'); setIsLocationOpen(false); }}
+              >
+                <ThemedText style={styles.dropdownOptionText}>Toegelaten</ThemedText>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
 
-      <TouchableOpacity 
-        style={styles.saveButton}
-        onPress={() => onSave(name, age)}
-      >
-        <ThemedText style={styles.saveButtonText}>Wijzigingen opslaan</ThemedText>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={() => onSave(name, age)}
+        >
+          <ThemedText style={styles.saveButtonText}>Wijzigingen opslaan</ThemedText>
+        </TouchableOpacity>
 
-        <TouchableOpacity 
-        style={styles.cancelButton}
-        onPress={onClose}
-      >
-        <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={onClose}
+        >
+          <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+        </TouchableOpacity>
 
       </ScrollView>
     </ThemedView>
@@ -306,17 +319,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: verticalScale(-10),
     marginBottom: verticalScale(20),
+    paddingHorizontal: scale(20),
   },
   profilePicWrapper: {
     position: 'relative',
     width: moderateScale(100),
     height: moderateScale(100),
+    marginBottom: verticalScale(10),
+  },
+  profilePicCircle: {
+    width: moderateScale(100),
+    height: moderateScale(100),
+    borderRadius: moderateScale(50),
+    overflow: 'hidden',
+    backgroundColor: '#444',
   },
   profilePic: {
     width: moderateScale(100),
     height: moderateScale(100),
-    borderRadius: moderateScale(50),
-    resizeMode: 'contain',
   },
   editIcon: {
     position: 'absolute',
@@ -328,25 +348,30 @@ const styles = StyleSheet.create({
   },
   editIconTouchable: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: moderateScale(30),
-    height: moderateScale(30),
+    bottom: -5,
+    right: -5,
+    width: moderateScale(35),
+    height: moderateScale(35),
     zIndex: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   editIconImage: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
     width: moderateScale(30),
     height: moderateScale(30),
     resizeMode: 'contain',
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
   },
   profileName: {
-    fontSize: moderateScale(30),
+    fontSize: moderateScale(26),
     color: '#fff',
     fontFamily: 'Impact',
-    marginTop: verticalScale(20),
+    marginTop: verticalScale(10),
+    textAlign: 'center',
+    width: '100%',
+    lineHeight: moderateScale(30),
   },
   formContainer: {
     width: '100%',
@@ -359,15 +384,27 @@ const styles = StyleSheet.create({
   label: {
     fontSize: moderateScale(20),
     color: '#fff',
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     marginBottom: verticalScale(8),
-  },  
-  labelHeader: {
-    fontSize: moderateScale(16),
+  },
+  rowWithLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  labelInline: {
+    fontSize: moderateScale(20),
     color: '#fff',
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
+    flex: 1,
+  },
+  labelHeader: {
+    fontSize: moderateScale(20),
+    color: '#fff',
+    fontFamily: 'LeagueSpartan-semibold',
     marginBottom: verticalScale(8),
-    fontWeight: 'bold',
+    fontWeight: '600',
     marginTop: verticalScale(35),
   },
   input: {
@@ -377,7 +414,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(15),
     fontSize: moderateScale(15),
     color: '#fff',
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
   },
   languageSection: {
     width: '100%',
@@ -416,14 +453,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(15),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: moderateScale(70),
     alignItems: 'center',
+    minWidth: scale(180),
   },
   dropdownCameraRed: {
-    backgroundColor: '#dc2626',
+    backgroundColor: '#292929',
   },
   dropdownCameraGreen: {
-    backgroundColor: '#16a34a',
+    backgroundColor: '#1AF7A2',
   },
   dropdownLocation: {
     backgroundColor: '#292929',
@@ -432,19 +469,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(15),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: moderateScale(70),
     alignItems: 'center',
+    minWidth: scale(180),
   },
   dropdownLocationRed: {
-    backgroundColor: '#dc2626',
+    backgroundColor: '#292929',
   },
   dropdownLocationGreen: {
-    backgroundColor: '#16a34a',
+    backgroundColor: '#1AF7A2',
   },
   dropdownText: {
     fontSize: moderateScale(15),
     color: '#fff',
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
   },
   dropdownTextGreen: {
     color: '#000',
@@ -452,6 +489,11 @@ const styles = StyleSheet.create({
   dropdownArrow: {
     fontSize: moderateScale(12),
     color: '#fff',
+  },
+  dropdownArrowImage: {
+    width: moderateScale(10),
+    height: moderateScale(10),
+    tintColor: '#fff',
   },
   dropdownOptions: {
     flexDirection: 'column',
@@ -469,7 +511,7 @@ const styles = StyleSheet.create({
   dropdownOptionText: {
     fontSize: moderateScale(15),
     color: '#fff',
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
   },
   saveButton: {
     backgroundColor: '#FF7700',
@@ -482,7 +524,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#fff',
     fontSize: moderateScale(16),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-semibold',
     fontWeight: 'bold',
     textAlign: 'center',
   },
@@ -497,7 +539,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: '#fff',
     fontSize: moderateScale(20),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
   },
 

@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     color: '#F10906',
     marginBottom: verticalScale(30),
     borderColor: '#F10906',
-    borderWidth: 1,
+    borderWidth: 1.5,
     padding: 10,
     textAlign: 'center',
     borderRadius: moderateScale(8),
