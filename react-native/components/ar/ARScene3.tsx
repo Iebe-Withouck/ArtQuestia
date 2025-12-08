@@ -266,9 +266,9 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
     // Get artwork details
     const artwork = artworkData || {};
 
-    // Get Stickers URL
+    // Get Stickers URL - Strapi Cloud returns full URLs
     const stickersUrl = artwork.Stickers?.url;
-    const fullStickersUrl = stickersUrl ? `${STRAPI_URL}${stickersUrl}` : null;
+    const fullStickersUrl = stickersUrl || null;
 
     // Calculate distance
     const calculatedDistance = userLocation && artwork.Location?.lat && artwork.Location?.lng

@@ -17,7 +17,7 @@ import { ThemedView } from '@/components/themed-view';
 import NextIcon from '../assets/icons/next.png';
 import Bell from '../assets/icons/doorbell_black.png';
 
-const STRAPI_URL = 'http://172.30.21.177:1337';
+const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
 const { width, height } = Dimensions.get('window');
 
@@ -110,25 +110,25 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
 
   const attributes = artwork.attributes || artwork;
 
-  // Get Photo URL with multiple fallback checks like in ArtworkCard
-  const photoData = attributes.Photo?.data;
+  // Get Photo URL - Strapi Cloud returns full URLs, not relative paths
+  const photoData = attributes.Photo?.data || attributes.Photo;
   const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo?.url;
-  const fullImageUrl = photoUrl ? `${STRAPI_URL}${photoUrl}` : null;
+  const fullImageUrl = photoUrl || null;
 
   // Get Photo_Hidden URL
-  const photoHiddenData = attributes.Photo_Hidden?.data;
+  const photoHiddenData = attributes.Photo_Hidden?.data || attributes.Photo_Hidden;
   const photoHiddenUrl = photoHiddenData?.attributes?.url || photoHiddenData?.url || attributes.Photo_Hidden?.url;
-  const fullPhotoHiddenUrl = photoHiddenUrl ? `${STRAPI_URL}${photoHiddenUrl}` : null;
+  const fullPhotoHiddenUrl = photoHiddenUrl || null;
 
-  // Get Stickers URL
-  const stickersData = attributes.Stickers?.data;
+  // Get Stickers URL - Strapi Cloud returns full URLs
+  const stickersData = attributes.Stickers?.data || attributes.Stickers;
   const stickersUrl = stickersData?.attributes?.url || stickersData?.url || attributes.Stickers?.url;
-  const fullStickersUrl = stickersUrl ? `${STRAPI_URL}${stickersUrl}` : null;
+  const fullStickersUrl = stickersUrl || null;
 
   // Get Stickers_Hidden URL
-  const stickersHiddenData = attributes.Stickers_Hidden?.data;
+  const stickersHiddenData = attributes.Stickers_Hidden?.data || attributes.Stickers_Hidden;
   const stickersHiddenUrl = stickersHiddenData?.attributes?.url || stickersHiddenData?.url || attributes.Stickers_Hidden?.url;
-  const fullStickersHiddenUrl = stickersHiddenUrl ? `${STRAPI_URL}${stickersHiddenUrl}` : null;
+  const fullStickersHiddenUrl = stickersHiddenUrl || null;
 
   // Get location info
   const lat = attributes.Location?.lat;

@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 
-const STRAPI_URL = 'http://172.30.21.177:1337';
+const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -382,9 +383,9 @@ export default function SettingsScreen() {
           ) : (
             currentStickers.map((artwork, index) => {
               const attributes = artwork.attributes || artwork;
-              const stickerData = attributes.Stickers_Hidden?.data;
+              const stickerData = attributes.Stickers_Hidden?.data || attributes.Stickers_Hidden;
               const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
-              const fullUrl = stickerUrl ? `${STRAPI_URL}${stickerUrl}` : null;
+              const fullUrl = stickerUrl || null;
 
               console.log('Rendering sticker:', attributes.Name, 'URL:', fullUrl);
 
@@ -423,9 +424,9 @@ export default function SettingsScreen() {
           <View style={styles.modalContent}>
             {selectedSticker && (() => {
               const attributes = selectedSticker.attributes || selectedSticker;
-              const stickerData = attributes.Stickers_Hidden?.data;
+              const stickerData = attributes.Stickers_Hidden?.data || attributes.Stickers_Hidden;
               const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
-              const fullUrl = stickerUrl ? `${STRAPI_URL}${stickerUrl}` : null;
+              const fullUrl = stickerUrl || null;
 
               return (
                 <>

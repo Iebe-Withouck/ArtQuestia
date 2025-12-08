@@ -26,7 +26,7 @@ import {
     View
 } from "react-native";
 
-const STRAPI_URL = 'http://192.168.0.155:1337';
+const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
 // Calculate distance between two coordinates using Haversine formula
 const calculateDistance = (
@@ -131,10 +131,10 @@ export default function MapScreen() {
                     .map((artwork: any) => {
                         const attributes = artwork.attributes || artwork;
 
-                        // Handle Photo_Hidden with multiple fallbacks like ArtworkCard
-                        const photoData = attributes.Photo_Hidden?.data;
+                        // Handle Photo_Hidden - Strapi Cloud returns full URLs
+                        const photoData = attributes.Photo_Hidden?.data || attributes.Photo_Hidden;
                         const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo_Hidden?.url;
-                        const fullImageUrl = photoUrl ? `${STRAPI_URL}${photoUrl}` : null;
+                        const fullImageUrl = photoUrl || null;
 
                         console.log('Artwork:', attributes.Name);
                         console.log('Photo_Hidden structure:', JSON.stringify(attributes.Photo_Hidden, null, 2));

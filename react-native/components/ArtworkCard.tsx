@@ -16,7 +16,7 @@ import Location from '../assets/icons/location.png';
 import MapIcon from '../assets/images/mapicon.png';
 import NextIcon from '../assets/icons/next.png';
 
-const STRAPI_URL = 'http://172.30.21.177:1337';
+const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
 interface ArtworkCardProps {
   artwork: {
@@ -63,10 +63,16 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
 
   const attributes = artwork.attributes || artwork;
 
-  // Use Photo field with multiple fallback checks like in stickers.tsx
-  const photoData = attributes.Photo_Hidden?.data;
-  const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo_Hidden?.url;
-  const fullImageUrl = photoUrl ? `${STRAPI_URL}${photoUrl}` : null;
+  // Use Photo field - Strapi Cloud returns full URLs, not relative paths
+  const photoData = attributes.Photo?.data || attributes.Photo;
+  const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo?.url;
+  
+  console.log('Photo data:', photoData);
+  console.log('Photo URL:', photoUrl);
+  
+  // Strapi Cloud provides full URLs, so use them directly
+  const fullImageUrl = photoUrl || null;
+  console.log('Full image URL:', fullImageUrl);
 
   // Use the calculated distance from the artwork object (passed from index.tsx)
   const calculatedDistance = (artwork as any).distance;
