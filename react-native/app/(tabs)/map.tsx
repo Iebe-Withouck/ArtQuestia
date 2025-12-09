@@ -62,6 +62,7 @@ type Marker = {
     iconUrl: string; // URL to the hidden photo from Strapi
     description?: string; // short description for the marker
     color?: string; // Color from Strapi
+    theme?: string; // Theme from Strapi
 };
 
 export default function MapScreen() {
@@ -97,6 +98,7 @@ export default function MapScreen() {
     const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
     const [nearbyArtwork, setNearbyArtwork] = useState<Marker | null>(null);
     const [showProximityPopup, setShowProximityPopup] = useState(false);
+    const [isThemeRoute, setIsThemeRoute] = useState(false);
     const shownProximityAlerts = useRef<Set<string>>(new Set());
 
     const cameraRef = useRef<CameraRef>(null);
@@ -154,6 +156,7 @@ export default function MapScreen() {
                             iconUrl: fullImageUrl,
                             description: attributes.Description || '',
                             color: color,
+                            theme: attributes.Theme || '',
                         };
                     });
 
@@ -218,6 +221,37 @@ export default function MapScreen() {
         }
     };
 
+    // Fetch route through multiple waypoints (for theme routes)
+    const fetchMultiWaypointRoute = async (coordinates: [number, number][]) => {
+        try {
+            const res = await fetch(
+                "https://api.openrouteservice.org/v2/directions/foot-walking/geojson",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8",
+                        Accept: "application/geo+json, application/json",
+                        Authorization: ORS_API_KEY,
+                    },
+                    body: JSON.stringify({
+                        coordinates: coordinates,
+                    }),
+                }
+            );
+
+            if (!res.ok) {
+                console.warn("ORS multi-waypoint route request failed", await res.text());
+                return;
+            }
+
+            const json = await res.json();
+            console.log("Multi-waypoint Route GeoJSON:", JSON.stringify(json, null, 2));
+            setRouteGeoJSON(json);
+        } catch (e) {
+            console.warn("Error fetching ORS multi-waypoint route", e);
+        }
+    };
+
     // Navigate to a specific marker + route tekenen
     const navigateToMarker = async (marker: Marker) => {
         if (!userCoord) {
@@ -244,6 +278,8 @@ export default function MapScreen() {
         setRouteGeoJSON(null);
         setIsRouteActive(false);
         setSelectedMarker(null);
+        setIsThemeRoute(false);
+        setSelectedTheme(null);
         hasStartedRouteFromParams.current = false;
     };
 
@@ -398,7 +434,8 @@ export default function MapScreen() {
                         setUserCoord(coord);
 
                         // Update route only if it's from automatic tracking, not manual navigation
-                        if (!isManualLocationUpdate.current) {
+                        // Don't update if we're in theme route mode (multi-waypoint route)
+                        if (!isManualLocationUpdate.current && !isThemeRoute) {
                             fetchWalkingRoute(coord, selectedMarker.coordinate);
                         }
                         isManualLocationUpdate.current = false;
@@ -459,11 +496,78 @@ export default function MapScreen() {
     };
 
     // Handle theme selection
-    const handleThemeSelect = (theme: string) => {
+    const handleThemeSelect = async (theme: string) => {
+        if (!userCoord) {
+            console.warn('Geen user locatie beschikbaar');
+            return;
+        }
+
         setSelectedTheme(theme);
         setThemeDropdownVisible(false);
         console.log('Selected theme:', theme);
-        // Here you can add logic to filter markers or create a route based on theme
+
+        // Filter markers by theme
+        const themeMarkers = markers.filter(marker => marker.theme === theme);
+
+        if (themeMarkers.length === 0) {
+            console.warn('Geen artworks gevonden voor dit thema');
+            return;
+        }
+
+        // Optimize route using nearest neighbor algorithm
+        // Start from user location and always go to the nearest unvisited artwork
+        const optimizedMarkers: Marker[] = [];
+        const unvisited = [...themeMarkers];
+        let currentPosition = userCoord;
+
+        while (unvisited.length > 0) {
+            // Find nearest unvisited marker from current position
+            let nearestIndex = 0;
+            let minDistance = calculateDistance(currentPosition, unvisited[0].coordinate);
+
+            for (let i = 1; i < unvisited.length; i++) {
+                const distance = calculateDistance(currentPosition, unvisited[i].coordinate);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestIndex = i;
+                }
+            }
+
+            // Add nearest marker to optimized route
+            const nearestMarker = unvisited[nearestIndex];
+            optimizedMarkers.push(nearestMarker);
+            currentPosition = nearestMarker.coordinate;
+
+            // Remove from unvisited
+            unvisited.splice(nearestIndex, 1);
+        }
+
+        console.log('Building optimized theme route with', optimizedMarkers.length, 'artworks');
+
+        // Build coordinates array: user location + all artwork locations in optimized order
+        const routeCoordinates: [number, number][] = [
+            userCoord,
+            ...optimizedMarkers.map(marker => marker.coordinate)
+        ];
+
+        console.log('Route coordinates:', routeCoordinates.length, 'waypoints');
+
+        // Set first marker as selected for the popup
+        setSelectedMarker(optimizedMarkers[0]);
+
+        // Fetch the complete route through all waypoints
+        setIsLoadingRoute(true);
+        setIsThemeRoute(true);
+        await fetchMultiWaypointRoute(routeCoordinates);
+        setIsLoadingRoute(false);
+        setIsRouteActive(true);
+
+        // Zoom to show the route
+        cameraRef.current?.setCamera({
+            centerCoordinate: optimizedMarkers[0].coordinate,
+            zoomLevel: 14,
+            animationDuration: 1000,
+        });
     };
 
     // Handle search result click
@@ -541,8 +645,8 @@ export default function MapScreen() {
             shadowRadius: 4,
         },
         locationIcon: {
-            width: isSmallDevice ? 18 : 20,
-            height: isSmallDevice ? 18 : 20,
+            width: isSmallDevice ? 26 : 28,
+            height: isSmallDevice ? 26 : 28,
             tintColor: "#fff",
         },
         searchResultsContainer: {
@@ -1063,7 +1167,7 @@ export default function MapScreen() {
                 onPress={goToMyLocation}
             >
                 <Image
-                    source={require('@/assets/icons/location.png')}
+                    source={require('@/assets/icons/currentlocation.png')}
                     style={styles.locationIcon}
                     resizeMode="contain"
                 />
