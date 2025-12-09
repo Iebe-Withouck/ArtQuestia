@@ -6,6 +6,10 @@ import {
     ViroDirectionalLight,
     ViroNode,
     ViroText,
+    ViroBox,
+    ViroAnimations,
+    ViroMaterials,
+    ViroQuad,
 } from '@reactvision/react-viro';
 import * as Location from 'expo-location';
 import { useFonts } from 'expo-font';
@@ -99,6 +103,7 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
     onAnimationFinish: () => void;
 }) {
     const [animationPlayed, setAnimationPlayed] = useState(false);
+    const [showBalloons, setShowBalloons] = useState(false);
     // Calculate AR position based on GPS coordinates
     const arPosition: [number, number, number] = userLocation
         ? gpsToARPosition(
@@ -167,6 +172,10 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     onLoadStart={() => console.log('ARScene1: Bomb loading...')}
                     onLoadEnd={() => {
                         console.log('ARScene1: Bomb loaded at GPS coordinates');
+                        // Show text balloons after 2 seconds
+                        setTimeout(() => {
+                            setShowBalloons(true);
+                        }, 2000);
                         // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
                         setTimeout(() => {
                             if (!animationPlayed) {
@@ -183,6 +192,152 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                         );
                     }}
                 />
+
+                {/* Tekstballon 1 - Rechtsboven */}
+                {showBalloons && (
+                    <ViroNode position={[0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.45}
+                            width={1.4}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="2006: Uitbreiding na WOII"
+                            position={[0, 0.12, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={4.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Aanvulling op het Eerste Wereldoorlogmonument aan de voet van de Halletoren met twee granieten stenen."
+                            position={[0, -0.08, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={6.5}
+                            height={2}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 2 - Links */}
+                {showBalloons && (
+                    <ViroNode position={[-1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.38}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Linker steen"
+                            position={[0, 0.1, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="51 namen van Kortrijkse militairen gesneuveld in WOII gegraveerd."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 3 - Rechts */}
+                {showBalloons && (
+                    <ViroNode position={[1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.43}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Rechter steen"
+                            position={[0, 0.12, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Opdracht aan slachtoffers van militaire acties, verzetsdaden en bombardementen tussen 1940-1945."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2.5}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 4 - Linksboven */}
+                {showBalloons && (
+                    <ViroNode position={[-0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.43}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Herdenking"
+                            position={[0, 0.12, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Gedenkstenen onthuld bij bevrijdingsherdenking Kortrijk op 10 september 2006 als eerbetoon aan alle oorlogsslachtoffers."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2.5}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 5 - Op de grond (plat liggend) */}
+                {showBalloons && (
+                    <ViroNode position={[0, -0.5, 1.1]} rotation={[-55, 0, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroQuad
+                            position={[0, 0, 0]}
+                            width={1.1}
+                            height={0.43}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Klaprozen tussen bommen"
+                            position={[0, 0.12, 0.01]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                            extrusionDepth={0}
+                        />
+                        <ViroText
+                            text="Hier verschijnen klaprozen als teken van herinnering aan de vele slachtoffers van bombardementen en ander oorlogsgeweld."
+                            position={[0, -0.06, 0.01]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2.5}
+                            style={styles.balloonText}
+                            extrusionDepth={0}
+                        />
+                    </ViroNode>
+                )}
             </ViroNode>
         </ViroARScene>
     );
@@ -252,6 +407,24 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
     const handleAnimationFinish = () => {
         setShowStickerPopup(true);
     };
+
+    // Define materials for text balloons
+    React.useEffect(() => {
+        ViroMaterials.createMaterials({
+            balloonBackground: {
+                diffuseColor: '#F10906',
+                lightingModel: 'Constant',
+            },
+        });
+
+        ViroAnimations.registerAnimations({
+            fadeIn: {
+                properties: { opacity: 1 },
+                duration: 1000,
+                easing: 'EaseInOut',
+            },
+        });
+    }, []);
 
     // Wrapper function to pass props to AR Scene
     const ARSceneWrapper = () => (
@@ -436,6 +609,22 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         textAlignVertical: 'center',
         textAlign: 'center',
+    },
+    balloonTitle: {
+        fontFamily: 'Impact',
+        fontSize: 30,
+        color: '#ffffff',
+        textAlignVertical: 'center',
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    balloonText: {
+        fontFamily: 'LeagueSpartan',
+        fontSize: 30,
+        color: '#ffffff',
+        textAlignVertical: 'center',
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
     bottomMenu: {
         position: 'absolute',
