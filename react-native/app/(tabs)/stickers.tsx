@@ -215,7 +215,7 @@ export default function SettingsScreen() {
         </ThemedText>
 
         <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
-          Ontdek Kortrijk, beleef de quest & scoor beloningen
+          Ontdek Kortrijk, beleef de quest & scoor coupons
         </ThemedText>
 
         <View style={[styles.themaRoute, { marginTop: verticalScale(50) }]}>
@@ -228,7 +228,7 @@ export default function SettingsScreen() {
             }}
           >
             <ThemedText style={[styles.title, { marginTop: 0 }]}>
-              {selectedThemeQuest} thema quest
+              {selectedThemeQuest} quest
             </ThemedText>
             <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: themeQuestDropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
@@ -275,7 +275,7 @@ export default function SettingsScreen() {
               setStickerTypeDropdownVisible(false);
             }}
           >
-            <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Thema's" : selectedTheme}</ThemedText>
+            <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Quests" : selectedTheme}</ThemedText>
             <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: dropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
         </View>
@@ -303,7 +303,7 @@ export default function SettingsScreen() {
                 handleThemeSelect('Alle');
               }}
             >
-              <ThemedText style={styles.dropdownText}>Alle Thema's</ThemedText>
+              <ThemedText style={styles.dropdownText}>Alle Quests</ThemedText>
             </TouchableOpacity>
             {themes.filter(theme => theme !== 'Alle').map((theme, index) => (
               <TouchableOpacity

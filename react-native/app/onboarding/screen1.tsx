@@ -36,7 +36,7 @@ export default function Screen1() {
 
       <Image source={Phone} style={styles.phoneImage} />
 
-      <Text style={styles.title}>Ontdek Kortrijk, beleef de quest & scoor beloningen</Text>
+      <Text style={styles.title}>Ontdek Kortrijk, beleef de quest & scoor coupons</Text>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Hup, Naar de volgende!</Text>

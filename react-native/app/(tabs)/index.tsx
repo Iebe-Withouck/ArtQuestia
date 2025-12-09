@@ -158,7 +158,7 @@ export default function SettingsScreen() {
         </ThemedText>
 
         <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
-          Ontdek Kortrijk, beleef de quest & scoor beloningen
+          Ontdek Kortrijk, beleef de quest & scoor coupons
         </ThemedText>
 
         <View style={styles.container}>

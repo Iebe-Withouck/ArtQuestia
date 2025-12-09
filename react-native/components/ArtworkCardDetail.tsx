@@ -183,7 +183,7 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
             {attributes.Name || 'Untitled'}
           </ThemedText>
 
-          <ThemedText style={[styles.creator, { fontFamily: 'LeagueSpartan' }]}>
+          <ThemedText style={[styles.creator, { fontFamily: 'LeagueSpartan-regular' }]}>
             {attributes.Creator || 'Unknown'}
           </ThemedText>
 
@@ -217,7 +217,7 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
           {/* Description */}
           {attributes.Description && (
             <View style={styles.section}>
-              <ThemedText style={[styles.description, { fontFamily: 'LeagueSpartan' }]}>
+              <ThemedText style={[styles.description, { fontFamily: 'LeagueSpartan-regular' }]}>
                 {attributes.Description}
               </ThemedText>
             </View>
@@ -226,7 +226,7 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
           <TouchableOpacity
             style={styles.startTochtButton}
             onPress={handleStartRoute}>
-            <ThemedText style={styles.startTochtButtonText}>Start je tocht naar {attributes.Name}</ThemedText>
+            <ThemedText style={styles.startTochtButtonText}>Ga op ontdekking!</ThemedText>
           </TouchableOpacity>
         </View>
 
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
   },
 
@@ -443,6 +443,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#fff',
     fontSize: moderateScale(15),
-    fontFamily: 'Impact',
+    fontFamily: 'LeagueSpartan-semibold',
   },
 });
