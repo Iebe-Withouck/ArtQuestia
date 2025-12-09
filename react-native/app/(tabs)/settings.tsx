@@ -232,6 +232,7 @@ export default function SettingsScreen() {
         <View style={styles.profileSection}>
           <TouchableOpacity style={styles.bellButton} onPress={() => setShowNotifications(true)}>
             <Image source={Bell} style={styles.bellIcon} />
+            <View style={styles.notificationDot} />
           </TouchableOpacity>          <TouchableOpacity style={styles.infoButton}>
             <Image source={Info} style={styles.infoIcon} />
           </TouchableOpacity>
@@ -522,6 +523,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: moderateScale(2),
+    right: moderateScale(2),
+    width: moderateScale(10),
+    height: moderateScale(10),
+    borderRadius: moderateScale(5),
+    backgroundColor: '#FF0000',
+    borderWidth: 1.5,
+    borderColor: '#000',
   },
   infoButton: {
     position: 'absolute',

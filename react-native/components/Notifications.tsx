@@ -10,7 +10,7 @@ import {
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import NextIcon from '../assets/icons/next.png';
+import NextIcon from '../assets/icons/next_yellow.png';
 import Delete from "../assets/icons/delete.png";
 
 const { width, height } = Dimensions.get('window');
