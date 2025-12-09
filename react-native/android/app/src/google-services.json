@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "88582221468",
+    "project_id": "bap-devine",
+    "storage_bucket": "bap-devine.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:88582221468:android:5b9f3054a1701192f9c759",
+        "android_client_info": {
+          "package_name": "com.ArtQuestia.artquestia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "88582221468-ie7p5nntbg4p4sqqv8l1cmafhlaa38ln.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOUd0hzsNZIhe7p-sz8PiDdwRFQLoMCOI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "88582221468-ie7p5nntbg4p4sqqv8l1cmafhlaa38ln.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
