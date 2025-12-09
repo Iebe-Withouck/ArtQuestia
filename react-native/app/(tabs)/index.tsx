@@ -223,7 +223,7 @@ export default function SettingsScreen() {
           <TouchableOpacity style={styles.buttonContainer} onPress={() => router.push('/(tabs)/map')}>
             <Image source={Icon1} style={styles.buttonIcon} />
             <View style={styles.button}>
-              <ThemedText style={styles.buttonText}>Kies je route</ThemedText>
+              <ThemedText style={styles.buttonText}>Kies je quest</ThemedText>
             </View>
           </TouchableOpacity>
 

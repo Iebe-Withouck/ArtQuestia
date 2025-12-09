@@ -230,9 +230,9 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         <View style={styles.profileSection}>
-        <TouchableOpacity style={styles.bellButton} onPress={() => setShowNotifications(true)}>
-          <Image source={Bell} style={styles.bellIcon} />
-        </TouchableOpacity>          <TouchableOpacity style={styles.infoButton}>
+          <TouchableOpacity style={styles.bellButton} onPress={() => setShowNotifications(true)}>
+            <Image source={Bell} style={styles.bellIcon} />
+          </TouchableOpacity>          <TouchableOpacity style={styles.infoButton}>
             <Image source={Info} style={styles.infoIcon} />
           </TouchableOpacity>
 
@@ -343,7 +343,7 @@ export default function SettingsScreen() {
               setStickerTypeDropdownVisible(false);
             }}
           >
-            <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Thema's" : selectedTheme}</ThemedText>
+            <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Quests" : selectedTheme}</ThemedText>
             <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: dropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
         </View>
@@ -371,7 +371,7 @@ export default function SettingsScreen() {
                 handleThemeSelect('Alle');
               }}
             >
-              <ThemedText style={styles.dropdownText}>Alle Thema's</ThemedText>
+              <ThemedText style={styles.dropdownText}>Alle Quests</ThemedText>
             </TouchableOpacity>
             {themes.filter(theme => theme !== 'Alle').map((theme, index) => (
               <TouchableOpacity
