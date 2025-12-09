@@ -6,6 +6,10 @@ import {
     ViroDirectionalLight,
     ViroNode,
     ViroText,
+    ViroBox,
+    ViroAnimations,
+    ViroMaterials,
+    ViroQuad,
 } from '@reactvision/react-viro';
 import * as Location from 'expo-location';
 import { useFonts } from 'expo-font';
@@ -99,6 +103,7 @@ function ARScene3Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
     onAnimationFinish: () => void;
 }) {
     const [animationPlayed, setAnimationPlayed] = useState(false);
+    const [showBalloons, setShowBalloons] = useState(false);
     // Calculate AR position based on GPS coordinates
     const arPosition: [number, number, number] = userLocation
         ? gpsToARPosition(
@@ -158,7 +163,7 @@ function ARScene3Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     scale={[0.1, 0.1, 0.1]}
                     type="GLB"
                     animation={{
-                        name: 'LeiegedenktekenAction',
+                        name: 'LeieAction',
                         run: true,
                         loop: true,
                     }}
@@ -167,13 +172,17 @@ function ARScene3Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     onLoadStart={() => console.log('ARScene3: Leiegedenkteken loading...')}
                     onLoadEnd={() => {
                         console.log('ARScene3: Leiegedenkteken loaded at GPS coordinates');
+                        // Show text balloons after 2 seconds
+                        setTimeout(() => {
+                            setShowBalloons(true);
+                        }, 2000);
                         // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
                         setTimeout(() => {
                             if (!animationPlayed) {
                                 setAnimationPlayed(true);
                                 onAnimationFinish();
                             }
-                        }, 16000);
+                        }, 10000);
                     }}
                     onError={(event) => {
                         console.error('ARScene3: Error loading leiegedenkteken (message):', event.nativeEvent?.error);
@@ -183,6 +192,122 @@ function ARScene3Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                         );
                     }}
                 />
+
+                {/* Tekstballon 1 - Luikse rotssteen - Rechtsboven (veel hoger) */}
+                {showBalloons && (
+                    <ViroNode position={[0.9, 1.8, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.45}
+                            width={1.4}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="1947: Luikse rotssteen"
+                            position={[0, 0.12, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={4.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Oud-strijders brengen steen uit Luik naar Leieboorden, ter nagedachtenis aan gevallen kameraden van de Leieslag. Comité Leie-Lys geboren."
+                            position={[0, -0.08, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={6.5}
+                            height={2.5}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 2 - Koning Boudewijn - Linksboven */}
+                {showBalloons && (
+                    <ViroNode position={[-0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.45}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="1957: Koning Boudewijn onthult"
+                            position={[0, 0.12, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Eerste steen 1954 door Boudewijn; inhuldiging met premier Van Acker. Enige standbeeld van Leopold III te paard met soldaten."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2.5}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 3 - Symbolen - Links onder */}
+                {showBalloons && (
+                    <ViroNode position={[-0.9, 0.0, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.53}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Symbolen van verzet"
+                            position={[0, 0.16, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="25m hoge zuil: grootheid offer. Cirkelmuur: hardnekkige Leieverdediging. Negen sarcofagen met wapenschilden voor provincies."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={3}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 4 - Restauraties - Links midden */}
+                {showBalloons && (
+                    <ViroNode position={[-0.9, 0.55, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.48}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Restauraties & eer"
+                            position={[0, 0.14, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="1990 en 2008 hersteld. Jaarlijkse herdenking eind mei. Postzegel in 1990 voor 18-daagse veldtocht."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2.5}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
             </ViroNode>
         </ViroARScene>
     );
@@ -252,6 +377,24 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
     const handleAnimationFinish = () => {
         setShowStickerPopup(true);
     };
+
+    // Define materials for text balloons
+    React.useEffect(() => {
+        ViroMaterials.createMaterials({
+            balloonBackground: {
+                diffuseColor: '#1AF7A2',
+                lightingModel: 'Constant',
+            },
+        });
+
+        ViroAnimations.registerAnimations({
+            fadeIn: {
+                properties: { opacity: 1 },
+                duration: 1000,
+                easing: 'EaseInOut',
+            },
+        });
+    }, []);
 
     // Wrapper function to pass props to AR Scene
     const ARSceneWrapper = () => (
@@ -436,6 +579,22 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         textAlignVertical: 'center',
         textAlign: 'center',
+    },
+    balloonTitle: {
+        fontFamily: 'Impact',
+        fontSize: 30,
+        color: '#000000',
+        textAlignVertical: 'center',
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    balloonText: {
+        fontFamily: 'LeagueSpartan',
+        fontSize: 30,
+        color: '#000000',
+        textAlignVertical: 'center',
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
     bottomMenu: {
         position: 'absolute',

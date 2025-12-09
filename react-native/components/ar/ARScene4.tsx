@@ -6,6 +6,10 @@ import {
     ViroDirectionalLight,
     ViroNode,
     ViroText,
+    ViroBox,
+    ViroAnimations,
+    ViroMaterials,
+    ViroQuad,
 } from '@reactvision/react-viro';
 import * as Location from 'expo-location';
 import { useFonts } from 'expo-font';
@@ -99,6 +103,7 @@ function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
     onAnimationFinish: () => void;
 }) {
     const [animationPlayed, setAnimationPlayed] = useState(false);
+    const [showBalloons, setShowBalloons] = useState(false);
     // Calculate AR position based on GPS coordinates
     const arPosition: [number, number, number] = userLocation
         ? gpsToARPosition(
@@ -152,21 +157,26 @@ function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
 
                 {/* 3D Model with baked animation from Blender */}
                 <Viro3DObject
-                    source={require('../../assets/3D-Models/bomb.glb')}
+                    source={require('../../assets/3D-Models/bissegem.glb')}
                     resources={[]}
                     position={[0, 0, 0]}
-                    scale={[0.1, 0.1, 0.1]}
+                    scale={[0.4, 0.4, 0.4]}
+                    rotation={[0, -95, 0]}
                     type="GLB"
                     animation={{
-                        name: 'BombAction',
+                        name: 'Bissegem',
                         run: true,
                         loop: true,
                     }}
                     lightReceivingBitMask={1}
                     shadowCastingBitMask={1}
-                    onLoadStart={() => console.log('ARScene4: Bomb loading...')}
+                    onLoadStart={() => console.log('ARScene4: Bissegem loading...')}
                     onLoadEnd={() => {
-                        console.log('ARScene4: Bomb loaded at GPS coordinates');
+                        console.log('ARScene4: Bissegem loaded at GPS coordinates');
+                        // Show text balloons after 2 seconds
+                        setTimeout(() => {
+                            setShowBalloons(true);
+                        }, 2000);
                         // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
                         setTimeout(() => {
                             if (!animationPlayed) {
@@ -176,13 +186,129 @@ function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                         }, 16000);
                     }}
                     onError={(event) => {
-                        console.error('ARScene4: Error loading bomb (message):', event.nativeEvent?.error);
+                        console.error('ARScene4: Error loading bissegem (message):', event.nativeEvent?.error);
                         console.error(
                             'ARScene4: Full error object:',
                             JSON.stringify(event.nativeEvent, null, 2),
                         );
                     }}
                 />
+
+                {/* Tekstballon 1 - Rechtsboven */}
+                {showBalloons && (
+                    <ViroNode position={[0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.38}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Soldaat op wacht"
+                            position={[0, 0.1, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Symbool van moed: hij bewaakt het slagveld na explosie. Hoge sokkel torent uit, gemaakt door Viaene-Lagae uit Kortrijk."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 2 - Linksonder */}
+                {showBalloons && (
+                    <ViroNode position={[-1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.43}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Namen gegraveerd"
+                            position={[0, 0.12, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="6 militairen en 27 burgers uit WOI. Na WOII: +35 burgers, 5 militairen, 4 politieke door vliegveld-bombardementen."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2.5}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 3 - Rechtsonder */}
+                {showBalloons && (
+                    <ViroNode position={[1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.43}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Vliegveld-vloek"
+                            position={[0, 0.12, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Nabij Bissegem-Wevelgem lag strategisch doelwit: het vliegveld. Burgerleed overheerst door herhaalde luchtaanvallen."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2.5}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 4 - Linksboven */}
+                {showBalloons && (
+                    <ViroNode position={[-0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.45}
+                            width={1.4}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="1920: Geboren uit verdriet"
+                            position={[0, 0.12, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={4.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Opgesteld ter ere van slachtoffers van de Grote Oorlog. Belgische soldaat staat waakzaam op puin, geweerloop beschadigd door strijd."
+                            position={[0, -0.08, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={6.5}
+                            height={2}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
             </ViroNode>
         </ViroARScene>
     );
@@ -252,6 +378,24 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
     const handleAnimationFinish = () => {
         setShowStickerPopup(true);
     };
+
+    // Define materials for text balloons
+    React.useEffect(() => {
+        ViroMaterials.createMaterials({
+            balloonBackground: {
+                diffuseColor: '#FDE404',
+                lightingModel: 'Constant',
+            },
+        });
+
+        ViroAnimations.registerAnimations({
+            fadeIn: {
+                properties: { opacity: 1 },
+                duration: 1000,
+                easing: 'EaseInOut',
+            },
+        });
+    }, []);
 
     // Wrapper function to pass props to AR Scene
     const ARSceneWrapper = () => (
@@ -436,6 +580,22 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         textAlignVertical: 'center',
         textAlign: 'center',
+    },
+    balloonTitle: {
+        fontFamily: 'Impact',
+        fontSize: 30,
+        color: '#000000',
+        textAlignVertical: 'center',
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    balloonText: {
+        fontFamily: 'LeagueSpartan',
+        fontSize: 30,
+        color: '#000000',
+        textAlignVertical: 'center',
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
     bottomMenu: {
         position: 'absolute',

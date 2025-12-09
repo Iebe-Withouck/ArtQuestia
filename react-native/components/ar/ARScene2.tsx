@@ -6,6 +6,10 @@ import {
     ViroDirectionalLight,
     ViroNode,
     ViroText,
+    ViroBox,
+    ViroAnimations,
+    ViroMaterials,
+    ViroQuad,
 } from '@reactvision/react-viro';
 import * as Location from 'expo-location';
 import { useFonts } from 'expo-font';
@@ -99,6 +103,7 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
     onAnimationFinish: () => void;
 }) {
     const [animationPlayed, setAnimationPlayed] = useState(false);
+    const [showBalloons, setShowBalloons] = useState(false);
     // Calculate AR position based on GPS coordinates
     const arPosition: [number, number, number] = userLocation
         ? gpsToARPosition(
@@ -121,20 +126,20 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
     return (
         <ViroARScene>
             {/* Ambient light for overall scene illumination */}
-            <ViroAmbientLight color="#ffffff" intensity={30000} />
+            <ViroAmbientLight color="#ffffff" intensity={20000} />
 
             {/* Directional light from above-front to simulate sunlight */}
             <ViroDirectionalLight
                 color="#ffffff"
                 direction={[0, -1, -0.5]}
-                intensity={500}
+                intensity={200}
             />
 
             {/* Additional directional light from the side for depth */}
             <ViroDirectionalLight
                 color="#ffffff"
                 direction={[1, -0.5, 0]}
-                intensity={300}
+                intensity={100}
             />
 
             {/* Node to group and anchor all objects at GPS coordinates */}
@@ -152,21 +157,26 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
 
                 {/* 3D Model with baked animation from Blender */}
                 <Viro3DObject
-                    source={require('../../assets/3D-Models/bomb.glb')}
+                    source={require('../../assets/3D-Models/flag.glb')}
                     resources={[]}
                     position={[0, 0, 0]}
-                    scale={[0.1, 0.1, 0.1]}
+                    scale={[0.3, 0.3, 0.3]}
+                    rotation={[0, -90, 0]}
                     type="GLB"
                     animation={{
-                        name: 'BombAction',
+                        name: 'VirginOfFlanders',
                         run: true,
                         loop: true,
                     }}
                     lightReceivingBitMask={1}
                     shadowCastingBitMask={1}
-                    onLoadStart={() => console.log('ARScene2: Bomb loading...')}
+                    onLoadStart={() => console.log('ARScene2: Flag loading...')}
                     onLoadEnd={() => {
-                        console.log('ARScene2: Bomb loaded at GPS coordinates');
+                        console.log('ARScene2: Flag loaded at GPS coordinates');
+                        // Show text balloons after 2 seconds
+                        setTimeout(() => {
+                            setShowBalloons(true);
+                        }, 2000);
                         // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
                         setTimeout(() => {
                             if (!animationPlayed) {
@@ -176,13 +186,159 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                         }, 16000);
                     }}
                     onError={(event) => {
-                        console.error('ARScene2: Error loading bomb (message):', event.nativeEvent?.error);
+                        console.error('ARScene2: Error loading flag (message):', event.nativeEvent?.error);
                         console.error(
                             'ARScene2: Full error object:',
                             JSON.stringify(event.nativeEvent, null, 2),
                         );
                     }}
                 />
+
+                {/* Tekstballon 1 - Rechtsboven */}
+                {showBalloons && (
+                    <ViroNode position={[0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.38}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="1906: Onthuld na 4 jaar"
+                            position={[0, 0.1, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Godfried Devreese wint wedstrijd. Maquette 1902; voltooid 1906. Verguld brons via Vlaamse inzameling."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 2 - Linksonder */}
+                {showBalloons && (
+                    <ViroNode position={[-1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.38}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Maagd & Leeuw"
+                            position={[0, 0.1, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Zij richt zeis op Frankrijk, temt boeienbreuk Leeuw. Romantisch-realistisch meesterwerk Vlaamse strijd."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 3 - Rechtsonder */}
+                {showBalloons && (
+                    <ViroNode position={[1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.38}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="Drie reliëfs"
+                            position={[0, 0.1, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Links: krijger afscheid vrouw/kind onder OLV Groeninge. Midden: Robert d'Artois dood bij paard. Rechts: zegevierende Vlamingen verbroederen."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 4 - Linksboven */}
+                {showBalloons && (
+                    <ViroNode position={[-0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroBox
+                            position={[0, 0, 0]}
+                            height={0.38}
+                            width={1.1}
+                            length={0.02}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="1906: Onthuld na 4 jaar"
+                            position={[0, 0.1, 0.02]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                        />
+                        <ViroText
+                            text="Godfried Devreese wint wedstrijd. Maquette 1902; voltooid 1906. Verguld brons via Vlaamse inzameling."
+                            position={[0, -0.06, 0.02]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2}
+                            style={styles.balloonText}
+                        />
+                    </ViroNode>
+                )}
+
+                {/* Tekstballon 5 - Op de grond (plat liggend) */}
+                {showBalloons && (
+                    <ViroNode position={[0, -0.5, 1.1]} rotation={[-55, 0, 0]} animation={{ name: 'fadeIn', run: true }}>
+                        <ViroQuad
+                            position={[0, 0, 0]}
+                            width={1.1}
+                            height={0.38}
+                            materials={['balloonBackground']}
+                        />
+                        <ViroText
+                            text="1302: Guldensporenslag"
+                            position={[0, 0.1, 0.01]}
+                            scale={[0.15, 0.15, 0.15]}
+                            width={3.5}
+                            height={1}
+                            style={styles.balloonTitle}
+                            extrusionDepth={0}
+                        />
+                        <ViroText
+                            text="Vlaams voetvolk verslaat Frans ruiterleger op Groeningekouter. Symbool Vlaamse ontvoogding door Conscience's Leeuw."
+                            position={[0, -0.06, 0.01]}
+                            scale={[0.1, 0.1, 0.1]}
+                            width={5}
+                            height={2}
+                            style={styles.balloonText}
+                            extrusionDepth={0}
+                        />
+                    </ViroNode>
+                )}
             </ViroNode>
         </ViroARScene>
     );
@@ -262,6 +418,24 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
     const handleAnimationFinish = () => {
         setShowStickerPopup(true);
     };
+
+    // Define materials for text balloons
+    React.useEffect(() => {
+        ViroMaterials.createMaterials({
+            balloonBackground: {
+                diffuseColor: '#FF7700',
+                lightingModel: 'Constant',
+            },
+        });
+
+        ViroAnimations.registerAnimations({
+            fadeIn: {
+                properties: { opacity: 1 },
+                duration: 1000,
+                easing: 'EaseInOut',
+            },
+        });
+    }, []);
 
     // Wrapper function to pass props to AR Scene
     const ARSceneWrapper = () => (
@@ -446,6 +620,22 @@ const styles = StyleSheet.create({
         color: '#ffffff',
         textAlignVertical: 'center',
         textAlign: 'center',
+    },
+    balloonTitle: {
+        fontFamily: 'Impact',
+        fontSize: 30,
+        color: '#ffffff',
+        textAlignVertical: 'center',
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    balloonText: {
+        fontFamily: 'LeagueSpartan',
+        fontSize: 30,
+        color: '#ffffff',
+        textAlignVertical: 'center',
+        textAlign: 'center',
+        fontWeight: 'bold',
     },
     bottomMenu: {
         position: 'absolute',
