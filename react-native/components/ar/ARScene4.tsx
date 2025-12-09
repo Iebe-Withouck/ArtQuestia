@@ -22,7 +22,7 @@ import {
     Modal
 } from 'react-native';
 
-const STRAPI_URL = 'http://192.168.0.155:1337';
+const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 const { width, height } = Dimensions.get('window');
 
 // Responsive scaling functions
