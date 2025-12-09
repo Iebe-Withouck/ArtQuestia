@@ -11,6 +11,7 @@ export interface ArtworkLocation {
     theme?: string;
     modelPath?: string;
     sceneType?: 'bomb' | 'default' | string; // Add more scene types as needed
+    arSceneNumber?: 1 | 2 | 3 | 4; // Which AR scene to show (1-4)
 }
 
 interface ArtworkContextType {

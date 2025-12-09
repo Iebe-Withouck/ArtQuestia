@@ -11,6 +11,10 @@ import {
   Animated,
 } from 'react-native';
 import ARScene1 from '../../components/ar/ARScene1';
+import ARScene2 from '../../components/ar/ARScene2';
+import ARScene3 from '../../components/ar/ARScene3';
+import ARScene4 from '../../components/ar/ARScene4';
+import { useArtwork } from '@/contexts/ArtworkContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,6 +24,7 @@ const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
 export default function Scan() {
+  const { selectedArtwork } = useArtwork();
   const [sceneKey, setSceneKey] = useState(0);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -133,12 +138,31 @@ export default function Scan() {
     );
   }
 
+  // Render de juiste AR scene op basis van het geselecteerde kunstwerk
+  const renderARScene = () => {
+    const sceneNumber = selectedArtwork?.arSceneNumber || 1;
+    const commonProps = {
+      userLocation,
+      sceneKey,
+    };
+
+    switch (sceneNumber) {
+      case 1:
+        return <ARScene1 {...commonProps} />;
+      case 2:
+        return <ARScene2 {...commonProps} />;
+      case 3:
+        return <ARScene3 {...commonProps} />;
+      case 4:
+        return <ARScene4 {...commonProps} />;
+      default:
+        return <ARScene1 {...commonProps} />;
+    }
+  };
+
   return (
     <View style={{ flex: 1 }}>
-      <ARScene1
-        userLocation={userLocation}
-        sceneKey={sceneKey}
-      />
+      {renderARScene()}
     </View>
   );
 }

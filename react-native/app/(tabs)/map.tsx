@@ -10,8 +10,9 @@ import {
 } from "@maplibre/maplibre-react-native";
 import * as Haptics from "expo-haptics";
 import * as Location from "expo-location";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
+import { useArtwork } from '@/contexts/ArtworkContext';
 import {
     ActivityIndicator,
     Dimensions,
@@ -27,6 +28,14 @@ import {
 } from "react-native";
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
+
+// Mapping van kunstwerk namen naar AR scene nummers
+const ARTWORK_AR_SCENE_MAP: { [key: string]: 1 | 2 | 3 | 4 } = {
+    'Monument voor de gesneuvelden van Wereldoorlog II': 1,
+    'Het Groeningemonument': 2,
+    'Leiegedenkteken': 3,
+    'Oorlogsmonument Bissegem': 4,
+};
 
 // Calculate distance between two coordinates using Haversine formula
 const calculateDistance = (
@@ -68,6 +77,8 @@ type Marker = {
 export default function MapScreen() {
     // Get route params
     const params = useLocalSearchParams();
+    const router = useRouter();
+    const { setSelectedArtwork } = useArtwork();
 
     // fallback: Kortrijk
     const center: [number, number] = [3.2649, 50.828];
@@ -1450,9 +1461,27 @@ export default function MapScreen() {
                         <TouchableOpacity
                             style={styles.proximityButton}
                             onPress={() => {
+                                if (nearbyArtwork) {
+                                    // Bepaal welke AR scene getoond moet worden op basis van kunstwerk naam
+                                    const arSceneNumber = ARTWORK_AR_SCENE_MAP[nearbyArtwork.title] || 1;
+
+                                    // Sla het geselecteerde kunstwerk op in context
+                                    setSelectedArtwork({
+                                        id: nearbyArtwork.id,
+                                        name: nearbyArtwork.title,
+                                        creator: nearbyArtwork.creator,
+                                        latitude: nearbyArtwork.coordinate[1],
+                                        longitude: nearbyArtwork.coordinate[0],
+                                        description: nearbyArtwork.description,
+                                        color: nearbyArtwork.color,
+                                        theme: nearbyArtwork.theme,
+                                        arSceneNumber: arSceneNumber,
+                                    });
+                                }
+
                                 setShowProximityPopup(false);
-                                // Navigate to AR experience (scan screen)
-                                // You can add navigation logic here
+                                // Navigeer naar de scan tab
+                                router.push('/(tabs)/scan');
                             }}
                         >
                             <Text style={styles.proximityButtonText} numberOfLines={1} adjustsFontSizeToFit>Begin de AR-experience</Text>

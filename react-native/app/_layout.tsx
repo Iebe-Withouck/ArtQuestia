@@ -2,6 +2,7 @@ import { ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { ArtworkProvider } from '@/contexts/ArtworkContext';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -39,14 +40,16 @@ const CustomTheme = {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider value={CustomTheme}>
-      <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
-        <Stack.Screen name="index" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="light" />
-    </ThemeProvider>
+    <ArtworkProvider>
+      <ThemeProvider value={CustomTheme}>
+        <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
+          <Stack.Screen name="index" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+        <StatusBar style="light" />
+      </ThemeProvider>
+    </ArtworkProvider>
   );
 }

@@ -152,21 +152,21 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
 
                 {/* 3D Model with baked animation from Blender */}
                 <Viro3DObject
-                    source={require('../../assets/3D-Models/flag.glb')}
+                    source={require('../../assets/3D-Models/bomb.glb')}
                     resources={[]}
                     position={[0, 0, 0]}
                     scale={[0.1, 0.1, 0.1]}
                     type="GLB"
                     animation={{
-                        name: 'FlagAction',
+                        name: 'BombAction',
                         run: true,
                         loop: true,
                     }}
                     lightReceivingBitMask={1}
                     shadowCastingBitMask={1}
-                    onLoadStart={() => console.log('ARScene2: Flag loading...')}
+                    onLoadStart={() => console.log('ARScene2: Bomb loading...')}
                     onLoadEnd={() => {
-                        console.log('ARScene2: Flag loaded at GPS coordinates');
+                        console.log('ARScene2: Bomb loaded at GPS coordinates');
                         // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
                         setTimeout(() => {
                             if (!animationPlayed) {
@@ -176,7 +176,7 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                         }, 16000);
                     }}
                     onError={(event) => {
-                        console.error('ARScene2: Error loading flag (message):', event.nativeEvent?.error);
+                        console.error('ARScene2: Error loading bomb (message):', event.nativeEvent?.error);
                         console.error(
                             'ARScene2: Full error object:',
                             JSON.stringify(event.nativeEvent, null, 2),
