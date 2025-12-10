@@ -115,7 +115,7 @@ export default function SettingsScreen() {
     try {
       const name = await AsyncStorage.getItem('userName');
       const age = await AsyncStorage.getItem('userAge');
-      
+
       if (name) setUserName(name);
       if (age) setUserAge(age);
     } catch (error) {
@@ -201,11 +201,11 @@ export default function SettingsScreen() {
   const handleThemaRouteSelect = (themeName: string) => {
     // Find the theme in availableThemes
     const themeToAdd = availableThemes.find(t => t.name === themeName);
-    
+
     if (themeToAdd && !themaRoutes.some(r => r.id === themeToAdd.id)) {
       setThemaRoutes([...themaRoutes, themeToAdd]);
     }
-    
+
     setSelectedThemaRoute('Themaroute toevoegen');
     setThemaRouteDropdownVisible(false);
   };
@@ -285,7 +285,8 @@ export default function SettingsScreen() {
           <TouchableOpacity style={styles.bellButton} onPress={() => setShowNotifications(true)}>
             <Image source={Bell} style={styles.bellIcon} />
             <View style={styles.notificationDot} />
-          </TouchableOpacity>          <TouchableOpacity style={styles.infoButton}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.infoButton}>
             <Image source={Info} style={styles.infoIcon} />
           </TouchableOpacity>
 
