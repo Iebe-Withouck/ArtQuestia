@@ -326,10 +326,6 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
         LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
     });
 
-    // Target GPS coordinates for this scene
-    const TARGET_LATITUDE = 50.818523;
-    const TARGET_LONGITUDE = 3.436097;
-
     // Fetch artwork data from Strapi
     useEffect(() => {
         const fetchArtwork = async () => {
@@ -397,14 +393,20 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
     }, []);
 
     // Wrapper function to pass props to AR Scene
-    const ARSceneWrapper = () => (
-        <ARScene3Scene
-            userLocation={userLocation}
-            targetLatitude={TARGET_LATITUDE}
-            targetLongitude={TARGET_LONGITUDE}
-            onAnimationFinish={handleAnimationFinish}
-        />
-    );
+    const ARSceneWrapper = () => {
+        // Use coordinates from database or fallback to default
+        const targetLatitude = artworkData?.Location?.lat || 50.818523;
+        const targetLongitude = artworkData?.Location?.lng || 3.436097;
+
+        return (
+            <ARScene3Scene
+                userLocation={userLocation}
+                targetLatitude={targetLatitude}
+                targetLongitude={targetLongitude}
+                onAnimationFinish={handleAnimationFinish}
+            />
+        );
+    };
 
     // Get artwork details
     const artwork = artworkData || {};
