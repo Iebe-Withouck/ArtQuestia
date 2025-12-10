@@ -23,10 +23,10 @@ export default function Screen3() {
 
       <Image source={Phone} style={styles.phoneImage} />
 
-      <Text style={styles.title}>Scan het kunstwerk en zie het tot levend komen!</Text>
+      <Text style={styles.title}>Scan het kunstwerk en zie het tot leven komen!</Text>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextButtonText}>Hup, Naar de volgende!</Text>
+        <Text style={styles.nextButtonText}>Hup, naar de volgende!</Text>
       </TouchableOpacity>
     </View>
   );
@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(25),
     marginTop: verticalScale(30),
     alignSelf: 'center',
+    minWidth: scale(220),
   },
   nextButtonText: {
     color: '#fff',

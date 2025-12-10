@@ -26,7 +26,7 @@ export default function Screen2() {
       <Text style={styles.title}>Bekijk het kunstwerk dichts bij jou</Text>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextButtonText}>Hup, Naar de volgende!</Text>
+        <Text style={styles.nextButtonText}>Hup, naar de volgende!</Text>
       </TouchableOpacity>
     </View>
   );
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 10,
     textAlign: 'center',
-    maxWidth: 250,
+    maxWidth: 350,
   },
   description: {
     fontSize: 16,

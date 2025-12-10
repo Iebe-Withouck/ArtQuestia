@@ -356,9 +356,9 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
     });
 
-    // Target GPS coordinates for this scene
-    const TARGET_LATITUDE = 50.818523;
-    const TARGET_LONGITUDE = 3.436097;
+    // Target GPS coordinates for this scene (fixed to requested values)
+    const TARGET_LATITUDE = 50.83126;
+    const TARGET_LONGITUDE = 3.263238;
 
     // Fetch artwork data from Strapi
     useEffect(() => {

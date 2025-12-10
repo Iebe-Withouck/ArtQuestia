@@ -39,7 +39,7 @@ export default function Screen1() {
       <Text style={styles.title}>Ontdek Kortrijk, beleef de quest & scoor coupons</Text>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextButtonText}>Hup, Naar de volgende!</Text>
+        <Text style={styles.nextButtonText}>Hup, naar de volgende!</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
         <Text style={styles.skipButtonText}>Skip onboarding</Text>
