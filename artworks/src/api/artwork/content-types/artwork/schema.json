@@ -75,6 +75,12 @@
     },
     "Color": {
       "type": "string"
+    },
+    "themes": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::theme.theme",
+      "inversedBy": "artworks"
     }
   }
 }

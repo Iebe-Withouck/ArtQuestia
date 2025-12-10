@@ -471,6 +471,7 @@ export interface ApiArtworkArtwork extends Struct.CollectionTypeSchema {
       'images' | 'files' | 'videos' | 'audios'
     >;
     Theme: Schema.Attribute.String;
+    themes: Schema.Attribute.Relation<'manyToOne', 'api::theme.theme'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -489,6 +490,7 @@ export interface ApiThemeTheme extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    artworks: Schema.Attribute.Relation<'oneToMany', 'api::artwork.artwork'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

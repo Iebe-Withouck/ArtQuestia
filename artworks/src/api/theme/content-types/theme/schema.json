@@ -23,6 +23,12 @@
         "videos",
         "audios"
       ]
+    },
+    "artworks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::artwork.artwork",
+      "mappedBy": "themes"
     }
   }
 }
