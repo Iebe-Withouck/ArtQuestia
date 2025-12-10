@@ -64,8 +64,8 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   const attributes = artwork.attributes || artwork;
 
   // Use Photo field - Strapi Cloud returns full URLs, not relative paths
-  const photoData = attributes.Photo?.data || attributes.Photo;
-  const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo?.url;
+  const photoData = attributes.Photo_Hidden?.data || attributes.Photo_Hidden;
+  const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo_Hidden?.url;
   
   console.log('Photo data:', photoData);
   console.log('Photo URL:', photoUrl);

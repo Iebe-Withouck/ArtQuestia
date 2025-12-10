@@ -40,6 +40,7 @@ import RoutesComplete from '../../assets/profile-info/routesComplete.png'
 import FoundedStickers from "../../assets/profile-info/foundedStickers.png"
 import ProfilePic from '../../assets/profile-info/profile-pic.png';
 import Potlood from '../../assets/profile-info/potlood.png'
+import Delete from '../../assets/icons/delete.png'
 
 export default function SettingsScreen() {
   const [fontsLoaded] = useFonts({
@@ -64,6 +65,10 @@ export default function SettingsScreen() {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [userName, setUserName] = useState('Jane Doe');
   const [userAge, setUserAge] = useState('22');
+  const [themaRoutes, setThemaRoutes] = useState([
+    { id: 1, image: Oorlog },
+    { id: 2, image: Religie }
+  ]);
 
   const stickerTypes = ['Alle stickers', 'Gevonden stickers', 'Verborgen stickers'];
 
@@ -309,8 +314,17 @@ export default function SettingsScreen() {
           </ThemedText>
         </View>
         <View style={styles.themaRouteRow}>
-          <Image source={Oorlog} style={styles.themaRouteIcon} />
-          <Image source={Religie} style={styles.themaRouteIcon} />
+          {themaRoutes.map((route) => (
+            <View key={route.id} style={styles.themaRouteContainer}>
+              <Image source={route.image} style={styles.themaRouteIcon} />
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => setThemaRoutes(themaRoutes.filter(r => r.id !== route.id))}
+              >
+                <Image source={Delete} style={styles.deleteIcon} />
+              </TouchableOpacity>
+            </View>
+          ))}
         </View>
 
         <TouchableOpacity
@@ -740,11 +754,32 @@ const styles = StyleSheet.create({
     gap: scale(5),
     width: '100%',
   },
+  themaRouteContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   themaRouteIcon: {
     flex: 1,
     height: verticalScale(110),
     resizeMode: 'contain',
     marginTop: verticalScale(20),
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: verticalScale(20),
+    right: scale(5),
+    width: moderateScale(30),
+    height: moderateScale(30),
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: moderateScale(15),
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  deleteIcon: {
+    width: moderateScale(18),
+    height: moderateScale(18),
+    resizeMode: 'contain',
   },
   themaRouteButton: {
     width: '100%',
