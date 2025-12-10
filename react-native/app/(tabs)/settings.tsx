@@ -65,10 +65,8 @@ export default function SettingsScreen() {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [userName, setUserName] = useState('Jane Doe');
   const [userAge, setUserAge] = useState('22');
-  const [themaRoutes, setThemaRoutes] = useState([
-    { id: 1, image: Oorlog },
-    { id: 2, image: Religie }
-  ]);
+  const [themaRoutes, setThemaRoutes] = useState<any[]>([]);
+  const [availableThemes, setAvailableThemes] = useState<any[]>([]);
 
   const stickerTypes = ['Alle stickers', 'Gevonden stickers', 'Verborgen stickers'];
 
@@ -109,6 +107,7 @@ export default function SettingsScreen() {
     console.log('Component mounted, fetching artworks...');
     getUserLocation();
     fetchArtworks();
+    fetchThemes();
     loadUserData();
   }, []);
 
@@ -121,6 +120,31 @@ export default function SettingsScreen() {
       if (age) setUserAge(age);
     } catch (error) {
       console.error('Error loading user data:', error);
+    }
+  };
+
+  const fetchThemes = async () => {
+    try {
+      const response = await fetch(`${STRAPI_URL}/api/themes?populate=*`);
+      const data = await response.json();
+
+      if (data.error) {
+        console.error('Strapi API Error:', data.error);
+        return;
+      }
+
+      if (data.data) {
+        const themesData = data.data.map((theme: any) => ({
+          id: theme.id,
+          name: theme.Name,
+          image: theme.Image?.[0]?.url || null
+        }));
+        setAvailableThemes(themesData);
+        setThemaRoutes(themesData.slice(0, 2));
+        console.log('Themes loaded:', themesData.length);
+      }
+    } catch (error) {
+      console.error('Error fetching themes:', error);
     }
   };
 
@@ -174,8 +198,15 @@ export default function SettingsScreen() {
     setStickerTypeDropdownVisible(false);
   };
 
-  const handleThemaRouteSelect = (route: string) => {
-    setSelectedThemaRoute(route);
+  const handleThemaRouteSelect = (themeName: string) => {
+    // Find the theme in availableThemes
+    const themeToAdd = availableThemes.find(t => t.name === themeName);
+    
+    if (themeToAdd && !themaRoutes.some(r => r.id === themeToAdd.id)) {
+      setThemaRoutes([...themaRoutes, themeToAdd]);
+    }
+    
+    setSelectedThemaRoute('Themaroute toevoegen');
     setThemaRouteDropdownVisible(false);
   };
 
@@ -313,19 +344,29 @@ export default function SettingsScreen() {
             Quest routes
           </ThemedText>
         </View>
-        <View style={styles.themaRouteRow}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.themaRouteScrollView}
+          contentContainerStyle={styles.themaRouteRow}
+        >
           {themaRoutes.map((route) => (
             <View key={route.id} style={styles.themaRouteContainer}>
-              <Image source={route.image} style={styles.themaRouteIcon} />
+              {route.image ? (
+                <Image source={{ uri: route.image }} style={styles.themaRouteIcon} />
+              ) : (
+                <View style={[styles.themaRouteIcon, { backgroundColor: '#444' }]} />
+              )}
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={() => setThemaRoutes(themaRoutes.filter(r => r.id !== route.id))}
               >
                 <Image source={Delete} style={styles.deleteIcon} />
               </TouchableOpacity>
+              <ThemedText style={styles.themaRouteName}>{route.name}</ThemedText>
             </View>
           ))}
-        </View>
+        </ScrollView>
 
         <TouchableOpacity
           style={styles.themaRouteButton}
@@ -341,15 +382,17 @@ export default function SettingsScreen() {
 
         {themaRouteDropdownVisible && (
           <View style={styles.dropdownContainerGreen}>
-            {themes.filter(theme => theme !== 'Alle').map((route, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.dropdownItem}
-                onPress={() => handleThemaRouteSelect(route)}
-              >
-                <ThemedText style={styles.dropdownText}>{route}</ThemedText>
-              </TouchableOpacity>
-            ))}
+            {availableThemes
+              .filter(theme => !themaRoutes.some(r => r.id === theme.id))
+              .map((theme) => (
+                <TouchableOpacity
+                  key={theme.id}
+                  style={styles.dropdownItem}
+                  onPress={() => handleThemaRouteSelect(theme.name)}
+                >
+                  <ThemedText style={styles.dropdownText}>{theme.name}</ThemedText>
+                </TouchableOpacity>
+              ))}
           </View>
         )}
 
@@ -749,37 +792,45 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  themaRouteScrollView: {
+    marginTop: verticalScale(20),
+  },
   themaRouteRow: {
     flexDirection: 'row',
-    gap: scale(5),
-    width: '100%',
+    gap: scale(10),
+    paddingRight: scale(20),
   },
   themaRouteContainer: {
-    flex: 1,
+    width: scale(165),
     position: 'relative',
   },
   themaRouteIcon: {
-    flex: 1,
+    width: scale(165),
     height: verticalScale(110),
     resizeMode: 'contain',
-    marginTop: verticalScale(20),
   },
   deleteButton: {
     position: 'absolute',
-    top: verticalScale(20),
-    right: scale(5),
-    width: moderateScale(30),
-    height: moderateScale(30),
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    top: 0,
+    right: 0,
+    width: moderateScale(40),
+    height: moderateScale(40),
     borderRadius: moderateScale(15),
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
   },
   deleteIcon: {
-    width: moderateScale(18),
-    height: moderateScale(18),
+    width: moderateScale(28),
+    height: moderateScale(28),
     resizeMode: 'contain',
+  },
+  themaRouteName: {
+    color: '#fff',
+    fontSize: moderateScale(14),
+    fontFamily: 'LeagueSpartan',
+    textAlign: 'center',
+    marginTop: verticalScale(8),
   },
   themaRouteButton: {
     width: '100%',
