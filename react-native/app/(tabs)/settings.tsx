@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
@@ -103,7 +104,20 @@ export default function SettingsScreen() {
     console.log('Component mounted, fetching artworks...');
     getUserLocation();
     fetchArtworks();
+    loadUserData();
   }, []);
+
+  const loadUserData = async () => {
+    try {
+      const name = await AsyncStorage.getItem('userName');
+      const age = await AsyncStorage.getItem('userAge');
+      
+      if (name) setUserName(name);
+      if (age) setUserAge(age);
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  };
 
   const fetchArtworks = async () => {
     try {
@@ -216,9 +230,11 @@ export default function SettingsScreen() {
         onClose={() => setShowEditView(false)}
         userName={userName}
         userAge={userAge}
-        onSave={(name: string, age: string) => {
+        onSave={async (name: string, age: string) => {
           setUserName(name);
           setUserAge(age);
+          await AsyncStorage.setItem('userName', name);
+          await AsyncStorage.setItem('userAge', age);
           setShowEditView(false);
         }}
       />

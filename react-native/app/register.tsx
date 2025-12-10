@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -10,6 +11,8 @@ const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
 export default function RegisterScreen() {
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,7 +23,7 @@ export default function RegisterScreen() {
     setError('');
     
     // Validation
-    if (!email || !password || !confirmPassword) {
+    if (!name || !age || !email || !password || !confirmPassword) {
       setError('Vul alle velden in');
       return;
     }
@@ -39,6 +42,11 @@ export default function RegisterScreen() {
     
     try {
       await auth().createUserWithEmailAndPassword(email, password);
+      
+      // Save user info to AsyncStorage
+      await AsyncStorage.setItem('userName', name);
+      await AsyncStorage.setItem('userAge', age);
+      
       Alert.alert('Succes', 'Account succesvol aangemaakt!');
       // Navigate to the main app (tabs)
       router.replace('/(tabs)');
@@ -72,6 +80,21 @@ export default function RegisterScreen() {
       <Text style={styles.subtitle}>Maak een account om te beginnen</Text>
 
       <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Naam"
+          placeholderTextColor="#999"
+          value={name}
+          onChangeText={setName}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Leeftijd"
+          placeholderTextColor="#999"
+          value={age}
+          onChangeText={setAge}
+          keyboardType="numeric"
+          style={styles.input}
+        />
         <TextInput
           placeholder="Email"
           placeholderTextColor="#999"

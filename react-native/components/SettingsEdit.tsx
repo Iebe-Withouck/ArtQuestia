@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import auth from '@react-native-firebase/auth';
 
 const { width, height } = Dimensions.get('window');
 
@@ -46,6 +47,13 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
   const [age, setAge] = useState(userAge);
   const [email, setEmail] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    const user = auth().currentUser;
+    if (user?.email) {
+      setEmail(user.email);
+    }
+  }, []);
   const [language, setLanguage] = useState('nl');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [camera, setCamera] = useState('False');
