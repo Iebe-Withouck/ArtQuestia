@@ -20,9 +20,10 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 
 prepare_react_native_project!
 
+use_frameworks! :linkage => :static
+
 target 'ArtQuestia' do
   use_expo_modules!
-  use_modular_headers!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
@@ -39,8 +40,9 @@ target 'ArtQuestia' do
 
   config = use_native_modules!(config_command)
 
-  use_frameworks! :linkage => podfile_properties['ios.useFrameworks'].to_sym if podfile_properties['ios.useFrameworks']
-  use_frameworks! :linkage => ENV['USE_FRAMEWORKS'].to_sym if ENV['USE_FRAMEWORKS']
+  # Optioneel expliciet Firebase pods toevoegen om eventuele autolinking-issues te vermijden
+  pod 'Firebase/Core'
+  pod 'Firebase/Auth'
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -61,9 +63,22 @@ target 'ArtQuestia' do
   end
 
   post_install do |installer|
+    # expo/maplibre generated post install (do not modify)
 # @generated begin @maplibre/maplibre-react-native:post-install - expo prebuild (DO NOT MODIFY) sync-6e76c80af0d70c0003d06822dd59b7c729fca472
     $MLRN.post_install(installer)
 # @generated end @maplibre/maplibre-react-native:post-install
+
+    # --- FIX: allow non-modular includes in framework modules to avoid RNFBApp compile errors
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        # Allow non-modular includes inside framework modules (removes -Wnon-modular-include-in-framework-module errors)
+        config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+        # Optionally, ensure it is not treated as error (but usually the above is enough)
+        config.build_settings['GCC_TREAT_WARNINGS_AS_ERRORS'] = 'NO'
+      end
+    end
+    # --- end fix
+
     react_native_post_install(
       installer,
       config[:reactNativePath],
