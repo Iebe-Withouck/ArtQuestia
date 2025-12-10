@@ -155,6 +155,8 @@ export default function Scan() {
         return <ARScene3 {...commonProps} />;
       case 4:
         return <ARScene4 {...commonProps} />;
+      case 5:
+        return <ARtest {...commonProps} />;
       default:
         return <ARScene1 {...commonProps} />;
     }

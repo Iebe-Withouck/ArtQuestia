@@ -23,7 +23,7 @@ export default function Screen2() {
 
       <Image source={Phone} style={styles.phoneImage} />
 
-      <Text style={styles.title}>Bekijk het kunstwerk dichts bij jou</Text>
+      <Text style={styles.title}>Bekijk het kunstwerk dichtst bij jou</Text>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Hup, naar de volgende!</Text>

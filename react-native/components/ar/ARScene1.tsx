@@ -356,9 +356,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
     });
 
-    // Target GPS coordinates for this scene (fixed to requested values)
-    const TARGET_LATITUDE = 50.83126;
-    const TARGET_LONGITUDE = 3.263238;
 
     // Fetch artwork data from Strapi
     useEffect(() => {
@@ -368,15 +365,13 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                 const data = await response.json();
 
                 if (data.data && data.data.length > 0) {
-                    // Find the specific artwork for ARScene1
                     const targetArtwork = data.data.find(
-                        (artwork: any) => artwork.Name === 'Monument voor de gesneuvelden van Wereldoorlog II'
+                        (artwork: any) => artwork.Name === 'Monument WWII'
                     );
-
                     if (targetArtwork) {
                         setArtworkData(targetArtwork);
                     } else {
-                        setArtworkData(data.data[0]);
+                        setArtworkData(null);
                     }
                 }
                 setLoading(false);
@@ -427,14 +422,19 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
     }, []);
 
     // Wrapper function to pass props to AR Scene
-    const ARSceneWrapper = () => (
-        <ARScene1Scene
-            userLocation={userLocation}
-            targetLatitude={TARGET_LATITUDE}
-            targetLongitude={TARGET_LONGITUDE}
-            onAnimationFinish={handleAnimationFinish}
-        />
-    );
+    const ARSceneWrapper = () => {
+        // Use coordinates from database or fallback to default
+        const targetLatitude = artworkData?.Location?.lat || 50.818523;
+        const targetLongitude = artworkData?.Location?.lng || 3.436097;
+        return (
+            <ARScene1Scene
+                userLocation={userLocation}
+                targetLatitude={targetLatitude}
+                targetLongitude={targetLongitude}
+                onAnimationFinish={handleAnimationFinish}
+            />
+        );
+    };
 
     // Get artwork details
     const artwork = artworkData || {};
