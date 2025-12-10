@@ -49,7 +49,7 @@ export default function LocatiePermission() {
       <View style={styles.popupOverlay}>
         <View style={styles.popupCard}>
           <Text style={styles.popupTitle}>Locatie aanzetten?</Text>
-          <Text style={styles.popupText}>Zet je locatie aan en krijg een heads‑up als er toffe kunstspots vlak bij jou opduiken, zodat je sneller nieuwe stickers scoort en vlotter rewards vrijspeelt. </Text>
+          <Text style={styles.popupText}>Zet je locatie aan en krijg een heads up als er toffe kunstspots vlak bij jou opduiken, zodat je sneller nieuwe stickers scoort en vlotter rewards vrijspeelt. </Text>
 
           <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
             <Text style={styles.nextButtonText}>Ja, ik zet het aan!</Text>
