@@ -395,7 +395,7 @@ export default function MapScreen() {
                 navigateToMarker(tempMarker);
             }
         }
-    }, [params.startRoute, params.artworkId, markers.length]);
+    }, [params.startRoute, params.artworkId, params.routeTs, markers.length]);
 
     useEffect(() => {
         (async () => {
@@ -901,7 +901,7 @@ export default function MapScreen() {
             fontWeight: "700",
             color: "#000",
             marginBottom: 2,
-            fontFamily: "LeagueSpartan-semi-bold",
+            fontFamily: "Impact",
         },
         routeSubtitle: {
             fontSize: isSmallDevice ? 12 : 14,

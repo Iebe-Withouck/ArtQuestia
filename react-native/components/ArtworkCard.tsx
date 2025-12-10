@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -33,6 +34,10 @@ interface ArtworkCardProps {
           };
         };
       };
+      Location?: {
+        lat?: number;
+        lng?: number;
+      };
     };
   };
   onNext?: () => void;
@@ -45,8 +50,24 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
     LeagueSpartan: require('../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
 
+  const router = useRouter();
+
   const handleMapPress = () => {
-    // Map navigation removed
+    // Haal locatie info op uit artwork (kan ontbreken)
+    const lat = attributes.Location?.lat;
+    const lon = attributes.Location?.lng;
+    // Voeg een unieke timestamp toe zodat de effect-hook in map.tsx altijd opnieuw triggert
+    router.push({
+      pathname: '/(tabs)/map',
+      params: {
+        startRoute: 'true',
+        artworkId: artwork.id.toString(),
+        artworkName: attributes.Name,
+        artworkLat: lat?.toString() || '',
+        artworkLng: lon?.toString() || '',
+        routeTs: Date.now().toString(),
+      }
+    });
   };
 
   if (!fontsLoaded) {
@@ -66,10 +87,10 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   // Use Photo field - Strapi Cloud returns full URLs, not relative paths
   const photoData = attributes.Photo_Hidden?.data || attributes.Photo_Hidden;
   const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo_Hidden?.url;
-  
+
   console.log('Photo data:', photoData);
   console.log('Photo URL:', photoUrl);
-  
+
   // Strapi Cloud provides full URLs, so use them directly
   const fullImageUrl = photoUrl || null;
   console.log('Full image URL:', fullImageUrl);
@@ -97,13 +118,13 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
     <ThemedView style={styles.titleContainer}>
       <View style={[styles.artCard, { backgroundColor }]}>
 
-        <View style={styles.mapWrapper}>
+        <TouchableOpacity style={styles.mapWrapper} onPress={handleMapPress}>
           <Image source={MapIcon} style={styles.mapImage} />
           <View style={styles.distanceBadge}>
             <Image source={Location} style={styles.distanceIcon} />
             <ThemedText style={styles.distanceText}>{distanceText}</ThemedText>
           </View>
-        </View>
+        </TouchableOpacity>
 
         {fullImageUrl ? (
           <Image source={{ uri: fullImageUrl }} style={styles.artImage} />

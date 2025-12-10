@@ -88,7 +88,7 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
     // For now, we'll use router params
     if (onClose) onClose();
 
-    // Navigate to map tab with artwork data
+    // Voeg een unieke timestamp toe zodat de effect-hook in map.tsx altijd opnieuw triggert
     router.push({
       pathname: '/(tabs)/map',
       params: {
@@ -97,6 +97,7 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
         artworkName: attributes.Name,
         artworkLat: lat?.toString() || '',
         artworkLng: lon?.toString() || '',
+        routeTs: Date.now().toString(),
       }
     });
   };
@@ -118,23 +119,127 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
   const attributes = artwork.attributes || artwork;
 
   // Get Photo URL - Strapi Cloud returns full URLs, not relative paths
-  const photoData = attributes.Photo?.data || attributes.Photo;
-  const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo?.url;
+  let photoUrl: string | undefined = undefined;
+  if (attributes.Photo) {
+    if (
+      typeof attributes.Photo === 'object' &&
+      'data' in attributes.Photo &&
+      attributes.Photo.data &&
+      typeof attributes.Photo.data === 'object' &&
+      'attributes' in attributes.Photo.data &&
+      attributes.Photo.data.attributes &&
+      typeof attributes.Photo.data.attributes === 'object' &&
+      'url' in attributes.Photo.data.attributes &&
+      typeof attributes.Photo.data.attributes.url === 'string'
+    ) {
+      photoUrl = attributes.Photo.data.attributes.url;
+    } else if (
+      typeof attributes.Photo === 'object' &&
+      'attributes' in attributes.Photo &&
+      attributes.Photo.attributes &&
+      typeof attributes.Photo.attributes === 'object' &&
+      'url' in attributes.Photo.attributes &&
+      typeof attributes.Photo.attributes.url === 'string'
+    ) {
+      photoUrl = attributes.Photo.attributes.url;
+    }
+  }
+  if (!photoUrl && (attributes as any).Photo?.url && typeof (attributes as any).Photo.url === 'string') {
+    photoUrl = (attributes as any).Photo.url;
+  }
   const fullImageUrl = photoUrl || null;
 
   // Get Photo_Hidden URL
-  const photoHiddenData = attributes.Photo_Hidden?.data || attributes.Photo_Hidden;
-  const photoHiddenUrl = photoHiddenData?.attributes?.url || photoHiddenData?.url || attributes.Photo_Hidden?.url;
+  let photoHiddenUrl: string | undefined = undefined;
+  if (attributes.Photo_Hidden) {
+    if (
+      typeof attributes.Photo_Hidden === 'object' &&
+      'data' in attributes.Photo_Hidden &&
+      attributes.Photo_Hidden.data &&
+      typeof attributes.Photo_Hidden.data === 'object' &&
+      'attributes' in attributes.Photo_Hidden.data &&
+      attributes.Photo_Hidden.data.attributes &&
+      typeof attributes.Photo_Hidden.data.attributes === 'object' &&
+      'url' in attributes.Photo_Hidden.data.attributes &&
+      typeof attributes.Photo_Hidden.data.attributes.url === 'string'
+    ) {
+      photoHiddenUrl = attributes.Photo_Hidden.data.attributes.url;
+    } else if (
+      typeof attributes.Photo_Hidden === 'object' &&
+      'attributes' in attributes.Photo_Hidden &&
+      attributes.Photo_Hidden.attributes &&
+      typeof attributes.Photo_Hidden.attributes === 'object' &&
+      'url' in attributes.Photo_Hidden.attributes &&
+      typeof attributes.Photo_Hidden.attributes.url === 'string'
+    ) {
+      photoHiddenUrl = attributes.Photo_Hidden.attributes.url;
+    }
+  }
+  if (!photoHiddenUrl && (attributes as any).Photo_Hidden?.url && typeof (attributes as any).Photo_Hidden.url === 'string') {
+    photoHiddenUrl = (attributes as any).Photo_Hidden.url;
+  }
   const fullPhotoHiddenUrl = photoHiddenUrl || null;
 
-  // Get Stickers URL - Strapi Cloud returns full URLs
-  const stickersData = attributes.Stickers?.data || attributes.Stickers;
-  const stickersUrl = stickersData?.attributes?.url || stickersData?.url || attributes.Stickers?.url;
+  // Get Stickers URL
+  let stickersUrl: string | undefined = undefined;
+  if (attributes.Stickers) {
+    if (
+      typeof attributes.Stickers === 'object' &&
+      'data' in attributes.Stickers &&
+      attributes.Stickers.data &&
+      typeof attributes.Stickers.data === 'object' &&
+      'attributes' in attributes.Stickers.data &&
+      attributes.Stickers.data.attributes &&
+      typeof attributes.Stickers.data.attributes === 'object' &&
+      'url' in attributes.Stickers.data.attributes &&
+      typeof attributes.Stickers.data.attributes.url === 'string'
+    ) {
+      stickersUrl = attributes.Stickers.data.attributes.url;
+    } else if (
+      typeof attributes.Stickers === 'object' &&
+      'attributes' in attributes.Stickers &&
+      attributes.Stickers.attributes &&
+      typeof attributes.Stickers.attributes === 'object' &&
+      'url' in attributes.Stickers.attributes &&
+      typeof attributes.Stickers.attributes.url === 'string'
+    ) {
+      stickersUrl = attributes.Stickers.attributes.url;
+    }
+  }
+  if (!stickersUrl && (attributes as any).Stickers?.url && typeof (attributes as any).Stickers.url === 'string') {
+    stickersUrl = (attributes as any).Stickers.url;
+  }
   const fullStickersUrl = stickersUrl || null;
 
   // Get Stickers_Hidden URL
-  const stickersHiddenData = attributes.Stickers_Hidden?.data || attributes.Stickers_Hidden;
-  const stickersHiddenUrl = stickersHiddenData?.attributes?.url || stickersHiddenData?.url || attributes.Stickers_Hidden?.url;
+  let stickersHiddenUrl: string | undefined = undefined;
+  if (attributes.Stickers_Hidden) {
+    if (
+      typeof attributes.Stickers_Hidden === 'object' &&
+      'data' in attributes.Stickers_Hidden &&
+      attributes.Stickers_Hidden.data &&
+      typeof attributes.Stickers_Hidden.data === 'object' &&
+      'attributes' in attributes.Stickers_Hidden.data &&
+      attributes.Stickers_Hidden.data.attributes &&
+      typeof attributes.Stickers_Hidden.data.attributes === 'object' &&
+      'url' in attributes.Stickers_Hidden.data.attributes &&
+      typeof attributes.Stickers_Hidden.data.attributes.url === 'string'
+    ) {
+      stickersHiddenUrl = attributes.Stickers_Hidden.data.attributes.url;
+    } else if (
+      typeof attributes.Stickers_Hidden === 'object' &&
+      'attributes' in attributes.Stickers_Hidden &&
+      attributes.Stickers_Hidden.attributes &&
+      typeof attributes.Stickers_Hidden.attributes === 'object' &&
+      'url' in attributes.Stickers_Hidden.attributes &&
+      typeof attributes.Stickers_Hidden.attributes.url === 'string'
+    ) {
+      stickersHiddenUrl = attributes.Stickers_Hidden.attributes.url;
+    }
+  }
+  if (!stickersHiddenUrl && (attributes as any).Stickers_Hidden?.url && typeof (attributes as any).Stickers_Hidden.url === 'string') {
+    stickersHiddenUrl = (attributes as any).Stickers_Hidden.url;
+  }
   const fullStickersHiddenUrl = stickersHiddenUrl || null;
 
   // Get location info
