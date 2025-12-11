@@ -44,7 +44,7 @@ export default function ARPreparation() {
           onPress={handleReady}
           activeOpacity={0.8}
         >
-          <Text style={[styles.readyButtonText, { fontFamily: fontsLoaded ? 'LeagueSpartan-semi-bold' : undefined }]}>
+          <Text style={[styles.readyButtonText, { fontFamily: fontsLoaded ? 'LeagueSpartan-semibold' : undefined }]}>
             Ik sta klaar!
           </Text>
         </TouchableOpacity>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   readyButtonText: {
     fontSize: moderateScale(18),
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#FFFFFF',
     textAlign: 'center',
   },
 });

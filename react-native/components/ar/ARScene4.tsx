@@ -233,11 +233,21 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
     const [artworkData, setArtworkData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [showStickerPopup, setShowStickerPopup] = useState(false);
+    const [showMovementText, setShowMovementText] = useState(true);
 
     const [fontsLoaded] = useFonts({
         Impact: require('../../assets/fonts/impact.ttf'),
         LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
     });
+
+    // Hide movement text after 2 seconds
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowMovementText(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         const fetchArtwork = async () => {
@@ -330,6 +340,14 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                 worldAlignment="Gravity"
                 style={{ flex: 1 }}
             />
+
+            {showMovementText && (
+                <View style={styles.movementTextOverlay}>
+                    <Text style={[styles.movementText, { fontFamily: 'Impact' }]}>
+                        Je bent vrij om te bewegen
+                    </Text>
+                </View>
+            )}
 
             <Modal
                 visible={showStickerPopup}
@@ -460,6 +478,25 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
 }
 
 const styles = StyleSheet.create({
+    movementTextOverlay: {
+        position: 'absolute',
+        top: '50%',
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        paddingVertical: verticalScale(20),
+        paddingHorizontal: scale(40),
+        marginHorizontal: scale(40),
+        borderRadius: moderateScale(15),
+        transform: [{ translateY: -verticalScale(50) }],
+    },
+    movementText: {
+        fontSize: moderateScale(24),
+        color: '#fff',
+        textAlign: 'center',
+    },
     balloonTitle: {
         fontFamily: 'Impact',
         fontSize: 30,
@@ -469,7 +506,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     balloonText: {
-        fontFamily: 'LeagueSpartan',
+        fontFamily: 'LeagueSpartan-regular',
         fontSize: 30,
         color: '#000000',
         textAlignVertical: 'center',

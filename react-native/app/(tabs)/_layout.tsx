@@ -35,7 +35,7 @@ export default function TabLayout() {
           color: focused ? '#FFFFFF' : '#999999',
           fontSize: 7,
           fontWeight: focused ? '600' : '400',
-          fontFamily: 'LeagueSpartan, regular',
+          fontFamily: 'LeagueSpartan-semibold',
           textAlign: 'center',
           marginBottom: 10,
         }}
