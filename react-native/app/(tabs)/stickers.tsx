@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import * as Location from 'expo-location';
+import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
@@ -41,6 +42,8 @@ export default function SettingsScreen() {
     Impact: require('../../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
+
+  const { claimedStickers } = useClaimedStickers();
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [stickerTypeDropdownVisible, setStickerTypeDropdownVisible] = useState(false);
@@ -329,11 +332,16 @@ export default function SettingsScreen() {
           ) : (
             currentStickers.map((artwork, index) => {
               const attributes = artwork.attributes || artwork;
-              const stickerData = attributes.Stickers_Hidden?.data || attributes.Stickers_Hidden;
-              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
+              const artworkId = artwork.id;
+              const isClaimed = claimedStickers.includes(artworkId);
+
+              // Use Stickers if claimed, otherwise use Stickers_Hidden
+              const stickerSource = isClaimed ? attributes.Stickers : attributes.Stickers_Hidden;
+              const stickerData = stickerSource?.data || stickerSource;
+              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || stickerSource?.url;
               const fullUrl = stickerUrl || null;
 
-              console.log('Rendering sticker:', attributes.Name, 'URL:', fullUrl);
+              console.log('Rendering sticker:', attributes.Name, 'Claimed:', isClaimed, 'URL:', fullUrl);
 
               return (
                 <TouchableOpacity
@@ -370,8 +378,13 @@ export default function SettingsScreen() {
           <View style={styles.modalContent}>
             {selectedSticker && (() => {
               const attributes = selectedSticker.attributes || selectedSticker;
-              const stickerData = attributes.Stickers_Hidden?.data || attributes.Stickers_Hidden;
-              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
+              const artworkId = selectedSticker.id;
+              const isClaimed = claimedStickers.includes(artworkId);
+
+              // Use Stickers if claimed, otherwise use Stickers_Hidden
+              const stickerSource = isClaimed ? attributes.Stickers : attributes.Stickers_Hidden;
+              const stickerData = stickerSource?.data || stickerSource;
+              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || stickerSource?.url;
               const fullUrl = stickerUrl || null;
 
               return (

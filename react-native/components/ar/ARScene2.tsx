@@ -25,8 +25,11 @@ import {
     Dimensions,
     Modal
 } from 'react-native';
+import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
+const SHOW_DEBUG = false; // Set to true to enable debug logging
+
 const { width, height } = Dimensions.get('window');
 
 const scale = (size: number) => (width / 375) * size;
@@ -235,6 +238,7 @@ export default function ARScene2({ userLocation, sceneKey }: ARScene2Props) {
     const [loading, setLoading] = useState(true);
     const [showStickerPopup, setShowStickerPopup] = useState(false);
     const [showMovementText, setShowMovementText] = useState(true);
+    const { claimSticker } = useClaimedStickers();
 
     const [fontsLoaded] = useFonts({
         Impact: require('../../assets/fonts/impact.ttf'),
@@ -393,7 +397,15 @@ export default function ARScene2({ userLocation, sceneKey }: ARScene2Props) {
 
                         <TouchableOpacity
                             style={styles.claimButton}
-                            onPress={() => setShowStickerPopup(false)}
+                            onPress={() => {
+                                if (artworkData?.id) {
+                                    claimSticker(artworkData.id);
+                                    if (SHOW_DEBUG) {
+                                        console.log('Sticker claimed - ID:', artworkData.id);
+                                    }
+                                }
+                                setShowStickerPopup(false);
+                            }}
                             activeOpacity={0.8}
                         >
                             <Text style={[styles.claimButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>

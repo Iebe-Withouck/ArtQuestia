@@ -13,9 +13,12 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
+// Set to false to hide debug indicators in production
+const SHOW_DEBUG = false;
 
 const { width, height } = Dimensions.get('window');
 
@@ -47,6 +50,8 @@ export default function SettingsScreen() {
     Impact: require('../../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
+
+  const { claimedStickers, resetClaims } = useClaimedStickers();
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [stickerTypeDropdownVisible, setStickerTypeDropdownVisible] = useState(false);
@@ -397,9 +402,26 @@ export default function SettingsScreen() {
           </View>
         )}
 
-        <ThemedText style={[styles.stickersTitle]}>
-          Stickers
-        </ThemedText>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <ThemedText style={[styles.stickersTitle]}>
+            Stickers
+          </ThemedText>
+          {SHOW_DEBUG && (
+            <TouchableOpacity
+              onPress={resetClaims}
+              style={{ backgroundColor: '#FF0000', padding: 10, borderRadius: 5 }}
+            >
+              <ThemedText style={{ color: '#fff', fontSize: 12 }}>Reset Claims</ThemedText>
+            </TouchableOpacity>
+          )}
+        </View>
+        {SHOW_DEBUG && (
+          <View style={{ backgroundColor: '#333', padding: 10, borderRadius: 5, marginBottom: 10 }}>
+            <ThemedText style={{ color: '#fff', fontSize: 12 }}>
+              Claimed IDs: {claimedStickers.length > 0 ? claimedStickers.join(', ') : 'None'}
+            </ThemedText>
+          </View>
+        )}
         <View style={styles.buttonContainerStickers}>
           <TouchableOpacity
             style={styles.buttonStickers1}
@@ -471,11 +493,25 @@ export default function SettingsScreen() {
           ) : (
             currentStickers.map((artwork, index) => {
               const attributes = artwork.attributes || artwork;
-              const stickerData = attributes.Stickers_Hidden?.data || attributes.Stickers_Hidden;
-              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
+              const artworkId = artwork.id;
+              const isClaimed = claimedStickers.includes(artworkId);
+
+              // Use Stickers if claimed, otherwise use Stickers_Hidden
+              const stickerSource = isClaimed ? attributes.Stickers : attributes.Stickers_Hidden;
+              const stickerData = stickerSource?.data || stickerSource;
+              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || stickerSource?.url;
               const fullUrl = stickerUrl || null;
 
-              console.log('Rendering sticker:', attributes.Name, 'URL:', fullUrl);
+              if (SHOW_DEBUG) {
+                const normalStickerUrl = attributes.Stickers?.data?.attributes?.url || attributes.Stickers?.url;
+                const hiddenStickerUrl = attributes.Stickers_Hidden?.data?.attributes?.url || attributes.Stickers_Hidden?.url;
+
+                console.log('Rendering sticker:', attributes.Name, 'ID:', artworkId, 'Type:', typeof artworkId, 'Claimed:', isClaimed);
+                console.log('  - ClaimedList:', claimedStickers);
+                console.log('  - Normal Sticker URL:', normalStickerUrl);
+                console.log('  - Hidden Sticker URL:', hiddenStickerUrl);
+                console.log('  - Using URL:', fullUrl);
+              }
 
               return (
                 <TouchableOpacity
@@ -494,6 +530,22 @@ export default function SettingsScreen() {
                   <ThemedText style={styles.stickerName}>
                     {attributes.Name || 'Untitled'}
                   </ThemedText>
+                  {/* Debug indicator */}
+                  {SHOW_DEBUG && (
+                    <View style={{
+                      position: 'absolute',
+                      top: -10,
+                      right: 0,
+                      backgroundColor: isClaimed ? '#00FF00' : '#FF0000',
+                      paddingHorizontal: 5,
+                      paddingVertical: 2,
+                      borderRadius: 3
+                    }}>
+                      <ThemedText style={{ color: '#000', fontSize: 10, fontWeight: 'bold' }}>
+                        {isClaimed ? 'C' : 'H'} ({artworkId})
+                      </ThemedText>
+                    </View>
+                  )}
                 </TouchableOpacity>
               );
             })
@@ -512,8 +564,13 @@ export default function SettingsScreen() {
           <View style={styles.modalContent}>
             {selectedSticker && (() => {
               const attributes = selectedSticker.attributes || selectedSticker;
-              const stickerData = attributes.Stickers_Hidden?.data || attributes.Stickers_Hidden;
-              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || attributes.Stickers_Hidden?.url;
+              const artworkId = selectedSticker.id;
+              const isClaimed = claimedStickers.includes(artworkId);
+
+              // Use Stickers if claimed, otherwise use Stickers_Hidden
+              const stickerSource = isClaimed ? attributes.Stickers : attributes.Stickers_Hidden;
+              const stickerData = stickerSource?.data || stickerSource;
+              const stickerUrl = stickerData?.attributes?.url || stickerData?.url || stickerSource?.url;
               const fullUrl = stickerUrl || null;
 
               return (
