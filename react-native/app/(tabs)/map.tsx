@@ -1480,8 +1480,8 @@ export default function MapScreen() {
                                 }
 
                                 setShowProximityPopup(false);
-                                // Navigeer naar de scan tab
-                                router.push('/(tabs)/scan');
+                                // Navigeer naar het AR preparation scherm
+                                router.push('/ar-preparation');
                             }}
                         >
                             <Text style={styles.proximityButtonText} numberOfLines={1} adjustsFontSizeToFit>Begin de AR-experience</Text>

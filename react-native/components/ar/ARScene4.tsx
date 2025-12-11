@@ -29,27 +29,12 @@ import {
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 const { width, height } = Dimensions.get('window');
 
-// Responsive scaling functions
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
-// Calculate bearing between two GPS coordinates
-const calculateBearing = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const toRad = (deg: number) => deg * (Math.PI / 180);
-    const toDeg = (rad: number) => rad * (180 / Math.PI);
-
-    const dLon = toRad(lon2 - lon1);
-    const y = Math.sin(dLon) * Math.cos(toRad(lat2));
-    const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
-        Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
-
-    return (toDeg(Math.atan2(y, x)) + 360) % 360;
-};
-
-// Calculate distance between two GPS coordinates (Haversine formula)
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const R = 6371e3; // Earth's radius in meters
+    const R = 6371e3;
     const φ1 = lat1 * Math.PI / 180;
     const φ2 = lat2 * Math.PI / 180;
     const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -60,34 +45,7 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
         Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    return R * c; // Distance in meters
-};
-
-// Convert GPS coordinates to AR position relative to user
-const gpsToARPosition = (
-    userLat: number,
-    userLon: number,
-    targetLat: number,
-    targetLon: number
-): [number, number, number] => {
-    const distance = calculateDistance(userLat, userLon, targetLat, targetLon);
-    const bearing = calculateBearing(userLat, userLon, targetLat, targetLon);
-
-    // Convert bearing to radians
-    const bearingRad = (bearing * Math.PI) / 180;
-
-    // Scale down the distance for AR (1 meter real = 0.01 AR units for better visibility)
-    const scaleFactor = 0.01;
-    const scaledDistance = distance * scaleFactor;
-
-    // Calculate x, z positions with scaled distance
-    const x = scaledDistance * Math.sin(bearingRad);
-    const z = -scaledDistance * Math.cos(bearingRad);
-
-    // Set y to -0.5 to place object at chest/eye level
-    const y = -0.5;
-
-    return [x, y, z];
+    return R * c;
 };
 
 interface ARScene4Props {
@@ -95,71 +53,32 @@ interface ARScene4Props {
     sceneKey: number;
 }
 
-// Internal AR Scene Component
-function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimationFinish }: {
-    userLocation: Location.LocationObject | null;
-    targetLatitude: number;
-    targetLongitude: number;
+function ARScene4Scene({ onAnimationFinish }: {
     onAnimationFinish: () => void;
 }) {
     const [animationPlayed, setAnimationPlayed] = useState(false);
     const [showBalloons, setShowBalloons] = useState(false);
-    // Calculate AR position based on GPS coordinates
-    const arPosition: [number, number, number] = userLocation
-        ? gpsToARPosition(
-            userLocation.coords.latitude,
-            userLocation.coords.longitude,
-            targetLatitude,
-            targetLongitude
-        )
-        : [0, -0.4, -2]; // Default position if no GPS
-
-    const distance = userLocation
-        ? calculateDistance(
-            userLocation.coords.latitude,
-            userLocation.coords.longitude,
-            targetLatitude,
-            targetLongitude
-        )
-        : 0;
+    const arPosition: [number, number, number] = [0, -1.5, -2];
 
     return (
         <ViroARScene>
-            {/* Ambient light for overall scene illumination */}
             <ViroAmbientLight color="#ffffff" intensity={30000} />
-
-            {/* Directional light from above-front to simulate sunlight */}
             <ViroDirectionalLight
                 color="#ffffff"
                 direction={[0, -1, -0.5]}
                 intensity={500}
             />
-
-            {/* Additional directional light from the side for depth */}
             <ViroDirectionalLight
                 color="#ffffff"
                 direction={[1, -0.5, 0]}
                 intensity={300}
             />
 
-            {/* Node to group and anchor all objects at GPS coordinates */}
-            <ViroNode
-                position={arPosition}
-                dragType="FixedToWorld"
-            >
-                {/* Distance indicator text */}
-                <ViroText
-                    text={`${Math.round(distance)}m away`}
-                    scale={[0.2, 0.2, 0.2]}
-                    position={[0, 0.5, 0]}
-                    style={styles.helloText}
-                />
-
-                {/* 3D Model with baked animation from Blender */}
+            <ViroNode position={arPosition} dragType="FixedToWorld">
                 <Viro3DObject
                     source={require('../../assets/3D-Models/bissegem.glb')}
                     resources={[]}
-                    position={[0, 0, 0]}
+                    position={[0.2, 1, -1.5]}
                     scale={[0.4, 0.4, 0.4]}
                     rotation={[0, -95, 0]}
                     type="GLB"
@@ -172,12 +91,10 @@ function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     shadowCastingBitMask={1}
                     onLoadStart={() => console.log('ARScene4: Bissegem loading...')}
                     onLoadEnd={() => {
-                        console.log('ARScene4: Bissegem loaded at GPS coordinates');
-                        // Show text balloons after 2 seconds
+                        console.log('ARScene4: Bissegem loaded at fixed position');
                         setTimeout(() => {
                             setShowBalloons(true);
                         }, 2000);
-                        // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
                         setTimeout(() => {
                             if (!animationPlayed) {
                                 setAnimationPlayed(true);
@@ -194,7 +111,6 @@ function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     }}
                 />
 
-                {/* Tekstballon 1 - Rechtsboven */}
                 {showBalloons && (
                     <ViroNode position={[0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
@@ -223,7 +139,6 @@ function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     </ViroNode>
                 )}
 
-                {/* Tekstballon 2 - Linksonder */}
                 {showBalloons && (
                     <ViroNode position={[-1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
@@ -252,7 +167,6 @@ function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     </ViroNode>
                 )}
 
-                {/* Tekstballon 3 - Rechtsonder */}
                 {showBalloons && (
                     <ViroNode position={[1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
@@ -281,7 +195,6 @@ function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     </ViroNode>
                 )}
 
-                {/* Tekstballon 4 - Linksboven */}
                 {showBalloons && (
                     <ViroNode position={[-0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
@@ -314,7 +227,6 @@ function ARScene4Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
     );
 }
 
-// Main Component with Menu
 export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
     const [isMenuExpanded, setIsMenuExpanded] = useState(false);
     const [menuHeight] = useState(new Animated.Value(verticalScale(120)));
@@ -327,7 +239,6 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
         LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
     });
 
-    // Fetch artwork data from Strapi
     useEffect(() => {
         const fetchArtwork = async () => {
             try {
@@ -335,7 +246,6 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                 const data = await response.json();
 
                 if (data.data && data.data.length > 0) {
-                    // Find the specific artwork for ARScene4
                     const targetArtwork = data.data.find(
                         (artwork: any) => artwork.Name === 'Oorlogsmonument Bissegem'
                     );
@@ -356,7 +266,6 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
         fetchArtwork();
     }, []);
 
-    // Toggle menu expansion
     const toggleMenu = () => {
         const toValue = isMenuExpanded ? verticalScale(120) : verticalScale(380);
 
@@ -370,12 +279,10 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
         setIsMenuExpanded(!isMenuExpanded);
     };
 
-    // Handle animation finish
     const handleAnimationFinish = () => {
         setShowStickerPopup(true);
     };
 
-    // Define materials for text balloons
     React.useEffect(() => {
         ViroMaterials.createMaterials({
             balloonBackground: {
@@ -393,30 +300,18 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
         });
     }, []);
 
-    // Wrapper function to pass props to AR Scene
     const ARSceneWrapper = () => {
-        // Use coordinates from database or fallback to default
-        const targetLatitude = artworkData?.Location?.lat || 50.818523;
-        const targetLongitude = artworkData?.Location?.lng || 3.436097;
-
         return (
             <ARScene4Scene
-                userLocation={userLocation}
-                targetLatitude={targetLatitude}
-                targetLongitude={targetLongitude}
                 onAnimationFinish={handleAnimationFinish}
             />
         );
     };
 
-    // Get artwork details
     const artwork = artworkData || {};
-
-    // Get Stickers URL - Strapi Cloud returns full URLs
     const stickersUrl = artwork.Stickers?.url;
     const fullStickersUrl = stickersUrl || null;
 
-    // Calculate distance
     const calculatedDistance = userLocation && artwork.Location?.lat && artwork.Location?.lng
         ? (calculateDistance(
             userLocation.coords.latitude,
@@ -432,11 +327,10 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                 key={sceneKey}
                 autofocus={true}
                 initialScene={{ scene: ARSceneWrapper }}
-                worldAlignment="GravityAndHeading"
+                worldAlignment="Gravity"
                 style={{ flex: 1 }}
             />
 
-            {/* Sticker Popup Modal */}
             <Modal
                 visible={showStickerPopup}
                 transparent={true}
@@ -452,7 +346,6 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                             Weer een stapje dichter{'\n'}bij de volledige set.
                         </Text>
 
-                        {/* Sticker Image */}
                         {fullStickersUrl && (
                             <View style={styles.stickerContainer}>
                                 <Image
@@ -463,7 +356,6 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                             </View>
                         )}
 
-                        {/* Sticker Info */}
                         <Text style={[styles.stickerTitle, { fontFamily: 'Impact' }]}>
                             {artwork.Name || 'Untitled'}
                         </Text>
@@ -471,7 +363,6 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                             {artwork.Creator || 'Unknown'}
                         </Text>
 
-                        {/* Claim Button */}
                         <TouchableOpacity
                             style={styles.claimButton}
                             onPress={() => setShowStickerPopup(false)}
@@ -485,10 +376,8 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                 </View>
             </Modal>
 
-            {/* Collapsible Bottom Menu */}
             {artworkData && fontsLoaded && (
                 <Animated.View style={[styles.bottomMenu, { height: menuHeight, backgroundColor: '#000' }]}>
-                    {/* Toggle Button */}
                     <TouchableOpacity
                         style={styles.toggleButton}
                         onPress={toggleMenu}
@@ -503,9 +392,7 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                         />
                     </TouchableOpacity>
 
-                    {/* Collapsed View Content */}
                     <View style={styles.collapsedContent}>
-                        {/* Sticker Image */}
                         {fullStickersUrl && (
                             <Image
                                 source={{ uri: fullStickersUrl }}
@@ -513,7 +400,6 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                             />
                         )}
 
-                        {/* Text Content */}
                         <View style={styles.textContent}>
                             <Text style={[styles.artworkName, { fontFamily: 'Impact' }]}>
                                 {artwork.Name || 'Untitled'}
@@ -524,13 +410,11 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                         </View>
                     </View>
 
-                    {/* Expanded View Content */}
                     {isMenuExpanded && (
                         <ScrollView
                             style={styles.expandedContent}
                             showsVerticalScrollIndicator={false}
                         >
-                            {/* Info Buttons Row */}
                             <View style={styles.infoButtonsRow}>
                                 <TouchableOpacity style={styles.buttonContainer}>
                                     <Text style={[styles.buttonIcon, { fontFamily: 'Impact' }]}>Jaar</Text>
@@ -560,7 +444,6 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
                                 </TouchableOpacity>
                             </View>
 
-                            {/* Description */}
                             {artwork.Description && (
                                 <View style={styles.descriptionContainer}>
                                     <Text style={[styles.description, { fontFamily: 'LeagueSpartan-regular' }]}>
@@ -577,12 +460,6 @@ export default function ARScene4({ userLocation, sceneKey }: ARScene4Props) {
 }
 
 const styles = StyleSheet.create({
-    helloText: {
-        fontSize: 30,
-        color: '#ffffff',
-        textAlignVertical: 'center',
-        textAlign: 'center',
-    },
     balloonTitle: {
         fontFamily: 'Impact',
         fontSize: 30,

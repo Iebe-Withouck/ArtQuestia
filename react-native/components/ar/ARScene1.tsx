@@ -29,27 +29,12 @@ import {
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 const { width, height } = Dimensions.get('window');
 
-// Responsive scaling functions
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
-// Calculate bearing between two GPS coordinates
-const calculateBearing = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const toRad = (deg: number) => deg * (Math.PI / 180);
-    const toDeg = (rad: number) => rad * (180 / Math.PI);
-
-    const dLon = toRad(lon2 - lon1);
-    const y = Math.sin(dLon) * Math.cos(toRad(lat2));
-    const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
-        Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
-
-    return (toDeg(Math.atan2(y, x)) + 360) % 360;
-};
-
-// Calculate distance between two GPS coordinates (Haversine formula)
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-    const R = 6371e3; // Earth's radius in meters
+    const R = 6371e3;
     const φ1 = lat1 * Math.PI / 180;
     const φ2 = lat2 * Math.PI / 180;
     const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -60,34 +45,7 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
         Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    return R * c; // Distance in meters
-};
-
-// Convert GPS coordinates to AR position relative to user
-const gpsToARPosition = (
-    userLat: number,
-    userLon: number,
-    targetLat: number,
-    targetLon: number
-): [number, number, number] => {
-    const distance = calculateDistance(userLat, userLon, targetLat, targetLon);
-    const bearing = calculateBearing(userLat, userLon, targetLat, targetLon);
-
-    // Convert bearing to radians
-    const bearingRad = (bearing * Math.PI) / 180;
-
-    // Scale down the distance for AR (1 meter real = 0.01 AR units for better visibility)
-    const scaleFactor = 0.01;
-    const scaledDistance = distance * scaleFactor;
-
-    // Calculate x, z positions with scaled distance
-    const x = scaledDistance * Math.sin(bearingRad);
-    const z = -scaledDistance * Math.cos(bearingRad);
-
-    // Set y to -0.5 to place object at chest/eye level
-    const y = -0.5;
-
-    return [x, y, z];
+    return R * c;
 };
 
 interface ARScene1Props {
@@ -95,88 +53,59 @@ interface ARScene1Props {
     sceneKey: number;
 }
 
-// Internal AR Scene Component
-function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimationFinish }: {
-    userLocation: Location.LocationObject | null;
-    targetLatitude: number;
-    targetLongitude: number;
+function ARScene1Scene({ onAnimationFinish }: {
     onAnimationFinish: () => void;
 }) {
     const [animationPlayed, setAnimationPlayed] = useState(false);
     const [showBalloons, setShowBalloons] = useState(false);
-    // Calculate AR position based on GPS coordinates
-    const arPosition: [number, number, number] = userLocation
-        ? gpsToARPosition(
-            userLocation.coords.latitude,
-            userLocation.coords.longitude,
-            targetLatitude,
-            targetLongitude
-        )
-        : [0, -0.4, -2]; // Default position if no GPS
 
-    const distance = userLocation
-        ? calculateDistance(
-            userLocation.coords.latitude,
-            userLocation.coords.longitude,
-            targetLatitude,
-            targetLongitude
-        )
-        : 0;
+    // Positie van AR objecten in de scene
+    const arPosition: [number, number, number] = [0, -1, -2];
 
     return (
         <ViroARScene>
-            {/* Ambient light for overall scene illumination */}
+            {/* Licht */}
             <ViroAmbientLight color="#ffffff" intensity={30000} />
 
-            {/* Directional light from above-front to simulate sunlight */}
+            {/* Directional licht */}
             <ViroDirectionalLight
                 color="#ffffff"
                 direction={[0, -1, -0.5]}
                 intensity={500}
             />
 
-            {/* Additional directional light from the side for depth */}
+            {/* Extra directioneel licht vanaf de zijkant voor diepte */}
             <ViroDirectionalLight
                 color="#ffffff"
                 direction={[1, -0.5, 0]}
                 intensity={300}
             />
 
-            {/* Node to group and anchor all objects at GPS coordinates */}
             <ViroNode
                 position={arPosition}
                 dragType="FixedToWorld"
             >
-                {/* Distance indicator text */}
-                <ViroText
-                    text={`${Math.round(distance)}m away`}
-                    scale={[0.2, 0.2, 0.2]}
-                    position={[0, 0.5, 0]}
-                    style={styles.helloText}
-                />
-
-                {/* 3D Model with baked animation from Blender */}
+                {/* 3D Model (van de tweede scene) met baked animation */}
                 <Viro3DObject
-                    source={require('../../assets/3D-Models/bomb.glb')}
+                    source={require('../../assets/3D-Models/flag.glb')}
                     resources={[]}
                     position={[0, 0, 0]}
-                    scale={[0.1, 0.1, 0.1]}
+                    scale={[0.28, 0.28, 0.28]}
+                    rotation={[0, -90, 0]}
                     type="GLB"
                     animation={{
-                        name: 'BombAction',
+                        name: 'VirginOfFlanders',
                         run: true,
                         loop: true,
                     }}
                     lightReceivingBitMask={1}
                     shadowCastingBitMask={1}
-                    onLoadStart={() => console.log('ARScene1: Bomb loading...')}
+                    onLoadStart={() => console.log('ARScene1: Flag loading...')}
                     onLoadEnd={() => {
-                        console.log('ARScene1: Bomb loaded at GPS coordinates');
-                        // Show text balloons after 2 seconds
+                        console.log('ARScene1: Flag loaded at fixed position');
                         setTimeout(() => {
                             setShowBalloons(true);
                         }, 2000);
-                        // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
                         setTimeout(() => {
                             if (!animationPlayed) {
                                 setAnimationPlayed(true);
@@ -185,7 +114,7 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                         }, 16000);
                     }}
                     onError={(event) => {
-                        console.error('ARScene1: Error loading bomb (message):', event.nativeEvent?.error);
+                        console.error('ARScene1: Error loading flag (message):', event.nativeEvent?.error);
                         console.error(
                             'ARScene1: Full error object:',
                             JSON.stringify(event.nativeEvent, null, 2),
@@ -193,36 +122,38 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     }}
                 />
 
+                {/* --- BALLOONS (van de tweede scene) --- */}
+
                 {/* Tekstballon 1 - Rechtsboven */}
                 {showBalloons && (
                     <ViroNode position={[0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
-                            height={0.45}
-                            width={1.4}
+                            height={0.38}
+                            width={1.1}
                             length={0.02}
                             materials={['balloonBackground']}
                         />
                         <ViroText
-                            text="2006: Uitbreiding na WOII"
-                            position={[0, 0.12, 0.02]}
+                            text="1906: Onthuld na 4 jaar"
+                            position={[0, 0.1, 0.02]}
                             scale={[0.15, 0.15, 0.15]}
-                            width={4.5}
+                            width={3.5}
                             height={1}
                             style={styles.balloonTitle}
                         />
                         <ViroText
-                            text="Aanvulling op het Eerste Wereldoorlogmonument aan de voet van de Halletoren met twee granieten stenen."
-                            position={[0, -0.08, 0.02]}
+                            text="Godfried Devreese wint wedstrijd. Maquette 1902; voltooid 1906. Verguld brons via Vlaamse inzameling."
+                            position={[0, -0.06, 0.02]}
                             scale={[0.1, 0.1, 0.1]}
-                            width={6.5}
+                            width={5}
                             height={2}
                             style={styles.balloonText}
                         />
                     </ViroNode>
                 )}
 
-                {/* Tekstballon 2 - Links */}
+                {/* Tekstballon 2 - Linksonder */}
                 {showBalloons && (
                     <ViroNode position={[-1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
@@ -233,7 +164,7 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                             materials={['balloonBackground']}
                         />
                         <ViroText
-                            text="Linker steen"
+                            text="Maagd & Leeuw"
                             position={[0, 0.1, 0.02]}
                             scale={[0.15, 0.15, 0.15]}
                             width={3.5}
@@ -241,7 +172,7 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                             style={styles.balloonTitle}
                         />
                         <ViroText
-                            text="51 namen van Kortrijkse militairen gesneuveld in WOII gegraveerd."
+                            text="Zij richt zeis op Frankrijk, temt boeienbreuk Leeuw. Romantisch-realistisch meesterwerk Vlaamse strijd."
                             position={[0, -0.06, 0.02]}
                             scale={[0.1, 0.1, 0.1]}
                             width={5}
@@ -251,30 +182,30 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     </ViroNode>
                 )}
 
-                {/* Tekstballon 3 - Rechts */}
+                {/* Tekstballon 3 - Rechtsonder */}
                 {showBalloons && (
                     <ViroNode position={[1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
-                            height={0.43}
+                            height={0.38}
                             width={1.1}
                             length={0.02}
                             materials={['balloonBackground']}
                         />
                         <ViroText
-                            text="Rechter steen"
-                            position={[0, 0.12, 0.02]}
+                            text="Drie reliëfs"
+                            position={[0, 0.1, 0.02]}
                             scale={[0.15, 0.15, 0.15]}
                             width={3.5}
                             height={1}
                             style={styles.balloonTitle}
                         />
                         <ViroText
-                            text="Opdracht aan slachtoffers van militaire acties, verzetsdaden en bombardementen tussen 1940-1945."
+                            text="Links: krijger afscheid vrouw/kind onder OLV Groeninge. Midden: Robert d'Artois dood bij paard. Rechts: zegevierende Vlamingen verbroederen."
                             position={[0, -0.06, 0.02]}
                             scale={[0.1, 0.1, 0.1]}
                             width={5}
-                            height={2.5}
+                            height={2}
                             style={styles.balloonText}
                         />
                     </ViroNode>
@@ -285,25 +216,25 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                     <ViroNode position={[-0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
-                            height={0.43}
+                            height={0.38}
                             width={1.1}
                             length={0.02}
                             materials={['balloonBackground']}
                         />
                         <ViroText
-                            text="Herdenking"
-                            position={[0, 0.12, 0.02]}
+                            text="1906: Onthuld na 4 jaar"
+                            position={[0, 0.1, 0.02]}
                             scale={[0.15, 0.15, 0.15]}
                             width={3.5}
                             height={1}
                             style={styles.balloonTitle}
                         />
                         <ViroText
-                            text="Gedenkstenen onthuld bij bevrijdingsherdenking Kortrijk op 10 september 2006 als eerbetoon aan alle oorlogsslachtoffers."
+                            text="Godfried Devreese wint wedstrijd. Maquette 1902; voltooid 1906. Verguld brons via Vlaamse inzameling."
                             position={[0, -0.06, 0.02]}
                             scale={[0.1, 0.1, 0.1]}
                             width={5}
-                            height={2.5}
+                            height={2}
                             style={styles.balloonText}
                         />
                     </ViroNode>
@@ -319,7 +250,7 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                             materials={['balloonBackground']}
                         />
                         <ViroText
-                            text="Klaprozen tussen bommen"
+                            text="1302: Guldensporenslag"
                             position={[0, 0.12, 0.01]}
                             scale={[0.15, 0.15, 0.15]}
                             width={3.5}
@@ -328,11 +259,11 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
                             extrusionDepth={0}
                         />
                         <ViroText
-                            text="Hier verschijnen klaprozen als teken van herinnering aan de vele slachtoffers van bombardementen en ander oorlogsgeweld."
+                            text="Vlaams voetvolk verslaat Frans ruiterleger op Groeningekouter. Symbool Vlaamse ontvoogding door Conscience's Leeuw."
                             position={[0, -0.06, 0.01]}
                             scale={[0.1, 0.1, 0.1]}
                             width={5}
-                            height={2.5}
+                            height={2}
                             style={styles.balloonText}
                             extrusionDepth={0}
                         />
@@ -343,7 +274,6 @@ function ARScene1Scene({ userLocation, targetLatitude, targetLongitude, onAnimat
     );
 }
 
-// Main Component with Menu
 export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
     const [isMenuExpanded, setIsMenuExpanded] = useState(false);
     const [menuHeight] = useState(new Animated.Value(verticalScale(120)));
@@ -356,8 +286,7 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
     });
 
-
-    // Fetch artwork data from Strapi
+    // Fetch artwork data from Strapi (keert terug naar dezelfde artwork-lookup als tweede scene)
     useEffect(() => {
         const fetchArtwork = async () => {
             try {
@@ -365,13 +294,25 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                 const data = await response.json();
 
                 if (data.data && data.data.length > 0) {
+                    // Debug: Log all artwork names
+                    console.log('ARScene1: Available artworks:', data.data.map((a: any) => a.Name));
+
+                    // Find the specific artwork similar to second scene (Groeninge)
                     const targetArtwork = data.data.find(
-                        (artwork: any) => artwork.Name === 'Monument WWII'
+                        (artwork: any) => {
+                            const name = artwork.Name || '';
+                            return name === 'Het Groeningemonument' ||
+                                name === 'Groeningemonument' ||
+                                name.includes('Groeninge');
+                        }
                     );
+
                     if (targetArtwork) {
+                        console.log('ARScene1: Found artwork (Groeninge):', targetArtwork.Name);
                         setArtworkData(targetArtwork);
                     } else {
-                        setArtworkData(null);
+                        console.log('ARScene1: Artwork not found, using fallback (first item)');
+                        setArtworkData(data.data[0]);
                     }
                 }
                 setLoading(false);
@@ -384,7 +325,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         fetchArtwork();
     }, []);
 
-    // Toggle menu expansion
     const toggleMenu = () => {
         const toValue = isMenuExpanded ? verticalScale(120) : verticalScale(380);
 
@@ -398,16 +338,14 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         setIsMenuExpanded(!isMenuExpanded);
     };
 
-    // Handle animation finish
     const handleAnimationFinish = () => {
         setShowStickerPopup(true);
     };
 
-    // Define materials for text balloons
     React.useEffect(() => {
         ViroMaterials.createMaterials({
             balloonBackground: {
-                diffuseColor: '#F10906',
+                diffuseColor: '#FF7700', // gebruik kleur uit tweede scene
                 lightingModel: 'Constant',
             },
         });
@@ -421,29 +359,18 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         });
     }, []);
 
-    // Wrapper function to pass props to AR Scene
     const ARSceneWrapper = () => {
-        // Use coordinates from database or fallback to default
-        const targetLatitude = artworkData?.Location?.lat || 50.818523;
-        const targetLongitude = artworkData?.Location?.lng || 3.436097;
         return (
             <ARScene1Scene
-                userLocation={userLocation}
-                targetLatitude={targetLatitude}
-                targetLongitude={targetLongitude}
                 onAnimationFinish={handleAnimationFinish}
             />
         );
     };
 
-    // Get artwork details
     const artwork = artworkData || {};
-
-    // Get Stickers URL - Strapi Cloud returns full URLs
     const stickersUrl = artwork.Stickers?.url;
     const fullStickersUrl = stickersUrl || null;
 
-    // Calculate distance
     const calculatedDistance = userLocation && artwork.Location?.lat && artwork.Location?.lng
         ? (calculateDistance(
             userLocation.coords.latitude,
@@ -459,11 +386,10 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                 key={sceneKey}
                 autofocus={true}
                 initialScene={{ scene: ARSceneWrapper }}
-                worldAlignment="GravityAndHeading"
+                worldAlignment="Gravity"
                 style={{ flex: 1 }}
             />
 
-            {/* Sticker Popup Modal */}
             <Modal
                 visible={showStickerPopup}
                 transparent={true}
@@ -479,7 +405,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                             Weer een stapje dichter{'\n'}bij de volledige set.
                         </Text>
 
-                        {/* Sticker Image */}
                         {fullStickersUrl && (
                             <View style={styles.stickerContainer}>
                                 <Image
@@ -490,7 +415,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                             </View>
                         )}
 
-                        {/* Sticker Info */}
                         <Text style={[styles.stickerTitle, { fontFamily: 'Impact' }]}>
                             {artwork.Name || 'Untitled'}
                         </Text>
@@ -498,7 +422,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                             {artwork.Creator || 'Unknown'}
                         </Text>
 
-                        {/* Claim Button */}
                         <TouchableOpacity
                             style={styles.claimButton}
                             onPress={() => setShowStickerPopup(false)}
@@ -512,10 +435,8 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                 </View>
             </Modal>
 
-            {/* Collapsible Bottom Menu */}
             {artworkData && fontsLoaded && (
                 <Animated.View style={[styles.bottomMenu, { height: menuHeight, backgroundColor: '#000' }]}>
-                    {/* Toggle Button */}
                     <TouchableOpacity
                         style={styles.toggleButton}
                         onPress={toggleMenu}
@@ -530,9 +451,7 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                         />
                     </TouchableOpacity>
 
-                    {/* Collapsed View Content */}
                     <View style={styles.collapsedContent}>
-                        {/* Sticker Image */}
                         {fullStickersUrl && (
                             <Image
                                 source={{ uri: fullStickersUrl }}
@@ -540,7 +459,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                             />
                         )}
 
-                        {/* Text Content */}
                         <View style={styles.textContent}>
                             <Text style={[styles.artworkName, { fontFamily: 'Impact' }]}>
                                 {artwork.Name || 'Untitled'}
@@ -551,13 +469,11 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                         </View>
                     </View>
 
-                    {/* Expanded View Content */}
                     {isMenuExpanded && (
                         <ScrollView
                             style={styles.expandedContent}
                             showsVerticalScrollIndicator={false}
                         >
-                            {/* Info Buttons Row */}
                             <View style={styles.infoButtonsRow}>
                                 <TouchableOpacity style={styles.buttonContainer}>
                                     <Text style={[styles.buttonIcon, { fontFamily: 'Impact' }]}>Jaar</Text>
@@ -587,7 +503,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                                 </TouchableOpacity>
                             </View>
 
-                            {/* Description */}
                             {artwork.Description && (
                                 <View style={styles.descriptionContainer}>
                                     <Text style={[styles.description, { fontFamily: 'LeagueSpartan-regular' }]}>
@@ -604,12 +519,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
 }
 
 const styles = StyleSheet.create({
-    helloText: {
-        fontSize: 30,
-        color: '#ffffff',
-        textAlignVertical: 'center',
-        textAlign: 'center',
-    },
     balloonTitle: {
         fontFamily: 'Impact',
         fontSize: 30,
