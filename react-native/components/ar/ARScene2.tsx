@@ -61,7 +61,7 @@ function ARScene2Scene({ onAnimationFinish }: {
 }) {
     const [animationPlayed, setAnimationPlayed] = useState(false);
     const [showBalloons, setShowBalloons] = useState(false);
-    const arPosition: [number, number, number] = [0, -1.5, -2];
+    const arPosition: [number, number, number] = [0, -1.5, -3];
 
     return (
         <ViroARScene>
@@ -81,8 +81,8 @@ function ARScene2Scene({ onAnimationFinish }: {
                 <Viro3DObject
                     source={require('../../assets/3D-Models/flag.glb')}
                     resources={[]}
-                    position={[0, 0.5, 0]}
-                    scale={[0.5, 0.5, 0.5]}
+                    position={[0, 0.5, -10]}
+                    scale={[2, 2, 2]}
                     rotation={[0, -90, 0]}
                     type="GLB"
                     animation={{
@@ -143,7 +143,7 @@ function ARScene2Scene({ onAnimationFinish }: {
                 )}
 
                 {showBalloons && (
-                    <ViroNode position={[-1.3, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                    <ViroNode position={[-1.3, 0.6, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
                             height={0.38}
@@ -171,7 +171,7 @@ function ARScene2Scene({ onAnimationFinish }: {
                 )}
 
                 {showBalloons && (
-                    <ViroNode position={[1.3, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                    <ViroNode position={[1.3, 0.6, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
                             height={0.38}
