@@ -81,7 +81,7 @@ function ARScene2Scene({ onAnimationFinish }: {
                 <Viro3DObject
                     source={require('../../assets/3D-Models/flag.glb')}
                     resources={[]}
-                    position={[0, 0.5, -10]}
+                    position={[0, -2, -10]}
                     scale={[2, 2, 2]}
                     rotation={[0, -90, 0]}
                     type="GLB"
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
     },
     balloonTitle: {
         fontFamily: 'Impact',
-        fontSize: 30,
+        fontSize: 36,
         color: '#ffffff',
         textAlignVertical: 'center',
         textAlign: 'center',
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
     },
     balloonText: {
         fontFamily: 'LeagueSpartan',
-        fontSize: 30,
+        fontSize: 36,
         color: '#ffffff',
         textAlignVertical: 'center',
         textAlign: 'center',

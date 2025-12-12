@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     },
     balloonTitle: {
         fontFamily: 'Impact',
-        fontSize: 30,
+        fontSize: 36,
         color: '#000000',
         textAlignVertical: 'center',
         textAlign: 'center',
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
     },
     balloonText: {
         fontFamily: 'LeagueSpartan',
-        fontSize: 30,
+        fontSize: 36,
         color: '#000000',
         textAlignVertical: 'center',
         textAlign: 'center',
