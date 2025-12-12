@@ -127,3 +127,10 @@ dist
 build
 .strapi-updater.json
 .strapi-cloud.json
+
+############################
+# Firebase
+############################
+
+firebase-service-account.json
+*-firebase-adminsdk-*.json
