@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 
 import Location from '../assets/icons/location.png';
 import MapIcon from '../assets/images/mapicon.png';
@@ -27,6 +28,13 @@ interface ArtworkCardProps {
       Creator: string;
       Distance?: string;
       Color?: string;
+      Photo?: {
+        data?: {
+          attributes?: {
+            url?: string;
+          };
+        };
+      };
       Photo_Hidden?: {
         data?: {
           attributes?: {
@@ -51,6 +59,7 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   });
 
   const router = useRouter();
+  const { claimedStickers } = useClaimedStickers();
 
   const handleMapPress = () => {
     // Haal locatie info op uit artwork (kan ontbreken)
@@ -83,11 +92,15 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   console.log('Rendering artwork:', artwork);
 
   const attributes = artwork.attributes || artwork;
+  const artworkId = artwork.id;
+  const isClaimed = claimedStickers.includes(artworkId);
 
-  // Use Photo field - Strapi Cloud returns full URLs, not relative paths
-  const photoData = attributes.Photo_Hidden?.data || attributes.Photo_Hidden;
-  const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo_Hidden?.url;
+  // Use Photo if claimed, otherwise use Photo_Hidden
+  const photoSource = isClaimed ? attributes.Photo : attributes.Photo_Hidden;
+  const photoData = photoSource?.data || photoSource;
+  const photoUrl = photoData?.attributes?.url || photoData?.url || (photoSource as any)?.url;
 
+  console.log('Artwork ID:', artworkId, 'Claimed:', isClaimed);
   console.log('Photo data:', photoData);
   console.log('Photo URL:', photoUrl);
 

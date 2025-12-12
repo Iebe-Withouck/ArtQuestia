@@ -3,7 +3,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
-  FlatList,
   Image,
   ScrollView,
   StyleSheet,
@@ -178,11 +177,12 @@ export default function SettingsScreen() {
         {/* Search results dropdown */}
         {filteredArtworks.length > 0 && (
           <View style={styles.searchResultsContainer}>
-            <FlatList
-              data={filteredArtworks}
-              keyExtractor={(item) => item.id.toString()}
+            <ScrollView
               style={styles.searchResultsList}
-              renderItem={({ item }) => {
+              nestedScrollEnabled={true}
+              showsVerticalScrollIndicator={false}
+            >
+              {filteredArtworks.map((item) => {
                 const attributes = item.attributes || item;
                 const lat = attributes.Location?.lat;
                 const lon = attributes.Location?.lng;
@@ -192,6 +192,7 @@ export default function SettingsScreen() {
 
                 return (
                   <TouchableOpacity
+                    key={item.id.toString()}
                     style={styles.searchResultItem}
                     onPress={() => {
                       setSearchQuery('');
@@ -211,8 +212,8 @@ export default function SettingsScreen() {
                     </View>
                   </TouchableOpacity>
                 );
-              }}
-            />
+              })}
+            </ScrollView>
           </View>
         )}
 

@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import Notifications from '@/components/Notifications';
+import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 
 import NextIcon from '../assets/icons/next.png';
 import Bell from '../assets/icons/doorbell_black.png';
@@ -77,6 +78,7 @@ interface ArtworkCardDetailProps {
 
 export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetailProps) {
   const router = useRouter();
+  const { claimedStickers } = useClaimedStickers();
   const [fontsLoaded] = useFonts({
     Impact: require('../assets/fonts/impact.ttf'),
     LeagueSpartan: require('../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
@@ -117,68 +119,42 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
   }
 
   const attributes = artwork.attributes || artwork;
+  const artworkId = artwork.id;
+  const isClaimed = claimedStickers.includes(artworkId);
+
+  // Use Photo if claimed, otherwise use Photo_Hidden
+  const photoSource = isClaimed ? attributes.Photo : attributes.Photo_Hidden;
 
   // Get Photo URL - Strapi Cloud returns full URLs, not relative paths
   let photoUrl: string | undefined = undefined;
-  if (attributes.Photo) {
+  if (photoSource) {
     if (
-      typeof attributes.Photo === 'object' &&
-      'data' in attributes.Photo &&
-      attributes.Photo.data &&
-      typeof attributes.Photo.data === 'object' &&
-      'attributes' in attributes.Photo.data &&
-      attributes.Photo.data.attributes &&
-      typeof attributes.Photo.data.attributes === 'object' &&
-      'url' in attributes.Photo.data.attributes &&
-      typeof attributes.Photo.data.attributes.url === 'string'
+      typeof photoSource === 'object' &&
+      'data' in photoSource &&
+      photoSource.data &&
+      typeof photoSource.data === 'object' &&
+      'attributes' in photoSource.data &&
+      photoSource.data.attributes &&
+      typeof photoSource.data.attributes === 'object' &&
+      'url' in photoSource.data.attributes &&
+      typeof photoSource.data.attributes.url === 'string'
     ) {
-      photoUrl = attributes.Photo.data.attributes.url;
+      photoUrl = photoSource.data.attributes.url;
     } else if (
-      typeof attributes.Photo === 'object' &&
-      'attributes' in attributes.Photo &&
-      attributes.Photo.attributes &&
-      typeof attributes.Photo.attributes === 'object' &&
-      'url' in attributes.Photo.attributes &&
-      typeof attributes.Photo.attributes.url === 'string'
+      typeof photoSource === 'object' &&
+      'attributes' in photoSource &&
+      photoSource.attributes &&
+      typeof photoSource.attributes === 'object' &&
+      'url' in photoSource.attributes &&
+      typeof photoSource.attributes.url === 'string'
     ) {
-      photoUrl = attributes.Photo.attributes.url;
+      photoUrl = photoSource.attributes.url;
     }
   }
-  if (!photoUrl && (attributes as any).Photo?.url && typeof (attributes as any).Photo.url === 'string') {
-    photoUrl = (attributes as any).Photo.url;
+  if (!photoUrl && (photoSource as any)?.url && typeof (photoSource as any).url === 'string') {
+    photoUrl = (photoSource as any).url;
   }
   const fullImageUrl = photoUrl || null;
-
-  // Get Photo_Hidden URL
-  let photoHiddenUrl: string | undefined = undefined;
-  if (attributes.Photo_Hidden) {
-    if (
-      typeof attributes.Photo_Hidden === 'object' &&
-      'data' in attributes.Photo_Hidden &&
-      attributes.Photo_Hidden.data &&
-      typeof attributes.Photo_Hidden.data === 'object' &&
-      'attributes' in attributes.Photo_Hidden.data &&
-      attributes.Photo_Hidden.data.attributes &&
-      typeof attributes.Photo_Hidden.data.attributes === 'object' &&
-      'url' in attributes.Photo_Hidden.data.attributes &&
-      typeof attributes.Photo_Hidden.data.attributes.url === 'string'
-    ) {
-      photoHiddenUrl = attributes.Photo_Hidden.data.attributes.url;
-    } else if (
-      typeof attributes.Photo_Hidden === 'object' &&
-      'attributes' in attributes.Photo_Hidden &&
-      attributes.Photo_Hidden.attributes &&
-      typeof attributes.Photo_Hidden.attributes === 'object' &&
-      'url' in attributes.Photo_Hidden.attributes &&
-      typeof attributes.Photo_Hidden.attributes.url === 'string'
-    ) {
-      photoHiddenUrl = attributes.Photo_Hidden.attributes.url;
-    }
-  }
-  if (!photoHiddenUrl && (attributes as any).Photo_Hidden?.url && typeof (attributes as any).Photo_Hidden.url === 'string') {
-    photoHiddenUrl = (attributes as any).Photo_Hidden.url;
-  }
-  const fullPhotoHiddenUrl = photoHiddenUrl || null;
 
   // Get Stickers URL
   let stickersUrl: string | undefined = undefined;
@@ -275,9 +251,9 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
         </TouchableOpacity>
 
         {/* Main Photo */}
-        {fullPhotoHiddenUrl && (
+        {fullImageUrl && (
           <View style={[styles.imageContainer, { backgroundColor }]}>
-            <Image source={{ uri: fullPhotoHiddenUrl }} style={styles.heroImage} />
+            <Image source={{ uri: fullImageUrl }} style={styles.heroImage} />
           </View>
         )}
 
@@ -293,9 +269,11 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
             {attributes.Creator || 'Unknown'}
           </ThemedText>
 
-          <ThemedText style={[styles.hidden, { fontFamily: 'Impact' }]}>
-            Nog Verborgen
-          </ThemedText>
+          {!isClaimed && (
+            <ThemedText style={[styles.hidden, { fontFamily: 'Impact' }]}>
+              Nog Verborgen
+            </ThemedText>
+          )}
 
           <View style={styles.rowButtons}>
             <TouchableOpacity style={styles.buttonContainer}>
