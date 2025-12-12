@@ -269,8 +269,8 @@ export default function SettingsScreen() {
               setDropdownVisible(false);
             }}
           >
-            <ThemedText style={styles.buttonTextStickers}>{selectedStickerType}</ThemedText>
-            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: stickerTypeDropdownVisible ? '180deg' : '0deg' }] }]} />
+            <ThemedText style={[styles.buttonTextStickers, styles.whiteText]}>{selectedStickerType}</ThemedText>
+            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, styles.whiteArrow, { transform: [{ rotate: stickerTypeDropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.buttonStickers2}
@@ -292,7 +292,7 @@ export default function SettingsScreen() {
                 style={styles.dropdownItem}
                 onPress={() => handleStickerTypeSelect(type)}
               >
-                <ThemedText style={styles.dropdownText}>{type}</ThemedText>
+                <ThemedText style={[styles.dropdownText, styles.whiteText]}>{type}</ThemedText>
               </TouchableOpacity>
             ))}
           </View>
@@ -626,6 +626,12 @@ const styles = StyleSheet.create({
     width: moderateScale(10),
     height: moderateScale(10),
     tintColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  whiteText: {
+    color: '#fff',
+  },
+  whiteArrow: {
+    tintColor: '#fff',
   },
   dropdownContainerBlue: {
     backgroundColor: '#215AFF',
