@@ -3,6 +3,8 @@ import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, Alert 
 import { router } from 'expo-router';
 import auth from '@react-native-firebase/auth';
 
+const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
+
 const { width, height } = Dimensions.get('window');
 
 const scale = (size: number) => (width / 375) * size;
@@ -20,7 +22,38 @@ export default function LoginScreen() {
     setLoading(true);
     
     try {
-      await auth().signInWithEmailAndPassword(email, password);
+      // Sign in with Firebase
+      const userCredential = await auth().signInWithEmailAndPassword(email, password);
+      
+      // Get the Firebase ID token
+      const idToken = await userCredential.user.getIdToken();
+      
+      // Send the ID token to Strapi
+      try {
+        const response = await fetch(`${STRAPI_URL}/api/auth/firebase`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+          }),
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          console.log('Successfully authenticated with Strapi:', data);
+          // You can store the Strapi JWT token if needed
+          // await AsyncStorage.setItem('strapiToken', data.jwt);
+        } else {
+          console.error('Strapi authentication failed:', data);
+        }
+      } catch (strapiError) {
+        console.error('Error sending token to Strapi:', strapiError);
+        // Continue anyway - don't block the user from logging in
+      }
+      
       Alert.alert('Success', 'Logged in successfully!');
       // Navigate to the main app (tabs)
       router.replace('/(tabs)');
