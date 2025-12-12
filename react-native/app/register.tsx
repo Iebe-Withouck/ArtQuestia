@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, Alert, ScrollView } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomAlert from '@/components/CustomAlert';
 
 const { width, height } = Dimensions.get('window');
 
@@ -18,6 +19,12 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    message: '',
+    type: 'info' as 'success' | 'error' | 'info',
+  });
 
   const handleRegister = async () => {
     setError('');
@@ -47,9 +54,17 @@ export default function RegisterScreen() {
       await AsyncStorage.setItem('userName', name);
       await AsyncStorage.setItem('userAge', age);
       
-      Alert.alert('Succes', 'Account succesvol aangemaakt!');
-      // Navigate to the main app (tabs)
-      router.replace('/(tabs)');
+      setAlertConfig({
+        title: 'Succes',
+        message: 'Account succesvol aangemaakt!',
+        type: 'success',
+      });
+      setAlertVisible(true);
+      
+      // Navigate after a brief delay to show the success message
+      setTimeout(() => {
+        router.replace('/(tabs)');
+      }, 1500);
     } catch (e: any) {
       let errorMessage = e.message;
       
@@ -63,7 +78,12 @@ export default function RegisterScreen() {
       }
       
       setError(errorMessage);
-      Alert.alert('Registratie fout', errorMessage);
+      setAlertConfig({
+        title: 'Registratie fout',
+        message: errorMessage,
+        type: 'error',
+      });
+      setAlertVisible(true);
       console.error(e);
     } finally {
       setLoading(false);
@@ -139,6 +159,14 @@ export default function RegisterScreen() {
           Heb je al een account? <Text style={styles.loginTextBold}>Login hier</Text>
         </Text>
       </TouchableOpacity>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={() => setAlertVisible(false)}
+      />
     </ScrollView>
   );
 }

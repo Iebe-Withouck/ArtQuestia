@@ -625,7 +625,7 @@ const styles = StyleSheet.create({
   dropdownArrow: {
     width: moderateScale(10),
     height: moderateScale(10),
-    tintColor: '#fff',
+    tintColor: 'rgba(0, 0, 0, 0.6)',
   },
   dropdownContainerBlue: {
     backgroundColor: '#215AFF',
@@ -652,12 +652,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#444',
   },
   dropdownText: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-regular',
   },
   buttonTextStickers: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
@@ -759,7 +759,7 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(10),
   },
   readMoreButtonText: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',

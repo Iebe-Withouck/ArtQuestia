@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { router } from 'expo-router';
 import auth from '@react-native-firebase/auth';
+import CustomAlert from '@/components/CustomAlert';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
@@ -16,6 +17,12 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    message: '',
+    type: 'info' as 'success' | 'error' | 'info',
+  });
 
   const handleLogin = async () => {
     setError('');
@@ -54,12 +61,25 @@ export default function LoginScreen() {
         // Continue anyway - don't block the user from logging in
       }
       
-      Alert.alert('Success', 'Logged in successfully!');
-      // Navigate to the main app (tabs)
-      router.replace('/(tabs)');
+      setAlertConfig({
+        title: 'Success',
+        message: 'Logged in successfully!',
+        type: 'success',
+      });
+      setAlertVisible(true);
+      
+      // Navigate after a brief delay to show the success message
+      setTimeout(() => {
+        router.replace('/(tabs)');
+      }, 1500);
     } catch (e: any) {
       setError(e.message);
-      Alert.alert('Login Error', e.message);
+      setAlertConfig({
+        title: 'Login Error',
+        message: e.message,
+        type: 'error',
+      });
+      setAlertVisible(true);
       console.error(e);
     } finally {
       setLoading(false);
@@ -95,8 +115,6 @@ export default function LoginScreen() {
         />
       </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
       <TouchableOpacity 
         style={[styles.loginButton, loading && styles.disabledButton]} 
         onPress={handleLogin}
@@ -112,6 +130,14 @@ export default function LoginScreen() {
           Nog geen account? <Text style={styles.registerTextBold}>Registreer hier</Text>
         </Text>
       </TouchableOpacity>
+
+      <CustomAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={() => setAlertVisible(false)}
+      />
     </View>
   );
 }
@@ -170,7 +196,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   loginButtonText: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(18),
     fontFamily: 'Impact',
     fontWeight: 'bold',

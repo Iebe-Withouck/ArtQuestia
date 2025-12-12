@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     minWidth: scale(220),
   },
   nextButtonText: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(16),
     fontFamily: 'Impact',
     fontWeight: 'bold',

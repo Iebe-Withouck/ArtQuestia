@@ -767,7 +767,7 @@ export default function MapScreen() {
             gap: 8,
         },
         bottomButtonText: {
-            color: "#FFFFFF",
+            color: 'rgba(0, 0, 0, 0.6)',
             fontSize: isSmallDevice ? 16 : 18,
             fontWeight: "700",
             fontFamily: "LeagueSpartan-medium",
@@ -775,7 +775,7 @@ export default function MapScreen() {
         buttonArrowIcon: {
             width: isSmallDevice ? 8 : 10,
             height: isSmallDevice ? 8 : 10,
-            tintColor: "#FFFFFF",
+            tintColor: 'rgba(0, 0, 0, 0.6)',
         },
         popupContainer: {
             position: "absolute",
@@ -1004,7 +1004,7 @@ export default function MapScreen() {
         themeDropdownText: {
             fontSize: isSmallDevice ? 13 : (isMediumDevice ? 15 : 16),
             fontWeight: "600",
-            color: "#FFFFFF",
+            color: 'rgba(0, 0, 0, 0.6)',
             fontFamily: "LeagueSpartan-medium",
             textAlign: "center",
         },

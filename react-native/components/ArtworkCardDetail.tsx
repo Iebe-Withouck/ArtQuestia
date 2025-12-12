@@ -524,7 +524,7 @@ const styles = StyleSheet.create({
   },
   readMoreButtonText: {
     textAlign: 'center',
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
     fontFamily: 'Impact',
   },
@@ -536,8 +536,9 @@ const styles = StyleSheet.create({
   },
   startTochtButtonText: {
     textAlign: 'center',
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-semibold',
+    fontWeight: 'bold',
   },
 });

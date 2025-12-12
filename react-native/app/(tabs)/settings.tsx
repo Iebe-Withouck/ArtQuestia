@@ -801,9 +801,8 @@ const styles = StyleSheet.create({
   icon: {
     width: moderateScale(18),
     height: moderateScale(18),
-    tintColor: '#fff',
+    tintColor: 'rgba(0, 0, 0, 0.6)',
   },
-
   rowButtonsScrollView: {
     marginTop: verticalScale(20),
     paddingTop: verticalScale(30),
@@ -886,7 +885,7 @@ const styles = StyleSheet.create({
   themaRouteName: {
     color: '#fff',
     fontSize: moderateScale(14),
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-semibold',
     textAlign: 'center',
     marginTop: verticalScale(8),
   },
@@ -902,7 +901,7 @@ const styles = StyleSheet.create({
     marginTop: verticalScale(20),
   },
   themaRouteButtonText: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
@@ -942,7 +941,7 @@ const styles = StyleSheet.create({
   dropdownArrow: {
     width: moderateScale(10),
     height: moderateScale(10),
-    tintColor: '#fff',
+    tintColor: 'rgba(0, 0, 0, 0.6)',
   },
   dropdownContainerBlue: {
     backgroundColor: '#215AFF',
@@ -969,12 +968,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#444',
   },
   dropdownText: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-regular',
   },
   buttonTextStickers: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
@@ -1077,7 +1076,7 @@ const styles = StyleSheet.create({
     marginBottom: verticalScale(10),
   },
   readMoreButtonText: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
