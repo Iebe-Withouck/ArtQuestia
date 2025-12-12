@@ -13,6 +13,7 @@ import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { useArtwork } from '@/contexts/ArtworkContext';
+import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 import {
     ActivityIndicator,
     Dimensions,
@@ -79,6 +80,7 @@ export default function MapScreen() {
     const params = useLocalSearchParams();
     const router = useRouter();
     const { setSelectedArtwork } = useArtwork();
+    const { claimedStickers } = useClaimedStickers();
 
     // fallback: Kortrijk
     const center: [number, number] = [3.2649, 50.828];
@@ -143,14 +145,18 @@ export default function MapScreen() {
                     })
                     .map((artwork: any) => {
                         const attributes = artwork.attributes || artwork;
+                        const artworkId = artwork.id;
+                        const isClaimed = claimedStickers.includes(artworkId);
 
-                        // Handle Photo_Hidden - Strapi Cloud returns full URLs
-                        const photoData = attributes.Photo_Hidden?.data || attributes.Photo_Hidden;
-                        const photoUrl = photoData?.attributes?.url || photoData?.url || attributes.Photo_Hidden?.url;
+                        // Use Photo if claimed, otherwise use Photo_Hidden
+                        const photoSource = isClaimed ? attributes.Photo : attributes.Photo_Hidden;
+                        const photoData = photoSource?.data || photoSource;
+                        const photoUrl = photoData?.attributes?.url || photoData?.url || (photoSource as any)?.url;
                         const fullImageUrl = photoUrl || null;
 
                         console.log('Artwork:', attributes.Name);
-                        console.log('Photo_Hidden structure:', JSON.stringify(attributes.Photo_Hidden, null, 2));
+                        console.log('Artwork ID:', artworkId, 'Claimed:', isClaimed);
+                        console.log('Photo source:', isClaimed ? 'Photo' : 'Photo_Hidden');
                         console.log('Final Photo URL:', fullImageUrl);
                         console.log('Location:', [attributes.Location.lng, attributes.Location.lat]);
 
@@ -346,10 +352,10 @@ export default function MapScreen() {
         }
     }, [searchQuery, markers]);
 
-    // Fetch artworks on mount
+    // Fetch artworks on mount and when claimed stickers change
     useEffect(() => {
         fetchArtworks();
-    }, []);
+    }, [claimedStickers]);
 
     // Handle route start from ArtworkCardDetail
     useEffect(() => {
