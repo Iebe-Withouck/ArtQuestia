@@ -140,7 +140,7 @@ export default function Scan() {
 
   // Render de juiste AR scene op basis van het geselecteerde kunstwerk
   const renderARScene = () => {
-    const sceneNumber = selectedArtwork?.arSceneNumber || 2;
+    const sceneNumber = selectedArtwork?.arSceneNumber || 1;
     const commonProps = {
       userLocation,
       sceneKey,

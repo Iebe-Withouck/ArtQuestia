@@ -32,9 +32,9 @@ const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
 // Mapping van kunstwerk namen naar AR scene nummers
 const ARTWORK_AR_SCENE_MAP: { [key: string]: 1 | 2 | 3 | 4 } = {
-    'Monument voor de gesneuvelden van Wereldoorlog II': 1,
+    'Monument WWII': 1,
     'Het Groeningemonument': 2,
-    'Leiegedenkteken': 3,
+    'Het Leiegedenkteken': 3,
     'Oorlogsmonument Bissegem': 4,
 };
 
@@ -468,7 +468,7 @@ export default function MapScreen() {
         };
     }, [isRouteActive, selectedMarker]);
 
-    // Check proximity to artworks (500 meters for testing - change back to 10 for production)
+    // Check proximity to artworks
     useEffect(() => {
         if (!userCoord || markers.length === 0) return;
 
@@ -476,7 +476,7 @@ export default function MapScreen() {
             const distanceKm = calculateDistance(userCoord, marker.coordinate);
             const distanceMeters = distanceKm * 1000;
 
-            // Radius
+            // Radius: 10 meters
             if (distanceMeters <= 10 && !shownProximityAlerts.current.has(marker.id)) {
                 setNearbyArtwork(marker);
                 setShowProximityPopup(true);
@@ -1469,7 +1469,19 @@ export default function MapScreen() {
                             onPress={() => {
                                 if (nearbyArtwork) {
                                     // Bepaal welke AR scene getoond moet worden op basis van kunstwerk naam
-                                    const arSceneNumber = ARTWORK_AR_SCENE_MAP[nearbyArtwork.title] || 1;
+                                    let arSceneNumber: 1 | 2 | 3 | 4 = 1; // default
+                                    const title = nearbyArtwork.title.trim();
+
+                                    // Use includes() for flexible matching to handle special characters
+                                    if (title.includes('Monument WWII') || title.includes('Monument voor de gesneuvelden')) {
+                                        arSceneNumber = 1;
+                                    } else if (title.includes('Groeningemonument')) {
+                                        arSceneNumber = 2;
+                                    } else if (title.includes('Leiegedenkteken')) {
+                                        arSceneNumber = 3;
+                                    } else if (title.includes('Oorlogsmonument Bissegem') || title.includes('Bissegem')) {
+                                        arSceneNumber = 4;
+                                    }
 
                                     // Sla het geselecteerde kunstwerk op in context
                                     setSelectedArtwork({

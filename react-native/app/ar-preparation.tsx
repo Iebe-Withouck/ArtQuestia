@@ -5,6 +5,7 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFonts } from 'expo-font';
@@ -26,17 +27,29 @@ export default function ARPreparation() {
   });
 
   const handleReady = () => {
-    // Navigate to the scan tab
+    // Navigate to the scan tab - selectedArtwork is already in context
     router.push('/(tabs)/scan');
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {/* Instruction text */}
-        <Text style={[styles.instructionText, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
-          Ga op de pijl voor het kunstwerk staan om te beginnen
+        {/* Title */}
+        <Text style={[styles.title, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
+          Main character mode
         </Text>
+
+        {/* Subtitle */}
+        <Text style={[styles.subtitle, { fontFamily: fontsLoaded ? 'LeagueSpartan-semibold' : undefined }]}>
+          Ga op het kruis staan & beleef{'\n'}de AR experience!
+        </Text>
+
+        {/* Arrow image */}
+        <Image
+          source={require('../assets/images/ar-preperation.png')}
+          style={styles.arrowImage}
+          resizeMode="contain"
+        />
 
         {/* Ready button */}
         <TouchableOpacity
@@ -45,7 +58,7 @@ export default function ARPreparation() {
           activeOpacity={0.8}
         >
           <Text style={[styles.readyButtonText, { fontFamily: fontsLoaded ? 'LeagueSpartan-semibold' : undefined }]}>
-            Ik sta klaar!
+            Ik sta klaar
           </Text>
         </TouchableOpacity>
       </View>
@@ -66,13 +79,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
   },
-  instructionText: {
-    fontSize: moderateScale(32),
+  title: {
+    fontSize: moderateScale(48),
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
+    marginBottom: verticalScale(20),
+  },
+  subtitle: {
+    fontSize: moderateScale(18),
+    color: '#FFFFFF',
+    textAlign: 'center',
     marginBottom: verticalScale(60),
-    lineHeight: moderateScale(40),
+    lineHeight: moderateScale(24),
+  },
+  arrowImage: {
+    width: scale(250),
+    height: verticalScale(300),
+    marginBottom: verticalScale(60),
   },
   readyButton: {
     backgroundColor: '#FF7700',
@@ -91,7 +115,7 @@ const styles = StyleSheet.create({
   readyButtonText: {
     fontSize: moderateScale(18),
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: 'rgba(0, 0, 0, 0.6)',
     textAlign: 'center',
   },
 });
