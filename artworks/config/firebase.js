@@ -27,11 +27,18 @@ module.exports = ({ env }) => {
     }
   } else {
     // Production/Strapi Cloud - use environment variables
+    const privateKey = env('FIREBASE_PRIVATE_KEY');
     config.firebase = {
       projectId: env('FIREBASE_PROJECT_ID'),
       clientEmail: env('FIREBASE_CLIENT_EMAIL'),
-      privateKey: env('FIREBASE_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
+      privateKey: privateKey ? privateKey.replace(/\\n/g, '\n') : null,
     };
+    
+    // Debug logging for Strapi Cloud
+    console.log('Firebase config loaded from env:');
+    console.log('- Project ID:', config.firebase.projectId ? 'Set' : 'Missing');
+    console.log('- Client Email:', config.firebase.clientEmail ? 'Set' : 'Missing');
+    console.log('- Private Key:', config.firebase.privateKey ? 'Set (length: ' + config.firebase.privateKey.length + ')' : 'Missing');
   }
   
   return config;
