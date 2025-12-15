@@ -22,9 +22,21 @@ module.exports = {
     // Initialize Firebase Admin SDK at startup
     if (!admin.apps.length) {
       try {
-        const firebaseConfig = strapi.config.get('firebase');
+        // Try to get from strapi config first
+        let firebaseConfig = strapi.config.get('firebase');
         
-        strapi.log.info('Bootstrap: Attempting to initialize Firebase with config:', {
+        // If not available, try environment variables directly
+        if (!firebaseConfig || !firebaseConfig.projectId) {
+          strapi.log.info('Bootstrap: Config not available via strapi.config, trying env directly');
+          const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+          firebaseConfig = {
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: privateKey ? privateKey.replace(/\\n/g, '\n') : null,
+          };
+        }
+        
+        strapi.log.info('Bootstrap: Firebase config values:', {
           hasProjectId: !!firebaseConfig?.projectId,
           hasClientEmail: !!firebaseConfig?.clientEmail,
           hasPrivateKey: !!firebaseConfig?.privateKey,
