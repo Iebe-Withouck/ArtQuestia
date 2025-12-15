@@ -476,8 +476,8 @@ export default function MapScreen() {
             const distanceKm = calculateDistance(userCoord, marker.coordinate);
             const distanceMeters = distanceKm * 1000;
 
-            // Radius: 10 meters
-            if (distanceMeters <= 10 && !shownProximityAlerts.current.has(marker.id)) {
+            // Radius: 5 meters
+            if (distanceMeters <= 5 && !shownProximityAlerts.current.has(marker.id)) {
                 setNearbyArtwork(marker);
                 setShowProximityPopup(true);
                 shownProximityAlerts.current.add(marker.id);
