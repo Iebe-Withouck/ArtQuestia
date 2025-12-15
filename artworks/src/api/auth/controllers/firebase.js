@@ -57,23 +57,42 @@ module.exports = {
 
       strapi.log.info('Firebase token verified for user:', email);
 
+      // Get additional user data from request body
+      const { name: userName, age } = ctx.request.body;
+
       // Find or create user in Strapi
       let user = await strapi.query('plugin::users-permissions.user').findOne({
         where: { email },
       });
 
       if (!user) {
-        // Create new user
+        // Create new user with Firebase UID
         user = await strapi.query('plugin::users-permissions.user').create({
           data: {
             username: email,
             email: email,
             provider: 'firebase',
+            firebaseUID: uid,
+            name: userName || name || email.split('@')[0],
+            age: age || null,
             confirmed: true,
             blocked: false,
           },
         });
-        strapi.log.info('Created new user:', email);
+        strapi.log.info('Created new user:', email, 'with Firebase UID:', uid);
+      } else {
+        // Update existing user with Firebase UID if not set
+        if (!user.firebaseUID) {
+          user = await strapi.query('plugin::users-permissions.user').update({
+            where: { id: user.id },
+            data: {
+              firebaseUID: uid,
+              name: userName || user.name || name || email.split('@')[0],
+              age: age || user.age || null,
+            },
+          });
+          strapi.log.info('Updated user with Firebase UID:', uid);
+        }
       }
 
       // Generate Strapi JWT token
@@ -87,6 +106,9 @@ module.exports = {
           id: user.id,
           username: user.username,
           email: user.email,
+          firebaseUID: user.firebaseUID,
+          name: user.name,
+          age: user.age,
         },
       });
     } catch (error) {

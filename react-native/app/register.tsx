@@ -5,6 +5,8 @@ import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from '@/components/CustomAlert';
 
+const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
+
 const { width, height } = Dimensions.get('window');
 
 const scale = (size: number) => (width / 375) * size;
@@ -48,11 +50,57 @@ export default function RegisterScreen() {
     setLoading(true);
     
     try {
-      await auth().createUserWithEmailAndPassword(email, password);
+      // Create Firebase user
+      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+      const firebaseUser = userCredential.user;
       
-      // Save user info to AsyncStorage
-      await AsyncStorage.setItem('userName', name);
-      await AsyncStorage.setItem('userAge', age);
+      // Get Firebase ID token
+      const idToken = await firebaseUser.getIdToken();
+      
+      // Register user with Strapi and send name/age
+      try {
+        const response = await fetch(`${STRAPI_URL}/api/auth/firebase`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+            name: name,
+            age: age,
+          }),
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          console.log('Successfully registered with Strapi:', data);
+          
+          // Store all user data
+          await AsyncStorage.setItem('strapiToken', data.jwt);
+          await AsyncStorage.setItem('strapiUserId', data.user.id.toString());
+          await AsyncStorage.setItem('firebaseUID', firebaseUser.uid);
+          await AsyncStorage.setItem('userEmail', data.user.email);
+          await AsyncStorage.setItem('userName', name);
+          await AsyncStorage.setItem('userAge', age);
+          
+          console.log('User data saved:', {
+            strapiUserId: data.user.id,
+            firebaseUID: firebaseUser.uid,
+            email: data.user.email,
+            name: name,
+            age: age
+          });
+        } else {
+          console.error('Strapi registration failed:', data);
+          throw new Error(data.error?.message || 'Strapi registration failed');
+        }
+      } catch (strapiError: any) {
+        console.error('Error registering with Strapi:', strapiError);
+        // Clean up Firebase user if Strapi registration fails
+        await firebaseUser.delete();
+        throw new Error('Account creation failed. Please try again.');
+      }
       
       setAlertConfig({
         title: 'Succes',

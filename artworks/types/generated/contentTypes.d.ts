@@ -475,6 +475,10 @@ export interface ApiArtworkArtwork extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    user_unlocked_artwork: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::user-unlocked-artwork.user-unlocked-artwork'
+    >;
     Year: Schema.Attribute.BigInteger;
   };
 }
@@ -506,6 +510,40 @@ export interface ApiThemeTheme extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiUserUnlockedArtworkUserUnlockedArtwork
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'user_unlocked_artworks';
+  info: {
+    displayName: 'User Unlocked Artwork';
+    pluralName: 'user-unlocked-artworks';
+    singularName: 'user-unlocked-artwork';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    artwork: Schema.Attribute.Relation<'oneToOne', 'api::artwork.artwork'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::user-unlocked-artwork.user-unlocked-artwork'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    unlockedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    users_permissions_user: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
   };
 }
 
@@ -964,9 +1002,9 @@ export interface PluginUsersPermissionsUser
   };
   options: {
     draftAndPublish: false;
-    timestamps: true;
   };
   attributes: {
+    age: Schema.Attribute.Integer;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -978,12 +1016,16 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    firebaseUID: Schema.Attribute.String &
+      Schema.Attribute.Private &
+      Schema.Attribute.Unique;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'plugin::users-permissions.user'
     > &
       Schema.Attribute.Private;
+    name: Schema.Attribute.String;
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{
@@ -999,6 +1041,10 @@ export interface PluginUsersPermissionsUser
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    user_unlocked_artwork: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::user-unlocked-artwork.user-unlocked-artwork'
+    >;
     username: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
@@ -1021,6 +1067,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::artwork.artwork': ApiArtworkArtwork;
       'api::theme.theme': ApiThemeTheme;
+      'api::user-unlocked-artwork.user-unlocked-artwork': ApiUserUnlockedArtworkUserUnlockedArtwork;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

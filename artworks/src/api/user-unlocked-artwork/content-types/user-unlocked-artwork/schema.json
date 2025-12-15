@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_unlocked_artworks",
+  "info": {
+    "singularName": "user-unlocked-artwork",
+    "pluralName": "user-unlocked-artworks",
+    "displayName": "User Unlocked Artwork"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "user_unlocked_artwork"
+    },
+    "artwork": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::artwork.artwork",
+      "inversedBy": "user_unlocked_artwork"
+    },
+    "unlockedAt": {
+      "type": "datetime"
+    }
+  }
+}

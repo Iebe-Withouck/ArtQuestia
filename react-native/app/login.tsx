@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { router } from 'expo-router';
 import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from '@/components/CustomAlert';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
@@ -51,10 +52,21 @@ export default function LoginScreen() {
         
         if (response.ok) {
           console.log('Successfully authenticated with Strapi:', data);
-          // You can store the Strapi JWT token if needed
-          // await AsyncStorage.setItem('strapiToken', data.jwt);
+          
+          // Store Strapi authentication data
+          await AsyncStorage.setItem('strapiToken', data.jwt);
+          await AsyncStorage.setItem('strapiUserId', data.user.id.toString());
+          await AsyncStorage.setItem('firebaseUID', userCredential.user.uid);
+          await AsyncStorage.setItem('userEmail', data.user.email);
+          
+          console.log('User data saved:', {
+            strapiUserId: data.user.id,
+            firebaseUID: userCredential.user.uid,
+            email: data.user.email
+          });
         } else {
           console.error('Strapi authentication failed:', data);
+          throw new Error(data.error?.message || 'Strapi authentication failed');
         }
       } catch (strapiError) {
         console.error('Error sending token to Strapi:', strapiError);

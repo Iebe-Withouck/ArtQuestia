@@ -81,6 +81,12 @@
       "relation": "manyToOne",
       "target": "api::theme.theme",
       "inversedBy": "artworks"
+    },
+    "user_unlocked_artwork": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::user-unlocked-artwork.user-unlocked-artwork",
+      "mappedBy": "artwork"
     }
   }
 }
