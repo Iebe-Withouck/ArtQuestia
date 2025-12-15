@@ -40,10 +40,6 @@ target 'ArtQuestia' do
 
   config = use_native_modules!(config_command)
 
-  # Optioneel expliciet Firebase pods toevoegen om eventuele autolinking-issues te vermijden
-  pod 'Firebase/Core'
-  pod 'Firebase/Auth'
-
   use_react_native!(
     :path => config[:reactNativePath],
     :hermes_enabled => podfile_properties['expo.jsEngine'] == nil || podfile_properties['expo.jsEngine'] == 'hermes',

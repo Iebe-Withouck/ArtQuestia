@@ -1,11 +1,23 @@
-import { initializeApp } from '@react-native-firebase/app';
-import { getAuth } from '@react-native-firebase/auth';
+import { initializeApp } from 'firebase/app';
+import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Firebase will auto-initialize using the GoogleService-Info.plist (iOS) 
-// and google-services.json (Android) files
-// This file ensures Firebase is ready before the app renders
+// Your Firebase configuration from Firebase Console
+const firebaseConfig = {
+  apiKey: "AIzaSyBOUd0hzsNZIhe7p-sz8PiDdwRFQLoMCOI",
+  authDomain: "bap-devine.firebaseapp.com",
+  projectId: "bap-devine",
+  storageBucket: "bap-devine.firebasestorage.app",
+  messagingSenderId: "88582221468",
+  appId: "1:88582221468:android:5b9f3054a1701192f9c759",
+};
 
-const app = initializeApp();
-const auth = getAuth(app);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Initialize Auth with AsyncStorage persistence
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
 
 export { app, auth };

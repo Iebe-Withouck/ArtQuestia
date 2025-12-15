@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import auth from '@react-native-firebase/auth';
+import { auth } from '@/config/firebase';
 
 const { width, height } = Dimensions.get('window');
 
@@ -49,7 +49,7 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
-    const user = auth().currentUser;
+    const user = auth.currentUser;
     if (user?.email) {
       setEmail(user.email);
     }

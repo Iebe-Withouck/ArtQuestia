@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import auth from '@react-native-firebase/auth';
+import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
+import { auth } from '@/config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from '@/components/CustomAlert';
 
@@ -51,7 +52,7 @@ export default function RegisterScreen() {
     
     try {
       // Create Firebase user
-      const userCredential = await auth().createUserWithEmailAndPassword(email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
       
       // Get Firebase ID token
@@ -98,7 +99,7 @@ export default function RegisterScreen() {
       } catch (strapiError: any) {
         console.error('Error registering with Strapi:', strapiError);
         // Clean up Firebase user if Strapi registration fails
-        await firebaseUser.delete();
+        await deleteUser(firebaseUser);
         throw new Error('Account creation failed. Please try again.');
       }
       

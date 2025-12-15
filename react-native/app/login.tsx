@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { router } from 'expo-router';
-import auth from '@react-native-firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from '@/components/CustomAlert';
 import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
@@ -33,7 +34,7 @@ export default function LoginScreen() {
     
     try {
       // Sign in with Firebase
-      const userCredential = await auth().signInWithEmailAndPassword(email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       
       // Get the Firebase ID token
       const idToken = await userCredential.user.getIdToken();
