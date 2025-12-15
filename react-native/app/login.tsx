@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import auth from '@react-native-firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from '@/components/CustomAlert';
+import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
@@ -14,6 +15,7 @@ const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
 export default function LoginScreen() {
+  const { reloadUnlockedArtworks } = useClaimedStickers();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -82,6 +84,9 @@ export default function LoginScreen() {
         await AsyncStorage.setItem('userEmail', userCredential.user.email || '');
         console.log('⚠️ Saved Firebase data locally, but Strapi sync failed');
       }
+      
+      // Reload unlocked artworks with the new token
+      await reloadUnlockedArtworks();
       
       setAlertConfig({
         title: 'Success',

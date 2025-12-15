@@ -5,6 +5,7 @@ interface ClaimedStickersContextType {
   claimedStickers: number[];
   claimSticker: (artworkId: number) => Promise<void>;
   resetClaims: () => void;
+  reloadUnlockedArtworks: () => Promise<void>;
   loading: boolean;
 }
 
@@ -63,8 +64,12 @@ export const ClaimedStickersProvider: React.FC<{ children: ReactNode }> = ({ chi
     setClaimedStickers([]);
   };
 
+  const reloadUnlockedArtworks = async () => {
+    await loadUnlockedArtworks();
+  };
+
   return (
-    <ClaimedStickersContext.Provider value={{ claimedStickers, claimSticker, resetClaims, loading }}>
+    <ClaimedStickersContext.Provider value={{ claimedStickers, claimSticker, resetClaims, reloadUnlockedArtworks, loading }}>
       {children}
     </ClaimedStickersContext.Provider>
   );

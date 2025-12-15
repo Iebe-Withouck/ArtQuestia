@@ -36,6 +36,11 @@ module.exports = {
       });
 
       if (!user) {
+        // Get the default authenticated role
+        const authenticatedRole = await strapi.query('plugin::users-permissions.role').findOne({
+          where: { type: 'authenticated' },
+        });
+
         // Create new user with Firebase UID
         user = await strapi.query('plugin::users-permissions.user').create({
           data: {
@@ -47,21 +52,33 @@ module.exports = {
             age: age || null,
             confirmed: true,
             blocked: false,
+            role: authenticatedRole.id,
           },
         });
-        strapi.log.info('Created new user:', email, 'with Firebase UID:', uid);
+        strapi.log.info('Created new user:', email, 'with Firebase UID:', uid, 'and role:', authenticatedRole.id);
       } else {
         // Update existing user with Firebase UID if not set
-        if (!user.firebaseUID) {
+        if (!user.firebaseUID || !user.role) {
+          const authenticatedRole = await strapi.query('plugin::users-permissions.role').findOne({
+            where: { type: 'authenticated' },
+          });
+
+          const updateData = {
+            firebaseUID: uid,
+            name: userName || user.name || name || email.split('@')[0],
+            age: age || user.age || null,
+          };
+
+          // Add role if missing
+          if (!user.role) {
+            updateData.role = authenticatedRole.id;
+          }
+
           user = await strapi.query('plugin::users-permissions.user').update({
             where: { id: user.id },
-            data: {
-              firebaseUID: uid,
-              name: userName || user.name || name || email.split('@')[0],
-              age: age || user.age || null,
-            },
+            data: updateData,
           });
-          strapi.log.info('Updated user with Firebase UID:', uid);
+          strapi.log.info('Updated user with Firebase UID:', uid, 'role:', user.role);
         }
       }
 
@@ -69,6 +86,8 @@ module.exports = {
       const jwt = strapi.plugins['users-permissions'].services.jwt.issue({
         id: user.id,
       });
+
+      strapi.log.info('Generated JWT for user:', user.id, 'email:', user.email, 'role:', user.role);
 
       return ctx.send({
         jwt,
