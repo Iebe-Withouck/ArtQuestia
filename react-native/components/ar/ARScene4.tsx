@@ -82,8 +82,8 @@ function ARScene4Scene({ onAnimationFinish }: {
                 <Viro3DObject
                     source={require('../../assets/3D-Models/bissegem.glb')}
                     resources={[]}
-                    position={[0.2, 1, -1.5]}
-                    scale={[0.4, 0.4, 0.4]}
+                    position={[0.2, 1.3, -4]}
+                    scale={[0.7, 0.7, 0.7]}
                     rotation={[0, -95, 0]}
                     type="GLB"
                     animation={{
@@ -116,7 +116,7 @@ function ARScene4Scene({ onAnimationFinish }: {
                 />
 
                 {showBalloons && (
-                    <ViroNode position={[0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
+                    <ViroNode position={[0.9, 2.1, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
                             height={0.38}
@@ -144,7 +144,7 @@ function ARScene4Scene({ onAnimationFinish }: {
                 )}
 
                 {showBalloons && (
-                    <ViroNode position={[-1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                    <ViroNode position={[-1.0, 1.3, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
                             height={0.43}
@@ -172,7 +172,7 @@ function ARScene4Scene({ onAnimationFinish }: {
                 )}
 
                 {showBalloons && (
-                    <ViroNode position={[1.0, 0.3, 0]} animation={{ name: 'fadeIn', run: true }}>
+                    <ViroNode position={[1.0, 1.3, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
                             height={0.43}
@@ -200,7 +200,7 @@ function ARScene4Scene({ onAnimationFinish }: {
                 )}
 
                 {showBalloons && (
-                    <ViroNode position={[-0.9, 1.1, 0]} animation={{ name: 'fadeIn', run: true }}>
+                    <ViroNode position={[-0.9, 2.1, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
                             height={0.45}

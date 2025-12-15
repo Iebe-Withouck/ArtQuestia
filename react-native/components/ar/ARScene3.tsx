@@ -62,7 +62,7 @@ function ARScene3Scene({ onAnimationFinish }: {
 }) {
     const [animationPlayed, setAnimationPlayed] = useState(false);
     const [showBalloons, setShowBalloons] = useState(false);
-    const arPosition: [number, number, number] = [0, -1.5, -2];
+    const arPosition: [number, number, number] = [0, -1.5, -4];
 
     return (
         <ViroARScene>
@@ -82,7 +82,7 @@ function ARScene3Scene({ onAnimationFinish }: {
                 <Viro3DObject
                     source={require('../../assets/3D-Models/leiegedenkteken.glb')}
                     resources={[]}
-                    position={[0, 1.5, -4]}
+                    position={[0, 2.8, -6]}
                     scale={[0.1, 0.1, 0.1]}
                     rotation={[0, -90, 0]}
                     type="GLB"

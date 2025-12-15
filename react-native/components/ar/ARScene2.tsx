@@ -144,7 +144,7 @@ function ARScene2Scene({ onAnimationFinish }: {
                 )}
 
                 {showBalloons && (
-                    <ViroNode position={[-1.3, 0.6, 0]} animation={{ name: 'fadeIn', run: true }}>
+                    <ViroNode position={[-1.3, 1, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
                             height={0.38}
@@ -172,7 +172,7 @@ function ARScene2Scene({ onAnimationFinish }: {
                 )}
 
                 {showBalloons && (
-                    <ViroNode position={[1.3, 0.6, 0]} animation={{ name: 'fadeIn', run: true }}>
+                    <ViroNode position={[1.3, 1, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
                             height={0.38}
