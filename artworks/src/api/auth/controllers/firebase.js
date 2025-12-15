@@ -2,47 +2,6 @@
 
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK (do this once)
-const initializeFirebase = () => {
-  if (admin.apps.length) {
-    return; // Already initialized
-  }
-
-  try {
-    const firebaseConfig = strapi.config.get('firebase');
-    
-    strapi.log.info('Attempting to initialize Firebase with config:', {
-      hasProjectId: !!firebaseConfig?.projectId,
-      hasClientEmail: !!firebaseConfig?.clientEmail,
-      hasPrivateKey: !!firebaseConfig?.privateKey,
-      projectId: firebaseConfig?.projectId,
-    });
-    
-    if (!firebaseConfig || !firebaseConfig.projectId) {
-      strapi.log.warn('Firebase config not found. Please add firebase-service-account.json or set environment variables.');
-      return;
-    }
-    
-    if (!firebaseConfig.clientEmail || !firebaseConfig.privateKey) {
-      strapi.log.error('Firebase config incomplete - missing clientEmail or privateKey');
-      return;
-    }
-    
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: firebaseConfig.projectId,
-        clientEmail: firebaseConfig.clientEmail,
-        privateKey: firebaseConfig.privateKey,
-      }),
-    });
-    
-    strapi.log.info('Firebase Admin SDK initialized successfully');
-  } catch (error) {
-    strapi.log.error('Failed to initialize Firebase Admin SDK:', error);
-    strapi.log.error('Error stack:', error.stack);
-  }
-};
-
 /**
  * Firebase authentication controller
  */
@@ -55,11 +14,9 @@ module.exports = {
       return ctx.badRequest('Firebase ID token is required');
     }
 
-    // Initialize Firebase if not already done
-    initializeFirebase();
-
-    // Check if Firebase is initialized
+    // Check if Firebase is initialized (should be done at bootstrap)
     if (!admin.apps.length) {
+      strapi.log.error('Firebase is not initialized. Check bootstrap logs.');
       return ctx.badRequest('Firebase is not configured. Please contact the administrator.');
     }
 
