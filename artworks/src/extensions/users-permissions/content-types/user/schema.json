@@ -77,9 +77,9 @@
     "age": {
       "type": "integer"
     },
-    "user_unlocked_artwork": {
+    "user_unlocked_artworks": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "oneToMany",
       "target": "api::user-unlocked-artwork.user-unlocked-artwork",
       "mappedBy": "users_permissions_user"
     }

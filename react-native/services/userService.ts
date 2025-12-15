@@ -98,11 +98,15 @@ export const unlockArtwork = async (artworkId: number): Promise<boolean> => {
     const token = await getStrapiToken();
     const userId = await getStrapiUserId();
 
+    console.log('🔓 Unlocking artwork:', { artworkId, hasToken: !!token, userId });
+
     if (!token || !userId) {
-      console.error('User not authenticated');
+      console.error('User not authenticated - missing token or userId');
       return false;
     }
 
+    console.log('📤 Sending unlock request with token:', token.substring(0, 20) + '...');
+    
     const response = await fetch(`${STRAPI_URL}/api/user-unlocked-artworks`, {
       method: 'POST',
       headers: {
@@ -141,11 +145,20 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     const token = await getStrapiToken();
     const userId = await getStrapiUserId();
 
+    console.log('📋 Fetching unlocked artworks:', { hasToken: !!token, userId });
+
     if (!token || !userId) {
       // User not logged in yet - return empty array silently
+      console.log('No token or userId - skipping fetch');
       return [];
     }
 
+    // Test the token by fetching current user first
+    const testResponse = await fetch(`${STRAPI_URL}/api/users/me`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    console.log('🔐 Token validation test:', testResponse.status, testResponse.ok);
+    
     const response = await fetch(
       `${STRAPI_URL}/api/user-unlocked-artworks?filters[user][id][$eq]=${userId}&populate=artwork`,
       {
@@ -158,10 +171,11 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     if (response.ok) {
       const data = await response.json();
       const unlockedArtworkIds = data.data.map((item: any) => item.attributes.artwork?.data?.id).filter(Boolean);
-      console.log('Unlocked artworks:', unlockedArtworkIds);
+      console.log('✅ Unlocked artworks fetched:', unlockedArtworkIds);
       return unlockedArtworkIds;
     } else {
-      console.error('Failed to fetch unlocked artworks');
+      const errorData = await response.json();
+      console.error('❌ Failed to fetch unlocked artworks:', response.status, errorData);
       return [];
     }
   } catch (error) {

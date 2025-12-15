@@ -11,12 +11,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "users_permissions_user": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "plugin::users-permissions.user",
-      "inversedBy": "user_unlocked_artwork"
-    },
     "artwork": {
       "type": "relation",
       "relation": "oneToOne",
@@ -25,6 +19,12 @@
     },
     "unlockedAt": {
       "type": "datetime"
+    },
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "user_unlocked_artworks"
     }
   }
 }

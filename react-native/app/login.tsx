@@ -59,10 +59,17 @@ export default function LoginScreen() {
           await AsyncStorage.setItem('firebaseUID', userCredential.user.uid);
           await AsyncStorage.setItem('userEmail', data.user.email);
           
-          console.log('User data saved:', {
+          // Verify the data was saved
+          const savedToken = await AsyncStorage.getItem('strapiToken');
+          const savedUserId = await AsyncStorage.getItem('strapiUserId');
+          
+          console.log('✅ User data saved to AsyncStorage:', {
             strapiUserId: data.user.id,
             firebaseUID: userCredential.user.uid,
-            email: data.user.email
+            email: data.user.email,
+            tokenSaved: !!savedToken,
+            tokenLength: savedToken?.length,
+            userIdSaved: !!savedUserId
           });
         } else {
           console.error('Strapi authentication failed:', data);

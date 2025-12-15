@@ -541,7 +541,7 @@ export interface ApiUserUnlockedArtworkUserUnlockedArtwork
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     users_permissions_user: Schema.Attribute.Relation<
-      'oneToOne',
+      'manyToOne',
       'plugin::users-permissions.user'
     >;
   };
@@ -1041,8 +1041,8 @@ export interface PluginUsersPermissionsUser
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    user_unlocked_artwork: Schema.Attribute.Relation<
-      'oneToOne',
+    user_unlocked_artworks: Schema.Attribute.Relation<
+      'oneToMany',
       'api::user-unlocked-artwork.user-unlocked-artwork'
     >;
     username: Schema.Attribute.String &
