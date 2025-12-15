@@ -11,8 +11,20 @@ const initializeFirebase = () => {
   try {
     const firebaseConfig = strapi.config.get('firebase');
     
+    strapi.log.info('Attempting to initialize Firebase with config:', {
+      hasProjectId: !!firebaseConfig?.projectId,
+      hasClientEmail: !!firebaseConfig?.clientEmail,
+      hasPrivateKey: !!firebaseConfig?.privateKey,
+      projectId: firebaseConfig?.projectId,
+    });
+    
     if (!firebaseConfig || !firebaseConfig.projectId) {
       strapi.log.warn('Firebase config not found. Please add firebase-service-account.json or set environment variables.');
+      return;
+    }
+    
+    if (!firebaseConfig.clientEmail || !firebaseConfig.privateKey) {
+      strapi.log.error('Firebase config incomplete - missing clientEmail or privateKey');
       return;
     }
     
@@ -26,7 +38,8 @@ const initializeFirebase = () => {
     
     strapi.log.info('Firebase Admin SDK initialized successfully');
   } catch (error) {
-    strapi.log.error('Failed to initialize Firebase Admin SDK:', error.message);
+    strapi.log.error('Failed to initialize Firebase Admin SDK:', error);
+    strapi.log.error('Error stack:', error.stack);
   }
 };
 
