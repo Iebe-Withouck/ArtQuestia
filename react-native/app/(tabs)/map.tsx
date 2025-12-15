@@ -767,10 +767,15 @@ export default function MapScreen() {
             gap: 8,
         },
         bottomButtonText: {
-            color: 'rgba(0, 0, 0, 0.6)',
             fontSize: isSmallDevice ? 16 : 18,
             fontWeight: "700",
             fontFamily: "LeagueSpartan-medium",
+        },
+        nearestButtonText: {
+            color: '#FFFFFF',
+        },
+        followRouteButtonText: {
+            color: 'rgba(0, 0, 0, 0.6)',
         },
         buttonArrowIcon: {
             width: isSmallDevice ? 8 : 10,
@@ -849,7 +854,7 @@ export default function MapScreen() {
             marginTop: 8,
         },
         popupPrimaryText: {
-            color: "#fff",
+            color: "rgba(0, 0, 0, 0.6)",
             fontWeight: "700",
             fontSize: isSmallDevice ? 14 : 16,
             fontFamily: "Impact",
@@ -1251,13 +1256,13 @@ export default function MapScreen() {
                         style={styles.nearestButton}
                         onPress={goToNearestArtwork}
                     >
-                        <Text style={styles.bottomButtonText}>Dichtstbijzijnde</Text>
+                        <Text style={[styles.bottomButtonText, styles.nearestButtonText]}>Dichtstbijzijnde</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.followRouteButton}
                         onPress={() => setThemeDropdownVisible(!themeDropdownVisible)}
                     >
-                        <Text style={styles.bottomButtonText}>
+                        <Text style={[styles.bottomButtonText, styles.followRouteButtonText]}>
                             {selectedTheme || 'Quest volgen'}
                         </Text>
                         <Image

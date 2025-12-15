@@ -13,7 +13,7 @@ import {
 } from '@reactvision/react-viro';
 import * as Location from 'expo-location';
 import { useFonts } from 'expo-font';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
     StyleSheet,
     View,
@@ -23,7 +23,8 @@ import {
     Text,
     ScrollView,
     Dimensions,
-    Modal
+    Modal,
+    PanResponder
 } from 'react-native';
 import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 
@@ -233,11 +234,73 @@ function ARScene3Scene({ onAnimationFinish }: {
 export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
     const [isMenuExpanded, setIsMenuExpanded] = useState(false);
     const [menuHeight] = useState(new Animated.Value(verticalScale(120)));
+    const [arrowRotation] = useState(new Animated.Value(180)); // 180deg = closed, 0deg = open
     const [artworkData, setArtworkData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [showStickerPopup, setShowStickerPopup] = useState(false);
     const [showMovementText, setShowMovementText] = useState(true);
     const { claimSticker } = useClaimedStickers();
+
+    const panResponderRef = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onMoveShouldSetPanResponder: (_, gestureState) => {
+                // Only respond to significant vertical movement
+                return Math.abs(gestureState.dy) > 5;
+            },
+            onPanResponderMove: (_, gestureState) => {
+                const { dy } = gestureState;
+                const minHeight = verticalScale(120);
+                const maxHeight = verticalScale(380);
+
+                if (!isMenuExpanded && dy < 0) {
+                    // Swipe up to open (only when menu is closed)
+                    const newHeight = Math.min(maxHeight, minHeight + Math.abs(dy));
+                    menuHeight.setValue(newHeight);
+
+                    // Calculate rotation based on height progress (180deg -> 0deg)
+                    const progress = (newHeight - minHeight) / (maxHeight - minHeight);
+                    arrowRotation.setValue(180 - (progress * 180));
+                } else if (isMenuExpanded && dy > 0) {
+                    // Swipe down to close (only when menu is open)
+                    const newHeight = Math.max(minHeight, maxHeight - dy);
+                    menuHeight.setValue(newHeight);
+
+                    // Calculate rotation based on height progress (0deg -> 180deg)
+                    const progress = (newHeight - minHeight) / (maxHeight - minHeight);
+                    arrowRotation.setValue(180 - (progress * 180));
+                }
+            },
+            onPanResponderRelease: (_, gestureState) => {
+                const { dy } = gestureState;
+                const swipeThreshold = 50;
+
+                if (!isMenuExpanded && dy < -swipeThreshold) {
+                    // Open menu if swiped up enough
+                    toggleMenu();
+                } else if (isMenuExpanded && dy > swipeThreshold) {
+                    // Close menu if swiped down enough
+                    toggleMenu();
+                } else {
+                    // Return to current state if not swiped enough
+                    Animated.parallel([
+                        Animated.spring(menuHeight, {
+                            toValue: isMenuExpanded ? verticalScale(380) : verticalScale(120),
+                            useNativeDriver: false,
+                            tension: 50,
+                            friction: 7,
+                        }),
+                        Animated.spring(arrowRotation, {
+                            toValue: isMenuExpanded ? 0 : 180,
+                            useNativeDriver: false,
+                            tension: 50,
+                            friction: 7,
+                        })
+                    ]).start();
+                }
+            },
+        })
+    ).current;
 
     const [fontsLoaded] = useFonts({
         Impact: require('../../assets/fonts/impact.ttf'),
@@ -282,13 +345,22 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
 
     const toggleMenu = () => {
         const toValue = isMenuExpanded ? verticalScale(120) : verticalScale(380);
+        const rotationValue = isMenuExpanded ? 180 : 0;
 
-        Animated.spring(menuHeight, {
-            toValue,
-            useNativeDriver: false,
-            tension: 50,
-            friction: 7,
-        }).start();
+        Animated.parallel([
+            Animated.spring(menuHeight, {
+                toValue,
+                useNativeDriver: false,
+                tension: 50,
+                friction: 7,
+            }),
+            Animated.spring(arrowRotation, {
+                toValue: rotationValue,
+                useNativeDriver: false,
+                tension: 50,
+                friction: 7,
+            })
+        ]).start();
 
         setIsMenuExpanded(!isMenuExpanded);
     };
@@ -408,21 +480,38 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
 
             {artworkData && fontsLoaded && (
                 <Animated.View style={[styles.bottomMenu, { height: menuHeight, backgroundColor: '#000' }]}>
-                    <TouchableOpacity
+                    <View
                         style={styles.toggleButton}
-                        onPress={toggleMenu}
-                        activeOpacity={0.8}
+                        {...panResponderRef.panHandlers}
                     >
-                        <Image
-                            source={require('../../assets/icons/arrow.png')}
-                            style={[
-                                styles.toggleIcon,
-                                { transform: [{ rotate: isMenuExpanded ? '0deg' : '180deg' }] }
-                            ]}
-                        />
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={toggleMenu}
+                            activeOpacity={0.8}
+                            style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}
+                        >
+                            <Animated.Image
+                                source={require('../../assets/icons/arrow.png')}
+                                style={[
+                                    styles.toggleIcon,
+                                    {
+                                        tintColor: '#000',
+                                        opacity: 0.6,
+                                        transform: [{
+                                            rotate: arrowRotation.interpolate({
+                                                inputRange: [0, 180],
+                                                outputRange: ['0deg', '180deg']
+                                            })
+                                        }]
+                                    }
+                                ]}
+                            />
+                        </TouchableOpacity>
+                    </View>
 
-                    <View style={styles.collapsedContent}>
+                    <View
+                        style={styles.collapsedContent}
+                        {...panResponderRef.panHandlers}
+                    >
                         {fullStickersUrl && (
                             <Image
                                 source={{ uri: fullStickersUrl }}
@@ -706,7 +795,7 @@ const styles = StyleSheet.create({
     },
     claimButtonText: {
         fontSize: moderateScale(18),
-        color: '#fff',
+        color: 'rgba(0, 0, 0, 0.6)',
         textAlign: 'center',
     },
 });

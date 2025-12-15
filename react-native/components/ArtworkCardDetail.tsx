@@ -269,9 +269,13 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
             {attributes.Creator || 'Unknown'}
           </ThemedText>
 
-          {!isClaimed && (
+          {!isClaimed ? (
             <ThemedText style={[styles.hidden, { fontFamily: 'Impact' }]}>
               Nog Verborgen
+            </ThemedText>
+          ) : (
+            <ThemedText style={[styles.found, { fontFamily: 'Impact' }]}>
+              Gevonden
             </ThemedText>
           )}
 
@@ -416,6 +420,17 @@ const styles = StyleSheet.create({
     color: '#F10906',
     marginBottom: verticalScale(30),
     borderColor: '#F10906',
+    borderWidth: 1.5,
+    padding: 10,
+    textAlign: 'center',
+    borderRadius: moderateScale(8),
+  },
+
+  found: {
+    fontSize: moderateScale(15),
+    color: '#1AF7A2',
+    marginBottom: verticalScale(30),
+    borderColor: '#1AF7A2',
     borderWidth: 1.5,
     padding: 10,
     textAlign: 'center',
