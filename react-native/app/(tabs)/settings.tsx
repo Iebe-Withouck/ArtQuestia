@@ -44,6 +44,8 @@ import FoundedStickers from "../../assets/profile-info/foundedStickers.png"
 import ProfilePic from '../../assets/profile-info/profile-pic.png';
 import Potlood from '../../assets/profile-info/potlood.png'
 import Delete from '../../assets/icons/delete.png'
+import Mail from '../../assets/icons/mail.png'
+import Phone from '../../assets/icons/phone.png'
 
 export default function SettingsScreen() {
   const [fontsLoaded] = useFonts({
@@ -72,6 +74,7 @@ export default function SettingsScreen() {
   const [userAge, setUserAge] = useState('22');
   const [themaRoutes, setThemaRoutes] = useState<any[]>([]);
   const [availableThemes, setAvailableThemes] = useState<any[]>([]);
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
 
   const stickerTypes = ['Alle stickers', 'Gevonden stickers', 'Verborgen stickers'];
 
@@ -291,7 +294,7 @@ export default function SettingsScreen() {
             <Image source={Bell} style={styles.bellIcon} />
             <View style={styles.notificationDot} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.infoButton}>
+          <TouchableOpacity style={styles.infoButton} onPress={() => setInfoModalVisible(true)}>
             <Image source={Info} style={styles.infoIcon} />
           </TouchableOpacity>
 
@@ -617,6 +620,38 @@ export default function SettingsScreen() {
                 </>
               );
             })()}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={infoModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setInfoModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.infoModalContent}>
+            <TouchableOpacity
+              style={styles.infoModalCloseButton}
+              onPress={() => setInfoModalVisible(false)}
+            >
+              <Image source={Cross} style={styles.infoModalCloseIcon} />
+            </TouchableOpacity>
+
+            <ThemedText style={styles.infoModalTitle}>Heb je problemen{"\n"}of vragen?</ThemedText>
+
+            <ThemedText style={styles.infoModalSubtitle}>Meld dit via</ThemedText>
+
+            <View style={styles.infoModalContactRow}>
+              <Image source={Mail} style={styles.infoModalIcon} />
+              <ThemedText style={styles.infoModalContactText}>lieselotte.peperstraete@kortrijk.be</ThemedText>
+            </View>
+
+            <View style={styles.infoModalContactRow}>
+              <Image source={Phone} style={styles.infoModalIcon} />
+              <ThemedText style={styles.infoModalContactText}>+32 478 67 25 90</ThemedText>
+            </View>
           </View>
         </View>
       </Modal>
@@ -1167,5 +1202,67 @@ const styles = StyleSheet.create({
     fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  infoModalContent: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: moderateScale(20),
+    padding: scale(40),
+    paddingTop: scale(20),
+    width: '90%',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  infoModalCloseButton: {
+    position: 'absolute',
+    top: verticalScale(20),
+    right: scale(20),
+    width: moderateScale(35),
+    height: moderateScale(35),
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  infoModalCloseIcon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  infoModalTitle: {
+    fontSize: moderateScale(28),
+    color: '#fff',
+    fontFamily: 'Impact',
+    textAlign: 'left',
+    width: '100%',
+    marginTop: verticalScale(5),
+    marginBottom: verticalScale(20),
+    lineHeight: moderateScale(32),
+  },
+  infoModalSubtitle: {
+    fontSize: moderateScale(18),
+    color: '#fff',
+    fontFamily: 'LeagueSpartan-regular',
+    textAlign: 'left',
+    width: '100%',
+    marginBottom: verticalScale(15),
+  },
+  infoModalContactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: verticalScale(15),
+    width: '100%',
+    paddingHorizontal: scale(10),
+  },
+  infoModalIcon: {
+    width: moderateScale(24),
+    height: moderateScale(24),
+    resizeMode: 'contain',
+    marginRight: scale(15),
+  },
+  infoModalContactText: {
+    fontSize: moderateScale(14),
+    color: '#fff',
+    fontFamily: 'LeagueSpartan-regular',
+    flex: 1,
+    textAlign: 'left',
   },
 });

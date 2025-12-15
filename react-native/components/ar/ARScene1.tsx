@@ -63,7 +63,7 @@ function ARScene1Scene({ onAnimationFinish }: {
     const [animationPlayed, setAnimationPlayed] = useState(false);
     const [showBalloons, setShowBalloons] = useState(false);
 
-    const arPosition: [number, number, number] = [0, -1, -2];
+    const arPosition: [number, number, number] = [0, -1, -3];
 
     return (
         <ViroARScene>
@@ -94,8 +94,8 @@ function ARScene1Scene({ onAnimationFinish }: {
                 <Viro3DObject
                     source={require('../../assets/3D-Models/bomb.glb')}
                     resources={[]}
-                    position={[0, 0, 0]}
-                    scale={[0.1, 0.1, 0.1]}
+                    position={[0, 0, -6]}
+                    scale={[0.2, 0.2, 0.2]}
                     type="GLB"
                     animation={{
                         name: 'BombAction',
@@ -129,7 +129,7 @@ function ARScene1Scene({ onAnimationFinish }: {
                 />
 
                 {showBalloons && (
-                    <ViroNode position={[0.9, 1.5, 0]} animation={{ name: 'fadeIn', run: true }}>
+                    <ViroNode position={[1, 1.5, 0]} animation={{ name: 'fadeIn', run: true }}>
                         <ViroBox
                             position={[0, 0, 0]}
                             height={0.45}
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
     },
     balloonTitle: {
         fontFamily: 'Impact',
-        fontSize: 30,
+        fontSize: 36,
         color: '#ffffff',
         textAlignVertical: 'center',
         textAlign: 'center',
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
     },
     balloonText: {
         fontFamily: 'LeagueSpartan',
-        fontSize: 30,
+        fontSize: 36,
         color: '#ffffff',
         textAlignVertical: 'center',
         textAlign: 'center',

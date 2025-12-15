@@ -81,7 +81,7 @@ function ARScene3Scene({ onAnimationFinish }: {
                 <Viro3DObject
                     source={require('../../assets/3D-Models/leiegedenkteken.glb')}
                     resources={[]}
-                    position={[0, 1, -3]}
+                    position={[0, 1.5, -4]}
                     scale={[0.1, 0.1, 0.1]}
                     rotation={[0, -90, 0]}
                     type="GLB"
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     },
     balloonTitle: {
         fontFamily: 'Impact',
-        fontSize: 30,
+        fontSize: 36,
         color: '#000000',
         textAlignVertical: 'center',
         textAlign: 'center',
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
     },
     balloonText: {
         fontFamily: 'LeagueSpartan',
-        fontSize: 30,
+        fontSize: 36,
         color: '#000000',
         textAlignVertical: 'center',
         textAlign: 'center',
