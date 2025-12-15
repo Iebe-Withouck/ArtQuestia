@@ -469,9 +469,10 @@ export default function ARScene2({ userLocation, sceneKey }: ARScene2Props) {
 
                         <TouchableOpacity
                             style={styles.claimButton}
-                            onPress={() => {
+                            onPress={async () => {
                                 if (artworkData?.id) {
-                                    claimSticker(artworkData.id);
+                                    await claimSticker(artworkData.id);
+                                    console.log('Sticker claimed and saved to Strapi - ID:', artworkData.id);
                                     if (SHOW_DEBUG) {
                                         console.log('Sticker claimed - ID:', artworkData.id);
                                     }

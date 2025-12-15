@@ -142,7 +142,7 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     const userId = await getStrapiUserId();
 
     if (!token || !userId) {
-      console.error('User not authenticated');
+      // User not logged in yet - return empty array silently
       return [];
     }
 

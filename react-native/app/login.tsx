@@ -70,7 +70,10 @@ export default function LoginScreen() {
         }
       } catch (strapiError) {
         console.error('Error sending token to Strapi:', strapiError);
-        // Continue anyway - don't block the user from logging in
+        // Save Firebase UID locally even if Strapi fails
+        await AsyncStorage.setItem('firebaseUID', userCredential.user.uid);
+        await AsyncStorage.setItem('userEmail', userCredential.user.email || '');
+        console.log('⚠️ Saved Firebase data locally, but Strapi sync failed');
       }
       
       setAlertConfig({
