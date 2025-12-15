@@ -372,7 +372,7 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
     React.useEffect(() => {
         ViroMaterials.createMaterials({
             balloonBackground: {
-                diffuseColor: '#1AF7A2',
+                diffuseColor: 'rgba(0, 0, 0, 0.6)',
                 lightingModel: 'Constant',
             },
         });
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
     balloonTitle: {
         fontFamily: 'Impact',
         fontSize: 36,
-        color: '#000000',
+        color: '#fff',
         textAlignVertical: 'center',
         textAlign: 'center',
         fontWeight: 'bold',
@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
     balloonText: {
         fontFamily: 'LeagueSpartan',
         fontSize: 36,
-        color: '#000000',
+        color: '#fff',
         textAlignVertical: 'center',
         textAlign: 'center',
         fontWeight: 'bold',

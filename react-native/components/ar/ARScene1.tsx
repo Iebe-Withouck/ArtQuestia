@@ -421,7 +421,7 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
     React.useEffect(() => {
         ViroMaterials.createMaterials({
             balloonBackground: {
-                diffuseColor: '#F10906',
+                diffuseColor: 'rgba(0, 0, 0, 0.6)',
                 lightingModel: 'Constant',
             },
         });
