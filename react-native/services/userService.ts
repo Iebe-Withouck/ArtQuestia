@@ -168,14 +168,12 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     });
     console.log('🔐 Token validation test:', testResponse.status, testResponse.ok);
     
-    // Fetch only PUBLISHED unlocked artworks with full population
-      const queryUrl = `${STRAPI_URL}/api/user-unlocked-artworks?` +
-        `filters[publishedAt][$notNull]=true&` +
-        `populate[users_permissions_user]=*&` +
-        `populate=artwork`;
-    
+    // Fetch unlocked artworks using custom endpoint that auto-filters by user
+    // The backend controller automatically filters by authenticated user
+    const queryUrl = `${STRAPI_URL}/api/user-unlocked-artworks`;
+
     console.log('🔍 Query URL:', queryUrl);
-    
+
     const response = await fetch(queryUrl, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -186,32 +184,21 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
 
     if (response.ok) {
       const data = await response.json();
-      console.log('📦 All published unlocked artworks');
-      console.log('Total published entries:', data.data.length);
-      console.log('📄 Full response data:', JSON.stringify(data, null, 2));
-      
-      // Filter by current user ID and extract artwork IDs
-      const artworkIds = data.data
-        .filter((item: any) => {
-          const matchesUser = item.users_permissions_user?.id === parseInt(userId);
-          const hasArtwork = !!item.artwork?.id;
-          console.log('Processing item:', {
-            id: item.id,
-            itemUserId: item.users_permissions_user?.id,
-            currentUserId: parseInt(userId),
-            matchesUser,
-            hasArtwork,
-            artworkId: item.artwork?.id
-          });
-          return matchesUser && hasArtwork;
-        })
-        .map((item: any) => item.artwork.id);
-      
+
+      // The custom endpoint returns artwork IDs directly in data array
+      const artworkIds = data.data || [];
+
       console.log('✅ Unlocked artwork IDs for user', userId, ':', artworkIds);
       return artworkIds;
     } else {
       const errorData = await response.json();
-      console.error('❌ Failed to fetch unlocked artworks:', response.status, errorData);
+      console.error('❌ Failed to fetch unlocked artworks:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData,
+        userId,
+        queryUrl
+      });
       return [];
     }
   } catch (error) {

@@ -7,6 +7,46 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-artwork', ({ strapi }) => ({
+  async find(ctx) {
+    // Get the authenticated user
+    const user = ctx.state.user;
+
+    if (!user) {
+      return ctx.unauthorized('You must be authenticated to view unlocked artworks');
+    }
+
+    try {
+      strapi.log.info('Fetching unlocked artworks for user:', user.id);
+
+      // Use db query for more reliable filtering
+      const entries = await strapi.db.query('api::user-unlocked-artwork.user-unlocked-artwork').findMany({
+        where: {
+          users_permissions_user: user.id,
+          publishedAt: { $notNull: true },
+        },
+        populate: {
+          artwork: {
+            select: ['id'],
+          },
+        },
+      });
+
+      strapi.log.info('Found entries:', entries.length);
+
+      // Transform to only return artwork IDs (simpler for frontend)
+      const artworkIds = entries
+        .filter(entry => entry.artwork && entry.artwork.id)
+        .map(entry => entry.artwork.id);
+
+      strapi.log.info('User', user.id, 'unlocked artworks:', artworkIds);
+
+      return ctx.send({ data: artworkIds });
+    } catch (error) {
+      strapi.log.error('Error fetching unlocked artworks:', error);
+      return ctx.badRequest('Failed to fetch unlocked artworks: ' + error.message);
+    }
+  },
+
   async create(ctx) {
     // Get the authenticated user
     const user = ctx.state.user;
