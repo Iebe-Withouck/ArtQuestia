@@ -29,6 +29,9 @@ import Info from '../assets/icons/info.png';
 import ProfilePic from '../assets/profile-info/profile-pic.png';
 import Plus from '../assets/profile-info/newPic.png'
 import Arrow from '../assets/icons/arrow2.png';
+import Cross from '../assets/icons/cross.png';
+import Mail from '../assets/icons/mail.png';
+import Phone from '../assets/icons/phone.png';
 
 interface SettingsEditProps {
   onClose: () => void;
@@ -47,6 +50,7 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
   const [age, setAge] = useState(userAge);
   const [email, setEmail] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [infoModalVisible, setInfoModalVisible] = useState(false);
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -83,7 +87,7 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
             <View style={styles.notificationDot} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.infoButton}>
+          <TouchableOpacity style={styles.infoButton} onPress={() => setInfoModalVisible(true)}>
             <Image source={Info} style={styles.infoIcon} />
           </TouchableOpacity>
 
@@ -307,6 +311,38 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
         </TouchableOpacity>
 
       </ScrollView>
+
+      <Modal
+        visible={infoModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setInfoModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.infoModalContent}>
+            <TouchableOpacity
+              style={styles.infoModalCloseButton}
+              onPress={() => setInfoModalVisible(false)}
+            >
+              <Image source={Cross} style={styles.infoModalCloseIcon} />
+            </TouchableOpacity>
+
+            <ThemedText style={styles.infoModalTitle}>Heb je problemen{"\n"}of vragen?</ThemedText>
+
+            <ThemedText style={styles.infoModalSubtitle}>Meld dit via</ThemedText>
+
+            <View style={styles.infoModalContactRow}>
+              <Image source={Mail} style={styles.infoModalIcon} />
+              <ThemedText style={styles.infoModalContactText}>lieselotte.peperstraete@kortrijk.be</ThemedText>
+            </View>
+
+            <View style={styles.infoModalContactRow}>
+              <Image source={Phone} style={styles.infoModalIcon} />
+              <ThemedText style={styles.infoModalContactText}>+32 478 67 25 90</ThemedText>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ThemedView>
   );
 }
@@ -626,6 +662,74 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(20),
     fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoModalContent: {
+    backgroundColor: '#1a1a1a',
+    borderRadius: moderateScale(20),
+    padding: scale(40),
+    paddingTop: scale(20),
+    width: '90%',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  infoModalCloseButton: {
+    position: 'absolute',
+    top: verticalScale(20),
+    right: scale(20),
+    width: moderateScale(35),
+    height: moderateScale(35),
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  infoModalCloseIcon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  infoModalTitle: {
+    fontSize: moderateScale(28),
+    color: '#fff',
+    fontFamily: 'Impact',
+    textAlign: 'left',
+    width: '100%',
+    marginTop: verticalScale(5),
+    marginBottom: verticalScale(20),
+    lineHeight: moderateScale(32),
+  },
+  infoModalSubtitle: {
+    fontSize: moderateScale(18),
+    color: '#fff',
+    fontFamily: 'LeagueSpartan-regular',
+    textAlign: 'left',
+    width: '100%',
+    marginBottom: verticalScale(15),
+  },
+  infoModalContactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: verticalScale(15),
+    width: '100%',
+    paddingHorizontal: scale(10),
+  },
+  infoModalIcon: {
+    width: moderateScale(24),
+    height: moderateScale(24),
+    resizeMode: 'contain',
+    marginRight: scale(15),
+  },
+  infoModalContactText: {
+    fontSize: moderateScale(14),
+    color: '#fff',
+    fontFamily: 'LeagueSpartan-regular',
+    flex: 1,
+    textAlign: 'left',
   },
 
 });
