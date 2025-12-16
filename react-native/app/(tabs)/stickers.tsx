@@ -255,6 +255,23 @@ export default function SettingsScreen() {
     return themeBadges;
   };
 
+  // Calculate percentage for a specific theme
+  const getThemePercentage = (theme: string): number => {
+    const themeArtworks = artworks.filter(artwork => {
+      const artworkTheme = artwork.attributes?.Theme || artwork.Theme;
+      return artworkTheme === theme;
+    });
+
+    const total = themeArtworks.length;
+    if (total === 0) return 0;
+
+    const claimed = themeArtworks.filter(artwork =>
+      claimedStickers.includes(artwork.id)
+    ).length;
+
+    return Math.round((claimed / total) * 100);
+  };
+
   const handleThemeSelect = (theme: string) => {
     setSelectedTheme(theme);
     setDropdownVisible(false);
@@ -381,7 +398,7 @@ export default function SettingsScreen() {
             <Image source={require('../../assets/icons/arrow2.png')} style={[styles.dropdownArrow, styles.whiteArrow, { transform: [{ rotate: themeQuestDropdownVisible ? '0deg' : '180deg' }] }]} />
           </TouchableOpacity>
           <ThemedText style={[styles.percentage, { marginTop: 0 }]}>
-            55% compleet
+            {getThemePercentage(selectedThemeQuest)}% compleet
           </ThemedText>
         </View>
 
@@ -393,7 +410,10 @@ export default function SettingsScreen() {
                 style={styles.dropdownItem}
                 onPress={() => handleThemeQuestSelect(theme)}
               >
-                <ThemedText style={styles.dropdownText}>{theme}</ThemedText>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+                  <ThemedText style={styles.dropdownText}>{theme}</ThemedText>
+                  <ThemedText style={styles.dropdownText}>{getThemePercentage(theme)}%</ThemedText>
+                </View>
               </TouchableOpacity>
             ))}
           </View>
