@@ -479,6 +479,35 @@ export interface ApiArtworkArtwork extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiBadgeBadge extends Struct.CollectionTypeSchema {
+  collectionName: 'badges';
+  info: {
+    displayName: 'Badges';
+    pluralName: 'badges';
+    singularName: 'badge';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::badge.badge'> &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String;
+    PhotoBadge: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    theme: Schema.Attribute.Relation<'manyToOne', 'api::theme.theme'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiThemeTheme extends Struct.CollectionTypeSchema {
   collectionName: 'themes';
   info: {
@@ -491,6 +520,7 @@ export interface ApiThemeTheme extends Struct.CollectionTypeSchema {
   };
   attributes: {
     artworks: Schema.Attribute.Relation<'oneToMany', 'api::artwork.artwork'>;
+    badges: Schema.Attribute.Relation<'oneToMany', 'api::badge.badge'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1062,6 +1092,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::artwork.artwork': ApiArtworkArtwork;
+      'api::badge.badge': ApiBadgeBadge;
       'api::theme.theme': ApiThemeTheme;
       'api::user-unlocked-artwork.user-unlocked-artwork': ApiUserUnlockedArtworkUserUnlockedArtwork;
       'plugin::content-releases.release': PluginContentReleasesRelease;

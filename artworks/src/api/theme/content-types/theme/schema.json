@@ -29,6 +29,12 @@
       "relation": "oneToMany",
       "target": "api::artwork.artwork",
       "mappedBy": "themes"
+    },
+    "badges": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::badge.badge",
+      "mappedBy": "theme"
     }
   }
 }
