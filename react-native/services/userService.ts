@@ -168,8 +168,13 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     });
     console.log('🔐 Token validation test:', testResponse.status, testResponse.ok);
     
+    // Fetch only PUBLISHED unlocked artworks for the current user
     const response = await fetch(
-      `${STRAPI_URL}/api/user-unlocked-artworks?populate=users_permissions_user&populate=artwork`,
+      `${STRAPI_URL}/api/user-unlocked-artworks?` + 
+      `filters[users_permissions_user][id][$eq]=${userId}&` +
+      `filters[publishedAt][$notNull]=true&` +
+      `populate[users_permissions_user][fields][0]=id&` +
+      `populate[artwork][fields][0]=id`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -179,21 +184,16 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
 
     if (response.ok) {
       const data = await response.json();
-      console.log('📦 Raw response from Strapi:');
-      console.log('Total entries:', data.data.length);
-      data.data.forEach((item: any, index: number) => {
-        console.log(`Entry ${index + 1}:`, {
-          id: item.id,
-          userId: item.users_permissions_user?.id,
-          artworkId: item.artwork?.id,
-          unlockedAt: item.unlockedAt,
-          fullItem: JSON.stringify(item, null, 2)
-        });
-      });
+      console.log('📦 Published unlocked artworks for user:', userId);
+      console.log('Total published entries:', data.data.length);
       
-      // RESET: Return empty array - no unlocked artworks shown
-      console.log('🔒 Not showing any unlocked artworks (reset mode)');
-      return [];
+      // Extract artwork IDs from the published entries
+      const artworkIds = data.data
+        .filter((item: any) => item.artwork?.id) // Only include entries with artwork
+        .map((item: any) => item.artwork.id);
+      
+      console.log('✅ Unlocked artwork IDs:', artworkIds);
+      return artworkIds;
     } else {
       const errorData = await response.json();
       console.error('❌ Failed to fetch unlocked artworks:', response.status, errorData);
