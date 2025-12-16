@@ -142,7 +142,7 @@ export default function Scan() {
   }
 
   // Check if no artwork is selected or no AR scene available
-  if (!selectedArtwork || !selectedArtwork.arSceneNumber) {
+  /* if (!selectedArtwork || !selectedArtwork.arSceneNumber) {
     return (
       <View style={styles.noArtworkContainer}>
         <Text style={[styles.noArtworkTitle, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
@@ -158,7 +158,7 @@ export default function Scan() {
         </TouchableOpacity>
       </View>
     );
-  }
+  } */
 
   // Render de juiste AR scene op basis van het geselecteerde kunstwerk
   const renderARScene = () => {
