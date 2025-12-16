@@ -234,7 +234,7 @@ export default function SettingsScreen() {
             <ThemedText style={[styles.title, { marginTop: 0 }]}>
               {selectedThemeQuest} quest
             </ThemedText>
-            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: themeQuestDropdownVisible ? '180deg' : '0deg' }] }]} />
+            <Image source={require('../../assets/icons/arrow2.png')} style={[styles.dropdownArrow, styles.whiteArrow, { transform: [{ rotate: themeQuestDropdownVisible ? '0deg' : '180deg' }] }]} />
           </TouchableOpacity>
           <ThemedText style={[styles.percentage, { marginTop: 0 }]}>
             55% compleet
@@ -270,7 +270,7 @@ export default function SettingsScreen() {
             }}
           >
             <ThemedText style={[styles.buttonTextStickers, styles.whiteText]}>{selectedStickerType}</ThemedText>
-            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, styles.whiteArrow, { transform: [{ rotate: stickerTypeDropdownVisible ? '180deg' : '0deg' }] }]} />
+            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrowSmall, styles.whiteArrow, { transform: [{ rotate: stickerTypeDropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.buttonStickers2}
@@ -280,7 +280,7 @@ export default function SettingsScreen() {
             }}
           >
             <ThemedText style={styles.buttonTextStickers}>{selectedTheme === 'Alle' ? "Quests" : selectedTheme}</ThemedText>
-            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrow, { transform: [{ rotate: dropdownVisible ? '180deg' : '0deg' }] }]} />
+            <Image source={require('../../assets/icons/arrow.png')} style={[styles.dropdownArrowSmall, { transform: [{ rotate: dropdownVisible ? '180deg' : '0deg' }] }]} />
           </TouchableOpacity>
         </View>
 
@@ -623,6 +623,11 @@ const styles = StyleSheet.create({
     gap: scale(5),
   },
   dropdownArrow: {
+    width: moderateScale(16),
+    height: moderateScale(16),
+    tintColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  dropdownArrowSmall: {
     width: moderateScale(10),
     height: moderateScale(10),
     tintColor: 'rgba(0, 0, 0, 0.6)',

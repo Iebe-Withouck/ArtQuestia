@@ -9,7 +9,9 @@ import {
   Image,
   Dimensions,
   Animated,
+  TouchableOpacity,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import ARScene1 from '../../components/ar/ARScene1';
 import ARScene2 from '../../components/ar/ARScene2';
 import ARScene3 from '../../components/ar/ARScene3';
@@ -25,6 +27,7 @@ const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size
 
 export default function Scan() {
   const { selectedArtwork } = useArtwork();
+  const router = useRouter();
   const [sceneKey, setSceneKey] = useState(0);
   const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -138,9 +141,28 @@ export default function Scan() {
     );
   }
 
+  // Check if no artwork is selected or no AR scene available
+  if (!selectedArtwork || !selectedArtwork.arSceneNumber) {
+    return (
+      <View style={styles.noArtworkContainer}>
+        <Text style={[styles.noArtworkTitle, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
+          Ga naar een artwork om een AR experience te starten
+        </Text>
+        <TouchableOpacity
+          style={styles.mapButton}
+          onPress={() => router.push('/map')}
+        >
+          <Text style={[styles.mapButtonText, { fontFamily: fontsLoaded ? 'LeagueSpartan-semibold' : undefined }]}>
+            Ga naar map
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   // Render de juiste AR scene op basis van het geselecteerde kunstwerk
   const renderARScene = () => {
-    const sceneNumber = selectedArtwork?.arSceneNumber || 3;
+    const sceneNumber = selectedArtwork?.arSceneNumber || 1;
     const commonProps = {
       userLocation,
       sceneKey,
@@ -209,5 +231,38 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     textAlign: 'center',
     paddingHorizontal: 20,
+  },
+  noArtworkContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+    paddingHorizontal: scale(40),
+  },
+  noArtworkTitle: {
+    fontSize: moderateScale(24),
+    color: '#ffffff',
+    marginBottom: verticalScale(30),
+    textAlign: 'center',
+  },
+  mapButton: {
+    backgroundColor: '#FF7700',
+    paddingHorizontal: scale(40),
+    paddingVertical: verticalScale(15),
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  mapButtonText: {
+    fontSize: moderateScale(18),
+    color: '#rgba(0, 0, 0, 0.6)',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
