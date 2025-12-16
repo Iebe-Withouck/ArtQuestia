@@ -27,17 +27,17 @@ export default function TabLayout() {
           width: focused ? 65 : 45,
           height: focused ? 65 : 45,
           resizeMode: 'contain',
-          marginBottom: 10,
+          marginBottom: 8,
         }}
       />
       <Text
         style={{
           color: focused ? '#FFFFFF' : '#999999',
-          fontSize: 7,
+          fontSize: 8,
           fontWeight: focused ? '600' : '400',
           fontFamily: 'LeagueSpartan-semibold',
           textAlign: 'center',
-          marginBottom: -22,
+          marginBottom: -20,
         }}
       >
         {label}
