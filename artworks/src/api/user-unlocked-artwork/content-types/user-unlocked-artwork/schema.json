@@ -13,7 +13,7 @@
   "attributes": {
     "artwork": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToOne",
       "target": "api::artwork.artwork"
     },
     "unlockedAt": {
