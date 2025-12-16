@@ -27,6 +27,7 @@ import {
     PanResponder
 } from 'react-native';
 import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
+import ArtworkCardDetail from '@/components/ArtworkCardDetail';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 const SHOW_DEBUG = false; // Set to true to enable debug logging
@@ -240,6 +241,7 @@ export default function ARScene2({ userLocation, sceneKey }: ARScene2Props) {
     const [loading, setLoading] = useState(true);
     const [showStickerPopup, setShowStickerPopup] = useState(false);
     const [showMovementText, setShowMovementText] = useState(true);
+    const [showArtworkDetail, setShowArtworkDetail] = useState(false);
     const { claimSticker } = useClaimedStickers();
 
     const panResponderRef = useRef(
@@ -524,10 +526,15 @@ export default function ARScene2({ userLocation, sceneKey }: ARScene2Props) {
                         {...panResponderRef.panHandlers}
                     >
                         {fullStickersUrl && (
-                            <Image
-                                source={{ uri: fullStickersUrl }}
-                                style={styles.stickerImage}
-                            />
+                            <TouchableOpacity
+                                onPress={() => setShowArtworkDetail(true)}
+                                activeOpacity={0.7}
+                            >
+                                <Image
+                                    source={{ uri: fullStickersUrl }}
+                                    style={styles.stickerImage}
+                                />
+                            </TouchableOpacity>
                         )}
 
                         <View style={styles.textContent}>
@@ -584,6 +591,15 @@ export default function ARScene2({ userLocation, sceneKey }: ARScene2Props) {
                         </ScrollView>
                     )}
                 </Animated.View>
+            )}
+
+            {showArtworkDetail && artworkData && (
+                <View style={styles.artworkDetailOverlay}>
+                    <ArtworkCardDetail
+                        artwork={artworkData}
+                        onClose={() => setShowArtworkDetail(false)}
+                    />
+                </View>
             )}
         </View>
     );
@@ -808,5 +824,13 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(18),
         color: 'rgba(0, 0, 0, 0.6)',
         textAlign: 'center',
+    },
+    artworkDetailOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 1000,
     },
 });
