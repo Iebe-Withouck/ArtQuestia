@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Image } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
 import { auth } from '@/config/firebase';
@@ -149,13 +149,22 @@ export default function RegisterScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>Registreer en spaar stickers om beloningen te winnen!</Text>
-        <Image source={PinkSmiley} style={styles.pinkSmileyImage} resizeMode="contain" />
-      </View>
+    <KeyboardAvoidingView
+      style={styles.keyboardView}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
+    >
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Registreer en spaar stickers om beloningen te winnen!</Text>
+          <Image source={PinkSmiley} style={styles.pinkSmileyImage} resizeMode="contain" />
+        </View>
 
-      <View style={styles.inputContainer}>
+        <View style={styles.inputContainer}>
         <Text style={styles.label}>Naam</Text>
         <TextInput
           value={name}
@@ -217,24 +226,29 @@ export default function RegisterScreen() {
         <Image source={Footer3} style={styles.footerImageSmall} resizeMode="contain" />
       </View>
 
-      <CustomAlert
-        visible={alertVisible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        type={alertConfig.type}
-        onClose={() => setAlertVisible(false)}
-      />
-    </ScrollView>
+        <CustomAlert
+          visible={alertVisible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          onClose={() => setAlertVisible(false)}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardView: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
   container: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000',
     padding: scale(20),
+    paddingBottom: verticalScale(100),
   },
   titleContainer: {
     position: 'relative',

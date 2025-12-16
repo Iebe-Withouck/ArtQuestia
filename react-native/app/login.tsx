@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/config/firebase';
@@ -124,15 +124,24 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.titleContainer}>
-        <Text style={styles.title}>Login om stickers te sparen</Text>
-        <Text style={styles.subtitle}>Loop geen{'\n'}beloningen kwijt!</Text>
-      </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Login om stickers te sparen</Text>
+          <Text style={styles.subtitle}>Loop geen{'\n'}beloningen kwijt!</Text>
+        </View>
 
-      <Image source={Wink} style={styles.winkImage} resizeMode="contain" />
+        <Image source={Wink} style={styles.winkImage} resizeMode="contain" />
 
-      <View style={styles.inputContainer}>
+        <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
         <TextInput
           value={email}
@@ -166,30 +175,35 @@ export default function LoginScreen() {
         </Text>
       </TouchableOpacity>
 
-      <View style={styles.footer}>
-        <Image source={Footer1} style={styles.footerImageSmall} resizeMode="contain" />
-        <Image source={Footer2} style={styles.footerImageLarge} resizeMode="contain" />
-        <Image source={Footer3} style={styles.footerImageSmall} resizeMode="contain" />
-      </View>
+        <View style={styles.footer}>
+          <Image source={Footer1} style={styles.footerImageSmall} resizeMode="contain" />
+          <Image source={Footer2} style={styles.footerImageLarge} resizeMode="contain" />
+          <Image source={Footer3} style={styles.footerImageSmall} resizeMode="contain" />
+        </View>
 
-      <CustomAlert
-        visible={alertVisible}
-        title={alertConfig.title}
-        message={alertConfig.message}
-        type={alertConfig.type}
-        onClose={() => setAlertVisible(false)}
-      />
-    </View>
+        <CustomAlert
+          visible={alertVisible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          onClose={() => setAlertVisible(false)}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000',
+  },
+  scrollContent: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000',
     padding: scale(20),
+    paddingBottom: verticalScale(100),
   },
   titleContainer: {
     position: 'relative',
