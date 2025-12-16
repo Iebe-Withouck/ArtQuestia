@@ -53,6 +53,7 @@ export default function SettingsScreen() {
   const [selectedThemeQuest, setSelectedThemeQuest] = useState("Oorlog");
   const [artworks, setArtworks] = useState<any[]>([]);
   const [themes, setThemes] = useState<string[]>(['Alle', 'Religie', 'Historie', 'Moderne Kunst', 'ZieMie', 'Oorlog']);
+  const [themeData, setThemeData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSticker, setSelectedSticker] = useState<any>(null);
@@ -99,7 +100,38 @@ export default function SettingsScreen() {
     console.log('Component mounted, fetching artworks...');
     getUserLocation();
     fetchArtworks();
+    fetchThemesWithBadges();
   }, []);
+
+  const fetchThemesWithBadges = async () => {
+    try {
+      console.log('🚀 Fetching badges...');
+      // Fetch badges with theme and PhotoBadge populated
+      const response = await fetch(`${STRAPI_URL}/api/badges?populate=*`);
+      console.log('📡 Badge response status:', response.status);
+
+      const data = await response.json();
+      console.log('📦 Badge response data count:', data.data?.length);
+
+      if (data.data) {
+        console.log('✨ Badges fetched:', data.data.length);
+        // Log first badge with full structure to verify
+        if (data.data.length > 0) {
+          console.log('📸 First badge structure:', {
+            name: data.data[0].name,
+            themeName: data.data[0].theme?.Name,
+            hasPhoto: !!data.data[0].PhotoBadge
+          });
+        }
+        setThemeData(data.data);
+        console.log('✅ ThemeData updated with', data.data.length, 'badges');
+      } else {
+        console.log('❌ No data.data in badge response');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching badges:', error);
+    }
+  };
 
   const fetchArtworks = async () => {
     try {
@@ -139,6 +171,88 @@ export default function SettingsScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Get badge image URL for a theme based on progress
+  const getBadgeForTheme = (theme: string, badgeType: 'not_achieved' | 'partial' | 'full') => {
+    // Map badge type to prefix
+    const prefixMap = {
+      'not_achieved': 'Not_Achieved',
+      'partial': '1_Achieved',
+      'full': 'Full_Achieved'
+    };
+
+    const prefix = prefixMap[badgeType];
+
+    // Map artwork themes to badge name suffixes
+    // Artworks use: "Oorlog", "Moderne Kunst", etc.
+    // Badges use: "Oorlog", "Modern", etc.
+    const themeMap: { [key: string]: string } = {
+      'Moderne Kunst': 'Modern',
+      'Oorlog': 'Oorlog',
+      'Historie': 'Historie',
+      'Religie': 'Religie',
+      'ZieMie': 'ZieMie'
+    };
+
+    const badgeSuffix = themeMap[theme] || theme;
+    const expectedBadgeName = `${prefix}_${badgeSuffix}`;
+
+    console.log(`🔍 Looking for badge: ${expectedBadgeName} (theme: ${theme})`);
+
+    // Find badge by exact name match
+    const badge = themeData.find((b: any) => {
+      const badgeName = b.name;
+      console.log(`  Checking badge: ${badgeName}`);
+      return badgeName === expectedBadgeName;
+    });
+
+    if (badge) {
+      console.log(`✅ Found badge for ${theme}:`, badge.name);
+      // PhotoBadge has capital B in Strapi
+      const photoBadge = badge.PhotoBadge;
+      const url = photoBadge?.url;
+      console.log(`  Badge image URL:`, url);
+      return url;
+    }
+
+    console.log(`❌ No badge found with name: ${expectedBadgeName}`);
+    return null;
+  };
+
+  // Calculate badge status for each theme
+  const calculateThemeBadges = () => {
+    const themeBadges: { [theme: string]: { claimed: number; total: number; badge: 'not_achieved' | 'partial' | 'full'; imageUrl: string | null } } = {};
+
+    // Get all themes except 'Alle'
+    const realThemes = themes.filter(t => t !== 'Alle');
+
+    realThemes.forEach(theme => {
+      // Get all artworks for this theme
+      const themeArtworks = artworks.filter(artwork => {
+        const artworkTheme = artwork.attributes?.Theme || artwork.Theme;
+        return artworkTheme === theme;
+      });
+
+      const total = themeArtworks.length;
+      const claimed = themeArtworks.filter(artwork =>
+        claimedStickers.includes(artwork.id)
+      ).length;
+
+      // Determine badge level
+      let badge: 'not_achieved' | 'partial' | 'full' = 'not_achieved';
+      if (claimed === total && total > 0) {
+        badge = 'full';
+      } else if (claimed > 0) {
+        badge = 'partial';
+      }
+
+      const imageUrl = getBadgeForTheme(theme, badge);
+
+      themeBadges[theme] = { claimed, total, badge, imageUrl };
+    });
+
+    return themeBadges;
   };
 
   const handleThemeSelect = (theme: string) => {
@@ -205,6 +319,9 @@ export default function SettingsScreen() {
     return <ArtworkCardDetail artwork={selectedSticker} onClose={() => setShowDetailView(false)} />;
   }
 
+  // Debug badge rendering
+  console.log('🎨 About to render. ThemeData length:', themeData.length);
+
   return (
     <ThemedView style={styles.titleContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -221,6 +338,33 @@ export default function SettingsScreen() {
         <ThemedText style={[styles.subtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
           Ontdek Kortrijk, beleef de quest & scoor coupons
         </ThemedText>
+
+        {/* Theme Badges */}
+        {console.log('🎨 Rendering badges. ThemeData length:', themeData.length)}
+        {themeData.length > 0 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.badgesContainer}
+            contentContainerStyle={styles.badgesContent}
+          >
+            {Object.entries(calculateThemeBadges()).map(([theme, status]) => (
+            <View key={theme} style={styles.badgeItem}>
+              {status.imageUrl ? (
+                <Image
+                  source={{ uri: status.imageUrl }}
+                  style={styles.badgeImage}
+                  resizeMode="contain"
+                />
+              ) : (
+                <View style={styles.badgePlaceholder}>
+                  <ThemedText style={styles.badgePlaceholderText}>?</ThemedText>
+                </View>
+              )}
+            </View>
+          ))}
+          </ScrollView>
+        )}
 
         <View style={[styles.themaRoute, { marginTop: verticalScale(50) }]}>
           <TouchableOpacity
@@ -793,5 +937,35 @@ const styles = StyleSheet.create({
     fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  // Badge styles
+  badgesContainer: {
+    marginTop: verticalScale(20),
+    marginBottom: verticalScale(10),
+  },
+  badgesContent: {
+    paddingHorizontal: scale(5),
+    gap: scale(20),
+  },
+  badgeItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgePlaceholder: {
+    width: scale(90),
+    height: scale(90),
+    borderRadius: moderateScale(45),
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#555',
+  },
+  badgePlaceholderText: {
+    fontSize: moderateScale(40),
+    color: '#888',
+  },
+  badgeImage: {
+    width: scale(90),
+    height: scale(90),
+    borderRadius: moderateScale(45),
   },
 });
