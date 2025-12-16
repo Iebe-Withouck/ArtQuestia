@@ -179,19 +179,34 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
 
     if (response.ok) {
       const data = await response.json();
-      console.log('📦 All unlocked artworks:', JSON.stringify(data.data, null, 2));
+      console.log('📦 Raw response from Strapi:');
+      console.log('Total entries:', data.data.length);
+      data.data.forEach((item: any, index: number) => {
+        console.log(`Entry ${index + 1}:`, {
+          id: item.id,
+          userId: item.users_permissions_user?.id,
+          artworkId: item.artwork?.id,
+          unlockedAt: item.unlockedAt,
+          fullItem: JSON.stringify(item, null, 2)
+        });
+      });
       
       // Filter to only include artworks unlocked by the current user
       const unlockedArtworkIds = data.data
         .filter((item: any) => {
           const itemUserId = item.users_permissions_user?.id;
-          console.log('🔍 Checking item - User ID:', itemUserId, 'vs Current User:', userId, 'Artwork:', item.artwork?.id);
-          return String(itemUserId) === String(userId);
+          const matches = String(itemUserId) === String(userId);
+          console.log('🔍 Item:', item.id, '- User:', itemUserId, 'vs', userId, '- Match:', matches, '- Artwork:', item.artwork?.id);
+          return matches;
         })
-        .map((item: any) => item.artwork?.id)
+        .map((item: any) => {
+          const artworkId = item.artwork?.id;
+          console.log('🎨 Mapping artwork ID:', artworkId);
+          return artworkId;
+        })
         .filter(Boolean);
       
-      console.log('✅ Unlocked artworks for user', userId, ':', unlockedArtworkIds);
+      console.log('✅ Final unlocked artworks for user', userId, ':', unlockedArtworkIds);
       return unlockedArtworkIds;
     } else {
       const errorData = await response.json();
