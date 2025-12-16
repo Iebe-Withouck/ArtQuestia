@@ -32,6 +32,9 @@ import Arrow from '../assets/icons/arrow2.png';
 import Cross from '../assets/icons/cross.png';
 import Mail from '../assets/icons/mail.png';
 import Phone from '../assets/icons/phone.png';
+import Footer1 from '../assets/icons/footer1.png';
+import Footer2 from '../assets/icons/footer2.png';
+import Footer3 from '../assets/icons/footer3.png';
 
 interface SettingsEditProps {
   onClose: () => void;
@@ -309,6 +312,12 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
         >
           <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
         </TouchableOpacity>
+
+        <View style={styles.footer}>
+          <Image source={Footer1} style={styles.footerImageSmall} resizeMode="contain" />
+          <Image source={Footer2} style={styles.footerImageLarge} resizeMode="contain" />
+          <Image source={Footer3} style={styles.footerImageSmall} resizeMode="contain" />
+        </View>
 
       </ScrollView>
 
@@ -730,6 +739,26 @@ const styles = StyleSheet.create({
     fontFamily: 'LeagueSpartan-regular',
     flex: 1,
     textAlign: 'left',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+    gap: scale(20),
+    marginTop: verticalScale(40),
+    marginHorizontal: scale(-20),
+    paddingHorizontal: scale(20),
+  },
+  footerImageSmall: {
+    width: moderateScale(20),
+    height: moderateScale(35),
+  },
+  footerImageLarge: {
+    width: moderateScale(65),
+    height: moderateScale(65),
   },
 
 });
