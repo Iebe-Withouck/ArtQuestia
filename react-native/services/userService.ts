@@ -105,39 +105,39 @@ export const unlockArtwork = async (artworkId: number): Promise<boolean> => {
       return false;
     }
 
-    // First check if already unlocked
-    const alreadyUnlocked = await isArtworkUnlocked(artworkId);
-    if (alreadyUnlocked) {
-      console.log('✅ Artwork already unlocked:', artworkId);
-      return true;
-    }
-
-    console.log('📤 Creating unlock entry via Strapi admin API');
+    console.log('📤 Sending unlock request to Strapi');
+    console.log('📤 User ID:', userId);
+    console.log('📤 Artwork ID:', artworkId);
+    console.log('📤 Token:', token.substring(0, 30) + '...');
     
-    // Use the same format that works when fetching - just create the entry
-    // and let Strapi's permissions handle the user assignment
+    const requestBody = {
+      data: {
+        artwork: artworkId,
+        unlockedAt: new Date().toISOString(),
+        publishedAt: new Date().toISOString(),
+      },
+    };
+    
+    console.log('📤 Request body:', JSON.stringify(requestBody, null, 2));
+    
     const response = await fetch(`${STRAPI_URL}/api/user-unlocked-artworks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        data: {
-          artwork: artworkId,
-          unlockedAt: new Date().toISOString(),
-          publishedAt: new Date().toISOString(),
-        },
-      }),
+      body: JSON.stringify(requestBody),
     });
+
+    console.log('📥 Response status:', response.status);
 
     if (response.ok) {
       const data = await response.json();
-      console.log('✅ Artwork unlocked successfully:', data);
+      console.log('✅ Artwork unlocked successfully:', JSON.stringify(data, null, 2));
       return true;
     } else {
       const error = await response.json();
-      console.error('❌ Failed to unlock artwork:', error);
+      console.error('❌ Failed to unlock artwork:', JSON.stringify(error, null, 2));
       return false;
     }
   } catch (error) {
@@ -169,7 +169,7 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     console.log('🔐 Token validation test:', testResponse.status, testResponse.ok);
     
     const response = await fetch(
-      `${STRAPI_URL}/api/user-unlocked-artworks?populate[users_permissions_user][fields][0]=id&populate[artwork][fields][0]=id`,
+      `${STRAPI_URL}/api/user-unlocked-artworks?populate=users_permissions_user&populate=artwork`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -191,23 +191,9 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
         });
       });
       
-      // Filter to only include artworks unlocked by the current user
-      const unlockedArtworkIds = data.data
-        .filter((item: any) => {
-          const itemUserId = item.users_permissions_user?.id;
-          const matches = String(itemUserId) === String(userId);
-          console.log('🔍 Item:', item.id, '- User:', itemUserId, 'vs', userId, '- Match:', matches, '- Artwork:', item.artwork?.id);
-          return matches;
-        })
-        .map((item: any) => {
-          const artworkId = item.artwork?.id;
-          console.log('🎨 Mapping artwork ID:', artworkId);
-          return artworkId;
-        })
-        .filter(Boolean);
-      
-      console.log('✅ Final unlocked artworks for user', userId, ':', unlockedArtworkIds);
-      return unlockedArtworkIds;
+      // RESET: Return empty array - no unlocked artworks shown
+      console.log('🔒 Not showing any unlocked artworks (reset mode)');
+      return [];
     } else {
       const errorData = await response.json();
       console.error('❌ Failed to fetch unlocked artworks:', response.status, errorData);

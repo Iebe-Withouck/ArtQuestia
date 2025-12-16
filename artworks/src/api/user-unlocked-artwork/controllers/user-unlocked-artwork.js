@@ -52,33 +52,26 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
 
       strapi.log.info('Creating entry with:', { userId: user.id, artworkId: artwork, artworkExists: !!artworkExists });
 
-      // Use db.query for direct database insert - bypasses permissions
-      const entry = await strapi.db.query('api::user-unlocked-artwork.user-unlocked-artwork').create({
+      // Use entityService.create which properly handles draft/publish
+      const entry = await strapi.entityService.create('api::user-unlocked-artwork.user-unlocked-artwork', {
         data: {
           users_permissions_user: user.id,
           artwork: artwork,
           unlockedAt: unlockedAt || new Date().toISOString(),
           publishedAt: new Date().toISOString(),
         },
+        populate: ['artwork', 'users_permissions_user'],
       });
 
       strapi.log.info('Entry created successfully:', { 
-        entryId: entry.id, 
-        userId: entry.users_permissions_user,
-        artworkId: entry.artwork,
-        savedData: entry
+        documentId: entry.documentId,
+        id: entry.id,
+        userId: entry.users_permissions_user?.id,
+        artworkId: entry.artwork?.id,
+        publishedAt: entry.publishedAt
       });
       
-      // Fetch the created entry with populated relations to return
-      const populatedEntry = await strapi.entityService.findOne(
-        'api::user-unlocked-artwork.user-unlocked-artwork',
-        entry.id,
-        {
-          populate: ['artwork', 'users_permissions_user'],
-        }
-      );
-      
-      return ctx.send({ data: populatedEntry });
+      return ctx.send({ data: entry });
     } catch (error) {
       strapi.log.error('Error creating unlock entry:', error);
       return ctx.badRequest('Failed to unlock artwork: ' + error.message);
