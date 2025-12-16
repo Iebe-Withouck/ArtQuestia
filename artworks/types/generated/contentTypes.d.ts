@@ -475,10 +475,6 @@ export interface ApiArtworkArtwork extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    user_unlocked_artwork: Schema.Attribute.Relation<
-      'oneToOne',
-      'api::user-unlocked-artwork.user-unlocked-artwork'
-    >;
     Year: Schema.Attribute.BigInteger;
   };
 }
@@ -525,7 +521,7 @@ export interface ApiUserUnlockedArtworkUserUnlockedArtwork
     draftAndPublish: true;
   };
   attributes: {
-    artwork: Schema.Attribute.Relation<'oneToOne', 'api::artwork.artwork'>;
+    artwork: Schema.Attribute.Relation<'manyToOne', 'api::artwork.artwork'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

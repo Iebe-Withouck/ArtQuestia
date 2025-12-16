@@ -169,10 +169,10 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     console.log('🔐 Token validation test:', testResponse.status, testResponse.ok);
     
     // Fetch only PUBLISHED unlocked artworks with full population
-    const queryUrl = `${STRAPI_URL}/api/user-unlocked-artworks?` + 
-      `filters[publishedAt][$notNull]=true&` +
-      `populate=users_permissions_user&` +
-      `populate=artwork`;
+      const queryUrl = `${STRAPI_URL}/api/user-unlocked-artworks?` +
+        `filters[publishedAt][$notNull]=true&` +
+        `populate[users_permissions_user]=*&` +
+        `populate=artwork`;
     
     console.log('🔍 Query URL:', queryUrl);
     
