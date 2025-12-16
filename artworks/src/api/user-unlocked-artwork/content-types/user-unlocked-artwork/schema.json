@@ -14,8 +14,7 @@
     "artwork": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::artwork.artwork",
-      "inversedBy": "user_unlocked_artwork"
+      "target": "api::artwork.artwork"
     },
     "unlockedAt": {
       "type": "datetime"
