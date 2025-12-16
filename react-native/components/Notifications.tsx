@@ -67,8 +67,8 @@ export default function Notifications({ onClose }: NotificationsProps) {
               <ThemedText style={styles.notificationTitle}>{notification.title}</ThemedText>
               <ThemedText style={styles.notificationDescription}>{notification.description}</ThemedText>
             </View>
-            <TouchableOpacity 
-              style={styles.deleteButton} 
+            <TouchableOpacity
+              style={styles.deleteButton}
               onPress={() => handleDelete(notification.id)}
             >
               <Image source={Delete} style={styles.deleteIcon} />
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     marginBottom: verticalScale(20),
+    paddingTop: verticalScale(5),
   },
   notificationsList: {
     flex: 1,
