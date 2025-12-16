@@ -20,7 +20,7 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   const renderIcon = (icon: any, activeIcon: any, focused: boolean, label: string) => (
-    <View style={{ alignItems: 'center', justifyContent: 'flex-end', height: 90 }}>
+    <View style={{ alignItems: 'center', justifyContent: 'flex-end' }}>
       <Image
         source={focused ? activeIcon : icon}
         style={{
@@ -33,7 +33,7 @@ export default function TabLayout() {
       <Text
         style={{
           color: focused ? '#FFFFFF' : '#999999',
-          fontSize: 8,
+          fontSize: 7,
           fontWeight: focused ? '600' : '400',
           fontFamily: 'LeagueSpartan-semibold',
           textAlign: 'center',
