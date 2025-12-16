@@ -53,10 +53,11 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
       strapi.log.info('Creating entry with:', { userId: user.id, artworkId: artwork, artworkExists: !!artworkExists });
 
       // Use entityService.create which properly handles draft/publish
+      // For Strapi v5, use connect for relations
       const entry = await strapi.entityService.create('api::user-unlocked-artwork.user-unlocked-artwork', {
         data: {
-          users_permissions_user: user.id,
-          artwork: artwork,
+          users_permissions_user: { connect: [user.id] },
+          artwork: { connect: [artwork] },
           unlockedAt: unlockedAt || new Date().toISOString(),
           publishedAt: new Date().toISOString(),
         },
@@ -68,7 +69,8 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
         id: entry.id,
         userId: entry.users_permissions_user?.id,
         artworkId: entry.artwork?.id,
-        publishedAt: entry.publishedAt
+        publishedAt: entry.publishedAt,
+        fullEntry: JSON.stringify(entry)
       });
       
       return ctx.send({ data: entry });
