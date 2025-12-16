@@ -420,14 +420,17 @@ export default function SettingsScreen() {
                   >
                     <ThemedText style={styles.readMoreButtonText}>Lees meer</ThemedText>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.deelButton}
-                    onPress={() => {
-                      setModalVisible(false);
-                    }}
-                  >
-                    <ThemedText style={styles.deelButtonText}>Deel je ervaring!</ThemedText>
-                  </TouchableOpacity>
+
+                  {isClaimed && (
+                    <TouchableOpacity
+                      style={styles.deelButton}
+                      onPress={() => {
+                        setModalVisible(false);
+                      }}
+                    >
+                      <ThemedText style={styles.deelButtonText}>Deel je ervaring!</ThemedText>
+                    </TouchableOpacity>
+                  )}
                 </>
               );
             })()}
