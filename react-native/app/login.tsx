@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     alignItems: 'center',
-    marginBottom: verticalScale(45),
+    marginBottom: verticalScale(15),
   },
   title: {
     fontSize: moderateScale(28),
@@ -214,8 +214,8 @@ const styles = StyleSheet.create({
     fontFamily: "LeagueSpartan-regular",
   },
   winkImage: {
-    width: moderateScale(220),
-    height: moderateScale(220),
+    width: moderateScale(250),
+    height: moderateScale(250),
     marginBottom: verticalScale(0),
   },
   inputContainer: {
