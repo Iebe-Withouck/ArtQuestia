@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, ScrollView, Image } from 'react-native';
 import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from '@/components/CustomAlert';
+
+import PinkSmiley from '../assets/images/pinkSmiley.png';
+import Footer1 from '../assets/icons/footer1.png';
+import Footer2 from '../assets/icons/footer2.png';
+import Footer3 from '../assets/icons/footer3.png';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
@@ -31,7 +36,7 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     setError('');
-    
+
     // Validation
     if (!name || !age || !email || !password || !confirmPassword) {
       setError('Vul alle velden in');
@@ -49,15 +54,15 @@ export default function RegisterScreen() {
     }
 
     setLoading(true);
-    
+
     try {
       // Create Firebase user
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
-      
+
       // Get Firebase ID token
       const idToken = await firebaseUser.getIdToken();
-      
+
       // Register user with Strapi and send name/age
       try {
         const response = await fetch(`${STRAPI_URL}/api/auth/firebase`, {
@@ -73,10 +78,10 @@ export default function RegisterScreen() {
         });
 
         const data = await response.json();
-        
+
         if (response.ok) {
           console.log('Successfully registered with Strapi:', data);
-          
+
           // Store all user data
           await AsyncStorage.setItem('strapiToken', data.jwt);
           await AsyncStorage.setItem('strapiUserId', data.user.id.toString());
@@ -84,7 +89,7 @@ export default function RegisterScreen() {
           await AsyncStorage.setItem('userEmail', data.user.email);
           await AsyncStorage.setItem('userName', name);
           await AsyncStorage.setItem('userAge', age);
-          
+
           console.log('User data saved:', {
             strapiUserId: data.user.id,
             firebaseUID: firebaseUser.uid,
@@ -102,21 +107,21 @@ export default function RegisterScreen() {
         await deleteUser(firebaseUser);
         throw new Error('Account creation failed. Please try again.');
       }
-      
+
       setAlertConfig({
         title: 'Succes',
         message: 'Account succesvol aangemaakt!',
         type: 'success',
       });
       setAlertVisible(true);
-      
+
       // Navigate after a brief delay to show the success message
       setTimeout(() => {
         router.replace('/(tabs)');
       }, 1500);
     } catch (e: any) {
       let errorMessage = e.message;
-      
+
       // Translate common Firebase errors to Dutch
       if (e.code === 'auth/email-already-in-use') {
         errorMessage = 'Dit e-mailadres is al in gebruik';
@@ -125,7 +130,7 @@ export default function RegisterScreen() {
       } else if (e.code === 'auth/weak-password') {
         errorMessage = 'Wachtwoord is te zwak';
       }
-      
+
       setError(errorMessage);
       setAlertConfig({
         title: 'Registratie fout',
@@ -145,45 +150,42 @@ export default function RegisterScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Account Aanmaken</Text>
-      <Text style={styles.subtitle}>Maak een account om te beginnen</Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>Registreer en spaar stickers om beloningen te winnen!</Text>
+        <Image source={PinkSmiley} style={styles.pinkSmileyImage} resizeMode="contain" />
+      </View>
 
       <View style={styles.inputContainer}>
+        <Text style={styles.label}>Naam</Text>
         <TextInput
-          placeholder="Naam"
-          placeholderTextColor="#999"
           value={name}
           onChangeText={setName}
           style={styles.input}
         />
+        <Text style={styles.label}>Leeftijd</Text>
         <TextInput
-          placeholder="Leeftijd"
-          placeholderTextColor="#999"
           value={age}
           onChangeText={setAge}
           keyboardType="numeric"
           style={styles.input}
         />
+        <Text style={styles.label}>Email</Text>
         <TextInput
-          placeholder="Email"
-          placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           style={styles.input}
         />
+        <Text style={styles.label}>Wachtwoord</Text>
         <TextInput
-          placeholder="Wachtwoord"
-          placeholderTextColor="#999"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
           style={styles.input}
         />
+        <Text style={styles.label}>Bevestig wachtwoord</Text>
         <TextInput
-          placeholder="Bevestig wachtwoord"
-          placeholderTextColor="#999"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
@@ -193,8 +195,8 @@ export default function RegisterScreen() {
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      <TouchableOpacity 
-        style={[styles.registerButton, loading && styles.disabledButton]} 
+      <TouchableOpacity
+        style={[styles.registerButton, loading && styles.disabledButton]}
         onPress={handleRegister}
         disabled={loading}
       >
@@ -205,9 +207,15 @@ export default function RegisterScreen() {
 
       <TouchableOpacity onPress={handleLogin} style={styles.loginLink}>
         <Text style={styles.loginText}>
-          Heb je al een account? <Text style={styles.loginTextBold}>Login hier</Text>
+          Wel al een account? <Text style={styles.loginTextBold}>Login hier!</Text>
         </Text>
       </TouchableOpacity>
+
+      <View style={styles.footer}>
+        <Image source={Footer1} style={styles.footerImageSmall} resizeMode="contain" />
+        <Image source={Footer2} style={styles.footerImageLarge} resizeMode="contain" />
+        <Image source={Footer3} style={styles.footerImageSmall} resizeMode="contain" />
+      </View>
 
       <CustomAlert
         visible={alertVisible}
@@ -228,27 +236,40 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     padding: scale(20),
   },
+  titleContainer: {
+    position: 'relative',
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: verticalScale(45),
+  },
   title: {
-    fontSize: moderateScale(32),
+    fontSize: moderateScale(28),
     fontFamily: 'Impact',
     color: '#fff',
-    marginBottom: verticalScale(10),
     textAlign: 'center',
+    zIndex: 1,
   },
-  subtitle: {
-    fontSize: moderateScale(16),
-    color: '#999',
-    marginBottom: verticalScale(40),
-    textAlign: 'center',
+  pinkSmileyImage: {
+    position: 'absolute',
+    right: scale(-10),
+    top: verticalScale(25),
+    width: moderateScale(100),
+    height: moderateScale(100),
+    zIndex: 0,
   },
   inputContainer: {
     width: '100%',
-    marginBottom: verticalScale(20),
+    marginBottom: verticalScale(15),
+  },
+  label: {
+    fontSize: moderateScale(16),
+    color: '#fff',
+    fontFamily: 'LeagueSpartan-regular',
+    marginBottom: verticalScale(8),
+    marginLeft: scale(5),
   },
   input: {
     backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: '#333',
     borderRadius: moderateScale(10),
     padding: moderateScale(15),
     marginBottom: verticalScale(15),
@@ -274,13 +295,13 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   registerButtonText: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(18),
-    fontFamily: 'Impact',
+    fontFamily: 'LeagueSpartan-semibold',
     fontWeight: 'bold',
   },
   loginLink: {
-    marginTop: verticalScale(10),
+    marginTop: verticalScale(0),
   },
   loginText: {
     color: '#999',
@@ -289,5 +310,26 @@ const styles = StyleSheet.create({
   loginTextBold: {
     color: '#1AF7A2',
     fontWeight: 'bold',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+    gap: scale(20),
+  },
+  footerImageSmall: {
+    width: moderateScale(20),
+    height: moderateScale(35),
+  },
+  footerImageLarge: {
+    width: moderateScale(65),
+    height: moderateScale(65),
   },
 });

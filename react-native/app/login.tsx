@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from '@/components/CustomAlert';
 import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
+
+import Footer1 from '../assets/icons/footer1.png';
+import Footer2 from '../assets/icons/footer2.png';
+import Footer3 from '../assets/icons/footer3.png';
+import Wink from '../assets/images/wink.png';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
@@ -31,14 +36,14 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     setError('');
     setLoading(true);
-    
+
     try {
       // Sign in with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
+
       // Get the Firebase ID token
       const idToken = await userCredential.user.getIdToken();
-      
+
       // Send the ID token to Strapi
       try {
         const response = await fetch(`${STRAPI_URL}/api/auth/firebase`, {
@@ -52,20 +57,20 @@ export default function LoginScreen() {
         });
 
         const data = await response.json();
-        
+
         if (response.ok) {
           console.log('Successfully authenticated with Strapi:', data);
-          
+
           // Store Strapi authentication data
           await AsyncStorage.setItem('strapiToken', data.jwt);
           await AsyncStorage.setItem('strapiUserId', data.user.id.toString());
           await AsyncStorage.setItem('firebaseUID', userCredential.user.uid);
           await AsyncStorage.setItem('userEmail', data.user.email);
-          
+
           // Verify the data was saved
           const savedToken = await AsyncStorage.getItem('strapiToken');
           const savedUserId = await AsyncStorage.getItem('strapiUserId');
-          
+
           console.log('✅ User data saved to AsyncStorage:', {
             strapiUserId: data.user.id,
             firebaseUID: userCredential.user.uid,
@@ -85,17 +90,17 @@ export default function LoginScreen() {
         await AsyncStorage.setItem('userEmail', userCredential.user.email || '');
         console.log('⚠️ Saved Firebase data locally, but Strapi sync failed');
       }
-      
+
       // Reload unlocked artworks with the new token
       await reloadUnlockedArtworks();
-      
+
       setAlertConfig({
         title: 'Success',
         message: 'Logged in successfully!',
         type: 'success',
       });
       setAlertVisible(true);
-      
+
       // Navigate after a brief delay to show the success message
       setTimeout(() => {
         router.replace('/(tabs)');
@@ -120,22 +125,24 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welkom Terug!</Text>
-      <Text style={styles.subtitle}>Log in om verder te gaan</Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>Login om stickers te sparen</Text>
+        <Text style={styles.subtitle}>Loop geen{'\n'}beloningen kwijt!</Text>
+      </View>
+
+      <Image source={Wink} style={styles.winkImage} resizeMode="contain" />
 
       <View style={styles.inputContainer}>
+        <Text style={styles.label}>Email</Text>
         <TextInput
-          placeholder="Email"
-          placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           style={styles.input}
         />
+        <Text style={styles.label}>Wachtwoord</Text>
         <TextInput
-          placeholder="Wachtwoord"
-          placeholderTextColor="#999"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -143,8 +150,8 @@ export default function LoginScreen() {
         />
       </View>
 
-      <TouchableOpacity 
-        style={[styles.loginButton, loading && styles.disabledButton]} 
+      <TouchableOpacity
+        style={[styles.loginButton, loading && styles.disabledButton]}
         onPress={handleLogin}
         disabled={loading}
       >
@@ -155,9 +162,15 @@ export default function LoginScreen() {
 
       <TouchableOpacity onPress={handleRegister} style={styles.registerLink}>
         <Text style={styles.registerText}>
-          Nog geen account? <Text style={styles.registerTextBold}>Registreer hier</Text>
+          Nog geen account? <Text style={styles.registerTextBold}>Registreer hier!</Text>
         </Text>
       </TouchableOpacity>
+
+      <View style={styles.footer}>
+        <Image source={Footer1} style={styles.footerImageSmall} resizeMode="contain" />
+        <Image source={Footer2} style={styles.footerImageLarge} resizeMode="contain" />
+        <Image source={Footer3} style={styles.footerImageSmall} resizeMode="contain" />
+      </View>
 
       <CustomAlert
         visible={alertVisible}
@@ -178,27 +191,46 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     padding: scale(20),
   },
+  titleContainer: {
+    position: 'relative',
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: verticalScale(45),
+  },
   title: {
-    fontSize: moderateScale(32),
+    fontSize: moderateScale(28),
     fontFamily: 'Impact',
     color: '#fff',
     marginBottom: verticalScale(10),
     textAlign: 'center',
+    width: '100%',
+    paddingHorizontal: scale(20),
   },
   subtitle: {
-    fontSize: moderateScale(16),
-    color: '#999',
-    marginBottom: verticalScale(40),
+    fontSize: moderateScale(20),
+    color: '#fff',
+    marginBottom: verticalScale(0),
     textAlign: 'center',
+    fontFamily: "LeagueSpartan-regular",
+  },
+  winkImage: {
+    width: moderateScale(220),
+    height: moderateScale(220),
+    marginBottom: verticalScale(0),
   },
   inputContainer: {
     width: '100%',
-    marginBottom: verticalScale(20),
+    marginBottom: verticalScale(15),
+  },
+  label: {
+    fontSize: moderateScale(16),
+    color: '#fff',
+    fontFamily: 'LeagueSpartan-regular',
+    marginBottom: verticalScale(8),
+    marginLeft: scale(5),
   },
   input: {
     backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: '#333',
     borderRadius: moderateScale(10),
     padding: moderateScale(15),
     marginBottom: verticalScale(15),
@@ -226,11 +258,11 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(18),
-    fontFamily: 'Impact',
+    fontFamily: 'LeagueSpartan-semibold',
     fontWeight: 'bold',
   },
   registerLink: {
-    marginTop: verticalScale(10),
+    marginTop: verticalScale(0),
   },
   registerText: {
     color: '#999',
@@ -239,5 +271,26 @@ const styles = StyleSheet.create({
   registerTextBold: {
     color: '#1AF7A2',
     fontWeight: 'bold',
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+    gap: scale(20),
+  },
+  footerImageSmall: {
+    width: moderateScale(20),
+    height: moderateScale(35),
+  },
+  footerImageLarge: {
+    width: moderateScale(65),
+    height: moderateScale(65),
   },
 });
