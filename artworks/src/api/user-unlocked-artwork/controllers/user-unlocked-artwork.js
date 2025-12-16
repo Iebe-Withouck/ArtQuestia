@@ -64,15 +64,23 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
         populate: ['artwork', 'users_permissions_user'],
       });
 
-      strapi.log.info('Entry created successfully:', { 
+      strapi.log.info('Entry created successfully:', {
         documentId: entry.documentId,
         id: entry.id,
         userId: entry.users_permissions_user?.id,
         artworkId: entry.artwork?.id,
         publishedAt: entry.publishedAt,
+        users_permissions_user: entry.users_permissions_user,
         fullEntry: JSON.stringify(entry)
       });
-      
+
+      // Extra log: check if user relation is present
+      if (!entry.users_permissions_user) {
+        strapi.log.error('❌ users_permissions_user relation is missing in created entry!', { entry });
+      } else {
+        strapi.log.info('✅ users_permissions_user relation is present:', { user: entry.users_permissions_user });
+      }
+
       return ctx.send({ data: entry });
     } catch (error) {
       strapi.log.error('Error creating unlock entry:', error);
