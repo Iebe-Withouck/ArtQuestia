@@ -40,26 +40,26 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
 
     // Create the unlocked artwork entry with the authenticated user
     try {
-      // Use entityService with proper relation format
+      // First verify the artwork exists
+      const artworkExists = await strapi.entityService.findOne('api::artwork.artwork', artwork);
+      if (!artworkExists) {
+        strapi.log.error('Artwork not found:', artwork);
+        return ctx.badRequest('Artwork not found');
+      }
+
+      strapi.log.info('Creating entry with:', { userId: user.id, artworkId: artwork });
+
+      // Use entityService with direct ID assignment for Strapi v5
       const entry = await strapi.entityService.create('api::user-unlocked-artwork.user-unlocked-artwork', {
         data: {
-          users_permissions_user: {
-            id: user.id
-          },
-          artwork: {
-            id: artwork
-          },
+          users_permissions_user: user.id,
+          artwork: artwork,
           unlockedAt: unlockedAt || new Date().toISOString(),
           publishedAt: new Date().toISOString(),
         },
       });
 
-      strapi.log.info('Artwork unlocked successfully:', { 
-        userId: user.id, 
-        artworkId: artwork, 
-        entryId: entry.id,
-        entryData: entry 
-      });
+      strapi.log.info('Entry created, ID:', entry.id);
       
       // Fetch the created entry with populated relations to return
       const populatedEntry = await strapi.entityService.findOne(

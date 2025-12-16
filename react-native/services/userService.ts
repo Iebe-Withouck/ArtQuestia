@@ -169,7 +169,7 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     console.log('🔐 Token validation test:', testResponse.status, testResponse.ok);
     
     const response = await fetch(
-      `${STRAPI_URL}/api/user-unlocked-artworks?populate=*`,
+      `${STRAPI_URL}/api/user-unlocked-artworks?populate[users_permissions_user][fields][0]=id&populate[artwork][fields][0]=id`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
