@@ -37,7 +37,7 @@ export default function TabLayout() {
           fontWeight: focused ? '600' : '400',
           fontFamily: 'LeagueSpartan-semibold',
           textAlign: 'center',
-          marginBottom: 10,
+          marginBottom: -22,
         }}
       >
         {label}
