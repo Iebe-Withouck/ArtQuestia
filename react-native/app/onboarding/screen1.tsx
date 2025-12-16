@@ -20,7 +20,7 @@ export default function Screen1() {
   };
 
   const handleSkip = () => {
-    router.replace("/(tabs)");
+    router.replace("/login");
   };
 
   if (!fontsLoaded) {

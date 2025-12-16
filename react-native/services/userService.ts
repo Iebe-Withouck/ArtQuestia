@@ -105,8 +105,17 @@ export const unlockArtwork = async (artworkId: number): Promise<boolean> => {
       return false;
     }
 
-    console.log('📤 Sending unlock request with token:', token.substring(0, 20) + '...');
+    // First check if already unlocked
+    const alreadyUnlocked = await isArtworkUnlocked(artworkId);
+    if (alreadyUnlocked) {
+      console.log('✅ Artwork already unlocked:', artworkId);
+      return true;
+    }
+
+    console.log('📤 Creating unlock entry via Strapi admin API');
     
+    // Use the same format that works when fetching - just create the entry
+    // and let Strapi's permissions handle the user assignment
     const response = await fetch(`${STRAPI_URL}/api/user-unlocked-artworks`, {
       method: 'POST',
       headers: {
@@ -115,20 +124,20 @@ export const unlockArtwork = async (artworkId: number): Promise<boolean> => {
       },
       body: JSON.stringify({
         data: {
-          user: userId,
           artwork: artworkId,
           unlockedAt: new Date().toISOString(),
+          publishedAt: new Date().toISOString(),
         },
       }),
     });
 
     if (response.ok) {
       const data = await response.json();
-      console.log('Artwork unlocked successfully:', data);
+      console.log('✅ Artwork unlocked successfully:', data);
       return true;
     } else {
       const error = await response.json();
-      console.error('Failed to unlock artwork:', error);
+      console.error('❌ Failed to unlock artwork:', error);
       return false;
     }
   } catch (error) {
@@ -160,7 +169,7 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     console.log('🔐 Token validation test:', testResponse.status, testResponse.ok);
     
     const response = await fetch(
-      `${STRAPI_URL}/api/user-unlocked-artworks?filters[user][id][$eq]=${userId}&populate=artwork`,
+      `${STRAPI_URL}/api/user-unlocked-artworks?populate=*`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -170,7 +179,7 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
 
     if (response.ok) {
       const data = await response.json();
-      const unlockedArtworkIds = data.data.map((item: any) => item.attributes.artwork?.data?.id).filter(Boolean);
+      const unlockedArtworkIds = data.data.map((item: any) => item.artwork?.id).filter(Boolean);
       console.log('✅ Unlocked artworks fetched:', unlockedArtworkIds);
       return unlockedArtworkIds;
     } else {
