@@ -168,31 +168,46 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
     });
     console.log('🔐 Token validation test:', testResponse.status, testResponse.ok);
     
-    // Fetch only PUBLISHED unlocked artworks for the current user
-    const response = await fetch(
-      `${STRAPI_URL}/api/user-unlocked-artworks?` + 
-      `filters[users_permissions_user][id][$eq]=${userId}&` +
+    // Fetch only PUBLISHED unlocked artworks with full population
+    const queryUrl = `${STRAPI_URL}/api/user-unlocked-artworks?` + 
       `filters[publishedAt][$notNull]=true&` +
-      `populate[users_permissions_user][fields][0]=id&` +
-      `populate[artwork][fields][0]=id`,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      }
-    );
+      `populate=users_permissions_user&` +
+      `populate=artwork`;
+    
+    console.log('🔍 Query URL:', queryUrl);
+    
+    const response = await fetch(queryUrl, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    console.log('📡 Response status:', response.status);
 
     if (response.ok) {
       const data = await response.json();
-      console.log('📦 Published unlocked artworks for user:', userId);
+      console.log('📦 All published unlocked artworks');
       console.log('Total published entries:', data.data.length);
+      console.log('📄 Full response data:', JSON.stringify(data, null, 2));
       
-      // Extract artwork IDs from the published entries
+      // Filter by current user ID and extract artwork IDs
       const artworkIds = data.data
-        .filter((item: any) => item.artwork?.id) // Only include entries with artwork
+        .filter((item: any) => {
+          const matchesUser = item.users_permissions_user?.id === parseInt(userId);
+          const hasArtwork = !!item.artwork?.id;
+          console.log('Processing item:', {
+            id: item.id,
+            itemUserId: item.users_permissions_user?.id,
+            currentUserId: parseInt(userId),
+            matchesUser,
+            hasArtwork,
+            artworkId: item.artwork?.id
+          });
+          return matchesUser && hasArtwork;
+        })
         .map((item: any) => item.artwork.id);
       
-      console.log('✅ Unlocked artwork IDs:', artworkIds);
+      console.log('✅ Unlocked artwork IDs for user', userId, ':', artworkIds);
       return artworkIds;
     } else {
       const errorData = await response.json();

@@ -53,11 +53,11 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
       strapi.log.info('Creating entry with:', { userId: user.id, artworkId: artwork, artworkExists: !!artworkExists });
 
       // Use entityService.create which properly handles draft/publish
-      // For manyToOne relations, just pass the ID directly
+      // For manyToOne relations, set as object with id property
       const entry = await strapi.entityService.create('api::user-unlocked-artwork.user-unlocked-artwork', {
         data: {
-          users_permissions_user: user.id,
-          artwork: artwork,
+          users_permissions_user: { id: user.id },
+          artwork: { id: artwork },
           unlockedAt: unlockedAt || new Date().toISOString(),
           publishedAt: new Date().toISOString(),
         },
