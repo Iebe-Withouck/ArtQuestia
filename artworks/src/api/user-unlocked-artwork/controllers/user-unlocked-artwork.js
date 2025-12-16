@@ -40,19 +40,37 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
 
     // Create the unlocked artwork entry with the authenticated user
     try {
-      const entry = await strapi.db.query('api::user-unlocked-artwork.user-unlocked-artwork').create({
+      // Use entityService with proper relation format
+      const entry = await strapi.entityService.create('api::user-unlocked-artwork.user-unlocked-artwork', {
         data: {
-          users_permissions_user: user.id,
-          artwork: artwork,
+          users_permissions_user: {
+            id: user.id
+          },
+          artwork: {
+            id: artwork
+          },
           unlockedAt: unlockedAt || new Date().toISOString(),
           publishedAt: new Date().toISOString(),
         },
-        populate: ['artwork', 'users_permissions_user'],
       });
 
-      strapi.log.info('Artwork unlocked successfully:', { userId: user.id, artworkId: artwork, entryId: entry.id, entry });
+      strapi.log.info('Artwork unlocked successfully:', { 
+        userId: user.id, 
+        artworkId: artwork, 
+        entryId: entry.id,
+        entryData: entry 
+      });
       
-      return ctx.send({ data: entry });
+      // Fetch the created entry with populated relations to return
+      const populatedEntry = await strapi.entityService.findOne(
+        'api::user-unlocked-artwork.user-unlocked-artwork',
+        entry.id,
+        {
+          populate: ['artwork', 'users_permissions_user'],
+        }
+      );
+      
+      return ctx.send({ data: populatedEntry });
     } catch (error) {
       strapi.log.error('Error creating unlock entry:', error);
       return ctx.badRequest('Failed to unlock artwork: ' + error.message);
