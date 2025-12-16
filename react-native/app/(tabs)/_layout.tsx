@@ -33,7 +33,7 @@ export default function TabLayout() {
       <Text
         style={{
           color: focused ? '#FFFFFF' : '#999999',
-          fontSize: 9,
+          fontSize: 8,
           fontWeight: focused ? '600' : '400',
           fontFamily: 'LeagueSpartan-semibold',
           textAlign: 'center',
