@@ -18,6 +18,8 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
     // Get artwork ID from request body
     const { artwork, unlockedAt } = ctx.request.body.data;
 
+    strapi.log.info('Creating unlock entry:', { userId: user.id, artworkId: artwork, body: ctx.request.body });
+
     if (!artwork) {
       return ctx.badRequest('Artwork ID is required');
     }
@@ -28,6 +30,7 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
         users_permissions_user: user.id,
         artwork: artwork,
       },
+      populate: ['artwork', 'users_permissions_user'],
     });
 
     if (existing && existing.length > 0) {
@@ -36,17 +39,24 @@ module.exports = createCoreController('api::user-unlocked-artwork.user-unlocked-
     }
 
     // Create the unlocked artwork entry with the authenticated user
-    const entry = await strapi.entityService.create('api::user-unlocked-artwork.user-unlocked-artwork', {
-      data: {
-        users_permissions_user: user.id,
-        artwork: artwork,
-        unlockedAt: unlockedAt || new Date().toISOString(),
-        publishedAt: new Date().toISOString(),
-      },
-    });
+    try {
+      const entry = await strapi.db.query('api::user-unlocked-artwork.user-unlocked-artwork').create({
+        data: {
+          users_permissions_user: user.id,
+          artwork: artwork,
+          unlockedAt: unlockedAt || new Date().toISOString(),
+          publishedAt: new Date().toISOString(),
+        },
+        populate: ['artwork', 'users_permissions_user'],
+      });
 
-    strapi.log.info('Artwork unlocked:', { userId: user.id, artworkId: artwork, entryId: entry.id });
+      strapi.log.info('Artwork unlocked successfully:', { userId: user.id, artworkId: artwork, entryId: entry.id, entry });
+      
+      return ctx.send({ data: entry });
+    } catch (error) {
+      strapi.log.error('Error creating unlock entry:', error);
+      return ctx.badRequest('Failed to unlock artwork: ' + error.message);
+    }
 
-    return ctx.send({ data: entry });
   },
 }));

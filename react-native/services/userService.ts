@@ -179,8 +179,19 @@ export const getUnlockedArtworks = async (): Promise<number[]> => {
 
     if (response.ok) {
       const data = await response.json();
-      const unlockedArtworkIds = data.data.map((item: any) => item.artwork?.id).filter(Boolean);
-      console.log('✅ Unlocked artworks fetched:', unlockedArtworkIds);
+      console.log('📦 All unlocked artworks:', JSON.stringify(data.data, null, 2));
+      
+      // Filter to only include artworks unlocked by the current user
+      const unlockedArtworkIds = data.data
+        .filter((item: any) => {
+          const itemUserId = item.users_permissions_user?.id;
+          console.log('🔍 Checking item - User ID:', itemUserId, 'vs Current User:', userId, 'Artwork:', item.artwork?.id);
+          return String(itemUserId) === String(userId);
+        })
+        .map((item: any) => item.artwork?.id)
+        .filter(Boolean);
+      
+      console.log('✅ Unlocked artworks for user', userId, ':', unlockedArtworkIds);
       return unlockedArtworkIds;
     } else {
       const errorData = await response.json();
