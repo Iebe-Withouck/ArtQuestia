@@ -239,6 +239,10 @@ export default function SettingsScreen() {
           Dichtstbijzijnde kunstwerken
         </ThemedText>
 
+        <ThemedText style={[styles.instructionText]}>
+          Swipe om ze allemaal te zien
+        </ThemedText>
+
         {(() => {
           if (!userLocation) {
             return (
@@ -379,6 +383,11 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(15),
     color: '#fff',
   },
+  instructionText: {
+    fontSize: moderateScale(14),
+    marginTop: verticalScale(6),
+    color: '#979797da',
+  },
   title: {
     marginTop: verticalScale(40),
     fontFamily: 'Impact',
@@ -507,6 +516,6 @@ const styles = StyleSheet.create({
     fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
     margin: -10,
-    lineHeight: moderateScale(16),
+    lineHeight: moderateScale(20),
   },
 });
