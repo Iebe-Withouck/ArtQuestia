@@ -131,6 +131,49 @@ export default function SettingsScreen() {
     }
   };
 
+  // Get themes that user has unlocked artworks for
+  const getActiveThemes = () => {
+    if (!artworks || artworks.length === 0 || !claimedStickers || claimedStickers.length === 0) {
+      return [];
+    }
+
+    // Map artwork theme names to Strapi theme names
+    // Artworks use: "Oorlog", "Moderne Kunst", etc.
+    // Strapi Themes use: "Oorlogmonumenten", "Moderne Kunst", etc.
+    const themeNameMap: { [key: string]: string } = {
+      'Oorlog': 'Oorlogmonumenten',
+      'Moderne Kunst': 'Moderne Kunst',
+      'Historie': 'Historie',
+      'Religie': 'Religie',
+      'ZieMie': 'ZieMie'
+    };
+
+    // Get all artworks that are claimed
+    const claimedArtworks = artworks.filter(artwork => claimedStickers.includes(artwork.id));
+
+    // Extract unique themes from claimed artworks and map to Strapi theme names
+    const activeThemeNames = new Set(
+      claimedArtworks
+        .map(artwork => {
+          const artworkTheme = artwork.attributes?.Theme || artwork.Theme;
+          // Map artwork theme to Strapi theme name
+          return themeNameMap[artworkTheme] || artworkTheme;
+        })
+        .filter(theme => theme)
+    );
+
+    // Filter availableThemes to only include active themes
+    return availableThemes.filter(theme => activeThemeNames.has(theme.name));
+  };
+
+  // Auto-populate themaRoutes with themes that have unlocked artworks
+  useEffect(() => {
+    if (artworks.length > 0 && availableThemes.length > 0 && claimedStickers.length > 0) {
+      const activeThemes = getActiveThemes();
+      setThemaRoutes(activeThemes);
+    }
+  }, [artworks, availableThemes, claimedStickers]);
+
   const fetchThemes = async () => {
     try {
       const response = await fetch(`${STRAPI_URL}/api/themes?populate=*`);
@@ -148,8 +191,6 @@ export default function SettingsScreen() {
           image: theme.Image?.[0]?.url || null
         }));
         setAvailableThemes(themesData);
-        setThemaRoutes(themesData.slice(0, 2));
-        console.log('Themes loaded:', themesData.length);
       }
     } catch (error) {
       console.error('Error fetching themes:', error);
@@ -239,19 +280,27 @@ export default function SettingsScreen() {
     setModalVisible(true);
   };
 
-  const currentStickers = selectedTheme === 'Alle'
+  // Filter by theme first
+  const themeFilteredStickers = selectedTheme === 'Alle'
     ? artworks
     : artworks.filter(artwork => {
       const theme = artwork.attributes?.Theme || artwork.Theme;
-      console.log('Filtering - Artwork:', JSON.stringify(artwork, null, 2));
-      console.log('Filtering - Theme value:', `"${theme}"`, 'Type:', typeof theme);
-      console.log('Filtering - Selected:', `"${selectedTheme}"`, 'Type:', typeof selectedTheme);
-      console.log('Filtering - Match:', theme === selectedTheme);
       return theme === selectedTheme;
     });
 
-  console.log('Total artworks:', artworks.length);
-  console.log('Current stickers count:', currentStickers.length, 'Selected theme:', selectedTheme);
+  // Then filter by sticker type (Alle/Gevonden/Verborgen)
+  const currentStickers = (() => {
+    if (selectedStickerType === 'Alle stickers') {
+      return themeFilteredStickers;
+    } else if (selectedStickerType === 'Gevonden stickers') {
+      // Only show claimed stickers
+      return themeFilteredStickers.filter(artwork => claimedStickers.includes(artwork.id));
+    } else if (selectedStickerType === 'Verborgen stickers') {
+      // Only show unclaimed stickers
+      return themeFilteredStickers.filter(artwork => !claimedStickers.includes(artwork.id));
+    }
+    return themeFilteredStickers;
+  })();
 
   if (!fontsLoaded || loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;

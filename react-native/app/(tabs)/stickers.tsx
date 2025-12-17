@@ -34,8 +34,9 @@ import Icon4 from '../../assets/prestaties/4.png';
 import Icon7 from '../../assets/prestaties/7.png';
 import Icon120 from '../../assets/prestaties/120.png';
 import Icon55 from '../../assets/prestaties/55.png';
-import Route from '../../assets/icons/themaRouteIcon.png';
 import Cross from '../../assets/icons/cross.png';
+import Flag from '../../assets/icons/flag.png';
+import Running from '../../assets/icons/running.png';
 
 export default function SettingsScreen() {
   const [fontsLoaded] = useFonts({
@@ -257,6 +258,9 @@ export default function SettingsScreen() {
 
   // Calculate percentage for a specific theme
   const getThemePercentage = (theme: string): number => {
+    // Return 0 if artworks haven't loaded yet
+    if (!artworks || artworks.length === 0) return 0;
+
     const themeArtworks = artworks.filter(artwork => {
       const artworkTheme = artwork.attributes?.Theme || artwork.Theme;
       return artworkTheme === theme;
@@ -308,19 +312,27 @@ export default function SettingsScreen() {
     setModalVisible(true);
   };
 
-  const currentStickers = selectedTheme === 'Alle'
+  // Filter by theme first
+  const themeFilteredStickers = selectedTheme === 'Alle'
     ? artworks
     : artworks.filter(artwork => {
       const theme = artwork.attributes?.Theme || artwork.Theme;
-      console.log('Filtering - Artwork:', JSON.stringify(artwork, null, 2));
-      console.log('Filtering - Theme value:', `"${theme}"`, 'Type:', typeof theme);
-      console.log('Filtering - Selected:', `"${selectedTheme}"`, 'Type:', typeof selectedTheme);
-      console.log('Filtering - Match:', theme === selectedTheme);
       return theme === selectedTheme;
     });
 
-  console.log('Total artworks:', artworks.length);
-  console.log('Current stickers count:', currentStickers.length, 'Selected theme:', selectedTheme);
+  // Then filter by sticker type (Alle/Gevonden/Verborgen)
+  const currentStickers = (() => {
+    if (selectedStickerType === 'Alle stickers') {
+      return themeFilteredStickers;
+    } else if (selectedStickerType === 'Gevonden stickers') {
+      // Only show claimed stickers
+      return themeFilteredStickers.filter(artwork => claimedStickers.includes(artwork.id));
+    } else if (selectedStickerType === 'Verborgen stickers') {
+      // Only show unclaimed stickers
+      return themeFilteredStickers.filter(artwork => !claimedStickers.includes(artwork.id));
+    }
+    return themeFilteredStickers;
+  })();
 
   if (!fontsLoaded || loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
@@ -357,7 +369,6 @@ export default function SettingsScreen() {
         </ThemedText>
 
         {/* Theme Badges */}
-        {console.log('🎨 Rendering badges. ThemeData length:', themeData.length)}
         {themeData.length > 0 && (
           <ScrollView
             horizontal
@@ -366,20 +377,20 @@ export default function SettingsScreen() {
             contentContainerStyle={styles.badgesContent}
           >
             {Object.entries(calculateThemeBadges()).map(([theme, status]) => (
-            <View key={theme} style={styles.badgeItem}>
-              {status.imageUrl ? (
-                <Image
-                  source={{ uri: status.imageUrl }}
-                  style={styles.badgeImage}
-                  resizeMode="contain"
-                />
-              ) : (
-                <View style={styles.badgePlaceholder}>
-                  <ThemedText style={styles.badgePlaceholderText}>?</ThemedText>
-                </View>
-              )}
-            </View>
-          ))}
+              <View key={theme} style={styles.badgeItem}>
+                {status.imageUrl ? (
+                  <Image
+                    source={{ uri: status.imageUrl }}
+                    style={styles.badgeImage}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <View style={styles.badgePlaceholder}>
+                    <ThemedText style={styles.badgePlaceholderText}>?</ThemedText>
+                  </View>
+                )}
+              </View>
+            ))}
           </ScrollView>
         )}
 
@@ -410,16 +421,36 @@ export default function SettingsScreen() {
                 style={styles.dropdownItem}
                 onPress={() => handleThemeQuestSelect(theme)}
               >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                  <ThemedText style={styles.dropdownText}>{theme}</ThemedText>
-                  <ThemedText style={styles.dropdownText}>{getThemePercentage(theme)}%</ThemedText>
-                </View>
+                <ThemedText style={styles.dropdownText}>{theme}</ThemedText>
               </TouchableOpacity>
             ))}
           </View>
         )}
 
-        <Image source={Route} style={styles.themaRouteIcon} />
+        {/* Progress Bar */}
+        <View style={styles.progressBarContainer}>
+          {/* Running icon that moves with progress */}
+          <Image
+            source={Running}
+            style={[
+              styles.runningIcon,
+              { left: `${getThemePercentage(selectedThemeQuest)}%` }
+            ]}
+          />
+          <View style={styles.progressBarBackground}>
+            <View
+              style={[
+                styles.progressBarFill,
+                { width: `${getThemePercentage(selectedThemeQuest)}%` }
+              ]}
+            />
+          </View>
+          {/* Flag icon at the end */}
+          <Image
+            source={Flag}
+            style={styles.flagIcon}
+          />
+        </View>
 
 
         <ThemedText style={[styles.stickersTitle]}>
@@ -987,5 +1018,39 @@ const styles = StyleSheet.create({
     width: scale(90),
     height: scale(90),
     borderRadius: moderateScale(45),
+  },
+  // Progress bar styles
+  progressBarContainer: {
+    marginTop: verticalScale(35),
+    marginBottom: verticalScale(20),
+    position: 'relative',
+  },
+  progressBarBackground: {
+    width: '100%',
+    height: verticalScale(12),
+    backgroundColor: '#fff',
+    borderRadius: moderateScale(6),
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#1AF7A2',
+    borderRadius: moderateScale(6),
+  },
+  runningIcon: {
+    position: 'absolute',
+    width: moderateScale(30),
+    height: moderateScale(30),
+    top: verticalScale(-35),
+    marginLeft: -moderateScale(15), // Center the icon on the percentage point
+    resizeMode: 'contain',
+  },
+  flagIcon: {
+    position: 'absolute',
+    width: moderateScale(25),
+    height: moderateScale(25),
+    top: verticalScale(-32),
+    right: -moderateScale(12),
+    resizeMode: 'contain',
   },
 });
