@@ -40,8 +40,8 @@ export default function Completed() {
   return (
     <View style={styles.container}>
       {/* Header Text */}
-      <Text style={styles.headerText}>{themeName} quest voltooid</Text>
-      <Text style={styles.subHeaderText}>Ultieme Badge ontvangen!</Text>
+      <Text style={[styles.headerText, { fontFamily: 'Impact' }]}>{themeName} quest voltooid</Text>
+      <Text style={[styles.subHeaderText, { fontFamily: 'LeagueSpartan-regular' }]}>Ultieme Badge ontvangen!</Text>
 
       {/* Badge Image */}
       <View style={styles.badgeContainer}>
@@ -61,8 +61,8 @@ export default function Completed() {
       </View>
 
       {/* Quest Title */}
-      <Text style={styles.questTitle}>{themeName} quest</Text>
-      <Text style={styles.questProgress}>{progress}% compleet</Text>
+      <Text style={[styles.questTitle, { fontFamily: 'Impact' }]}>{themeName} quest</Text>
+      <Text style={[styles.questProgress, { fontFamily: 'LeagueSpartan-regular' }]}>{progress}% compleet</Text>
 
       {/* Progress Bar */}
       <View style={styles.progressBarContainer}>
@@ -91,11 +91,11 @@ export default function Completed() {
 
       {/* Buttons */}
       <TouchableOpacity style={styles.levelUpButton} onPress={handleCompleted}>
-        <Text style={styles.levelUpButtonText}>Scoor je beloning</Text>
+        <Text style={[styles.levelUpButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>Scoor je beloning</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-        <Text style={styles.shareButtonText}>Deel je ervaring!</Text>
+        <Text style={[styles.shareButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>Deel je ervaring!</Text>
       </TouchableOpacity>
     </View>
   );

@@ -35,8 +35,8 @@ export default function LeveledUp() {
   return (
     <View style={styles.container}>
       {/* Header Text */}
-      <Text style={styles.headerText}>Goede vooruitgang</Text>
-      <Text style={styles.subHeaderText}>Ga zo voort!</Text>
+      <Text style={[styles.headerText, { fontFamily: 'Impact' }]}>Goede vooruitgang</Text>
+      <Text style={[styles.subHeaderText, { fontFamily: 'LeagueSpartan-regular' }]}>Ga zo voort!</Text>
 
       {/* Badge Image */}
       <View style={styles.badgeContainer}>
@@ -56,8 +56,8 @@ export default function LeveledUp() {
       </View>
 
       {/* Quest Title */}
-      <Text style={styles.questTitle}>{themeName} quest</Text>
-      <Text style={styles.questProgress}>{progress}% compleet</Text>
+      <Text style={[styles.questTitle, { fontFamily: 'Impact' }]}>{themeName} quest</Text>
+      <Text style={[styles.questProgress, { fontFamily: 'LeagueSpartan-regular' }]}>{progress}% compleet</Text>
 
       {/* Progress Bar */}
       <View style={styles.progressBarContainer}>
@@ -86,11 +86,11 @@ export default function LeveledUp() {
 
       {/* Buttons */}
       <TouchableOpacity style={styles.levelUpButton} onPress={handleLeveledUp}>
-        <Text style={styles.levelUpButtonText}>Ga naar de volgende</Text>
+        <Text style={[styles.levelUpButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>Ga naar de volgende</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-        <Text style={styles.shareButtonText}>Deel je ervaring!</Text>
+        <Text style={[styles.shareButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>Deel je ervaring!</Text>
       </TouchableOpacity>
     </View>
   );

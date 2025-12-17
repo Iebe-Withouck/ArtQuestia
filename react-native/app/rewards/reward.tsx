@@ -29,8 +29,8 @@ export default function Reward() {
   return (
     <View style={styles.container}>
       {/* Header Text */}
-      <Text style={styles.headerText}>{themeName} quest voltooid</Text>
-      <Text style={styles.subHeaderText}>
+      <Text style={[styles.headerText, { fontFamily: 'Impact' }]}>{themeName} quest voltooid</Text>
+      <Text style={[styles.subHeaderText, { fontFamily: 'LeagueSpartan-regular' }]}>
         We droppen je beloning in je mailbox,{'\n'}binnen max. 2 dagen. Enjoy!
       </Text>
 
@@ -45,7 +45,7 @@ export default function Reward() {
 
       {/* Button */}
       <TouchableOpacity style={styles.rewardButton} onPress={handleReward}>
-        <Text style={styles.rewardButtonText}>Start nieuwe quest</Text>
+        <Text style={[styles.rewardButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>Start nieuwe quest</Text>
       </TouchableOpacity>
     </View>
   );
