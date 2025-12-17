@@ -138,7 +138,7 @@ export default function Scan() {
     return (
       <View style={styles.noArtworkContainer}>
         <Text style={[styles.noArtworkTitle, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
-          Ga naar een artwork om een AR experience te starten
+          Ga naar een kunstwerk om een AR experience te starten
         </Text>
         <Image
           source={require('../../assets/images/fallbackimage.png')}

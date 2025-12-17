@@ -22,7 +22,7 @@ export default function Screen4() {
 
       <Image source={Phone} style={styles.phoneImage} />
 
-      <Text style={styles.title}>Spaar de digitale stickers en win bons voor het abby cafe en de musea shops!</Text>
+      <Text style={styles.title}>Spaar de digitale stickers en win bons voor het Abby cafe en de musea shops!</Text>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Start jouw avontuur</Text>

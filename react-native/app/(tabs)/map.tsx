@@ -428,7 +428,7 @@ export default function MapScreen() {
                                     if (remainingWaypoints.length > 0) {
                                         const nextMarker = markers.find(
                                             m => m.coordinate[0] === remainingWaypoints[0][0] &&
-                                                 m.coordinate[1] === remainingWaypoints[0][1]
+                                                m.coordinate[1] === remainingWaypoints[0][1]
                                         );
                                         if (nextMarker) {
                                             setSelectedMarker(nextMarker);
