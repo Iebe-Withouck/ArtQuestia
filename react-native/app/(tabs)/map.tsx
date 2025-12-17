@@ -1,4 +1,3 @@
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
     Camera,
     LineLayer,
@@ -418,19 +417,15 @@ export default function MapScreen() {
                         setUserCoord(coord);
 
                         if (!isManualLocationUpdate.current) {
-                            // Check if this is a multi-waypoint theme route
                             if (themeRouteWaypoints.length > 0) {
-                                // Check if user has reached the current waypoint (within 5 meters)
                                 const distanceToCurrentWaypoint = calculateDistance(coord, themeRouteWaypoints[0]);
                                 const distanceMeters = distanceToCurrentWaypoint * 1000;
 
                                 if (distanceMeters <= 5) {
-                                    // Remove the current waypoint and move to the next
                                     const remainingWaypoints = themeRouteWaypoints.slice(1);
                                     setThemeRouteWaypoints(remainingWaypoints);
 
                                     if (remainingWaypoints.length > 0) {
-                                        // Update to next artwork
                                         const nextMarker = markers.find(
                                             m => m.coordinate[0] === remainingWaypoints[0][0] &&
                                                  m.coordinate[1] === remainingWaypoints[0][1]
@@ -438,18 +433,14 @@ export default function MapScreen() {
                                         if (nextMarker) {
                                             setSelectedMarker(nextMarker);
                                         }
-                                        // Update route with remaining waypoints
                                         fetchMultiWaypointRoute([coord, ...remainingWaypoints]);
                                     } else {
-                                        // No more waypoints, end the route
                                         cancelRoute();
                                     }
                                 } else {
-                                    // Update multi-waypoint route with current location
                                     fetchMultiWaypointRoute([coord, ...themeRouteWaypoints]);
                                 }
                             } else {
-                                // Update single-destination route
                                 fetchWalkingRoute(coord, selectedMarker.coordinate);
                             }
                         }
