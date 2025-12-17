@@ -14,14 +14,11 @@ export default function CameraPermission() {
   };
 
   const handleSkip = () => {
-    // User explicitly chose to skip camera permissions
-    // No need to request permissions - just navigate
     console.log('User skipped camera permission');
     router.replace("/(tabs)");
   };
 
   const handleNext = async () => {
-    // Navigate to main app without requesting permissions
     router.replace("/(tabs)");
   };
 
@@ -29,8 +26,6 @@ export default function CameraPermission() {
     <View style={styles.container}>
 
       <Image source={Phone} style={styles.phoneImage} />
-
-      {/* Pop-up overlay */}
       <View style={styles.popupOverlay}>
         <View style={styles.popupCard}>
           <Text style={styles.popupTitle}>Toegang tot je camera is nodig voor de AR-experience</Text>

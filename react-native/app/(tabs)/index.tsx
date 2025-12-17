@@ -29,8 +29,6 @@ import Notifications from '@/components/Notifications';
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
 const { width, height } = Dimensions.get('window');
-
-// Responsive scaling functions
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
@@ -56,8 +54,6 @@ export default function SettingsScreen() {
     getUserLocation();
     fetchArtworks();
   }, []);
-
-  // Filter artworks based on search query
   useEffect(() => {
     if (searchQuery.trim() === '') {
       setFilteredArtworks([]);
@@ -88,10 +84,8 @@ export default function SettingsScreen() {
       console.error('Error getting location:', error);
     }
   };
-
-  // Calculate distance between two coordinates using Haversine formula
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371; // Radius of the Earth in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a =
@@ -134,12 +128,10 @@ export default function SettingsScreen() {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
-  // Show notifications if opened
   if (showNotifications) {
     return <Notifications onClose={() => setShowNotifications(false)} />;
   }
 
-  // Show detail view if artwork is selected
   if (selectedArtwork) {
     return <ArtworkCardDetail artwork={selectedArtwork} onClose={() => setSelectedArtwork(null)} />;
   }
@@ -174,7 +166,6 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Search results dropdown */}
         {filteredArtworks.length > 0 && (
           <View style={styles.searchResultsContainer}>
             <ScrollView
@@ -265,12 +256,10 @@ export default function SettingsScreen() {
             );
           }
 
-          // Calculate distances and sort artworks
           const artworksWithDistance = artworks
             .map(artwork => {
               const attributes = artwork.attributes || artwork;
 
-              // Location is a nested object with lat and lng properties
               const lat = attributes.Location?.lat;
               const lon = attributes.Location?.lng;
 
@@ -291,7 +280,7 @@ export default function SettingsScreen() {
               return { ...artwork, distance };
             })
             .sort((a, b) => a.distance - b.distance)
-            .slice(0, 2); // Only take the 2 closest
+            .slice(0, 2);
 
           const handleNext = (index: number) => {
             const nextIndex = (index + 1) % artworksWithDistance.length;

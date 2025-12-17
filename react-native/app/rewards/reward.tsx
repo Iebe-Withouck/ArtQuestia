@@ -14,8 +14,7 @@ export default function Reward() {
 
   const [fontsLoaded] = useFonts({
     Impact: require('../../assets/fonts/impact.ttf'),
-    'LeagueSpartan-regular': require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
-    'LeagueSpartan-semibold': require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
+    'LeagueSpartan': require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
 
   const handleReward = () => {

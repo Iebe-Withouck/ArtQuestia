@@ -30,7 +30,6 @@ import {
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
-// Mapping van kunstwerk namen naar AR scene nummers
 const ARTWORK_AR_SCENE_MAP: { [key: string]: 1 | 2 | 3 | 4 } = {
     'Monument WWII': 1,
     'Het Groeningemonument': 2,
@@ -38,7 +37,6 @@ const ARTWORK_AR_SCENE_MAP: { [key: string]: 1 | 2 | 3 | 4 } = {
     'Oorlogsmonument Bissegem': 4,
 };
 
-// Calculate distance between two coordinates using Haversine formula
 const calculateDistance = (
     coord1: [number, number],
     coord2: [number, number]
@@ -46,7 +44,7 @@ const calculateDistance = (
     const [lon1, lat1] = coord1;
     const [lon2, lat2] = coord2;
 
-    const R = 6371; // Earth's radius in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
 
@@ -60,41 +58,35 @@ const calculateDistance = (
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
 
-    return Math.round(distance * 10) / 10; // Round to 1 decimal
+    return Math.round(distance * 10) / 10;
 };
 
-// Type for markers
 type Marker = {
     id: string;
-    coordinate: [number, number]; // [longitude, latitude]
+    coordinate: [number, number];
     title: string;
     creator: string;
-    iconUrl: string; // URL to the hidden photo from Strapi
-    description?: string; // short description for the marker
-    color?: string; // Color from Strapi
-    theme?: string; // Theme from Strapi
+    iconUrl: string;
+    description?: string;
+    color?: string;
+    theme?: string;
 };
 
 export default function MapScreen() {
-    // Get route params
     const params = useLocalSearchParams();
     const router = useRouter();
     const { setSelectedArtwork } = useArtwork();
     const { claimedStickers } = useClaimedStickers();
 
-    // fallback: Kortrijk
     const center: [number, number] = [3.2649, 50.828];
 
-    // Get screen dimensions for responsive design
     const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
     const isSmallDevice = screenWidth < 375;
     const isMediumDevice = screenWidth >= 375 && screenWidth < 414;
 
-    // State for artworks from database
     const [markers, setMarkers] = useState<Marker[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Onze MapTiler style
     const maptilerKey = "mIqAbQiXcMAwOt3f0O2W";
     const styleUrl = `https://api.maptiler.com/maps/019a91f5-7a01-7170-a11e-6df34c588725/style.json?key=${maptilerKey}`;
 
@@ -118,7 +110,6 @@ export default function MapScreen() {
     const hasStartedRouteFromParams = useRef(false);
     const isManualLocationUpdate = useRef(false);
 
-    // Fetch artworks from Strapi
     const fetchArtworks = async () => {
         try {
             const response = await fetch(`${STRAPI_URL}/api/artworks?populate=*`);
@@ -133,7 +124,6 @@ export default function MapScreen() {
             if (data.data) {
                 console.log('Fetched artworks:', data.data.length);
 
-                // Transform artworks into markers
                 const transformedMarkers: Marker[] = data.data
                     .filter((artwork: any) => {
                         const attributes = artwork.attributes || artwork;
@@ -148,7 +138,6 @@ export default function MapScreen() {
                         const artworkId = artwork.id;
                         const isClaimed = claimedStickers.includes(artworkId);
 
-                        // Use Photo if claimed, otherwise use Photo_Hidden
                         const photoSource = isClaimed ? attributes.Photo : attributes.Photo_Hidden;
                         const photoData = photoSource?.data || photoSource;
                         const photoUrl = photoData?.attributes?.url || photoData?.url || (photoSource as any)?.url;
@@ -160,7 +149,6 @@ export default function MapScreen() {
                         console.log('Final Photo URL:', fullImageUrl);
                         console.log('Location:', [attributes.Location.lng, attributes.Location.lat]);
 
-                        // Get color and add # if needed
                         const color = attributes.Color
                             ? (attributes.Color.startsWith('#') ? attributes.Color : `#${attributes.Color}`)
                             : '#FF5AE5';
@@ -181,7 +169,6 @@ export default function MapScreen() {
                 console.log('Markers:', JSON.stringify(transformedMarkers, null, 2));
                 setMarkers(transformedMarkers);
 
-                // Extract unique themes from artworks
                 const uniqueThemes = [...new Set(
                     data.data
                         .map((artwork: any) => {
@@ -200,11 +187,9 @@ export default function MapScreen() {
         }
     };
 
-    // OpenRouteService
     const ORS_API_KEY =
         "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImNjNDUyZGVlMzNmMzQ3N2RhMTNiNTFmOWU5MGIwYjYzIiwiaCI6Im11cm11cjY0In0=";
 
-    // Fetch route to a specific marker
     const fetchWalkingRoute = async (
         startCoord: [number, number],
         endCoord: [number, number]
@@ -238,7 +223,6 @@ export default function MapScreen() {
         }
     };
 
-    // Fetch route through multiple waypoints (for theme routes)
     const fetchMultiWaypointRoute = async (coordinates: [number, number][]) => {
         try {
             const res = await fetch(
@@ -269,7 +253,6 @@ export default function MapScreen() {
         }
     };
 
-    // Navigate to a specific marker + route tekenen
     const navigateToMarker = async (marker: Marker) => {
         if (!userCoord) {
             console.warn("Geen user locatie beschikbaar");
@@ -282,7 +265,6 @@ export default function MapScreen() {
         setIsLoadingRoute(false);
         setIsRouteActive(true);
 
-        // Zoom naar het kunstwerk
         cameraRef.current?.setCamera({
             centerCoordinate: marker.coordinate,
             zoomLevel: 14,
@@ -290,7 +272,6 @@ export default function MapScreen() {
         });
     };
 
-    // Cancel route
     const cancelRoute = () => {
         setRouteGeoJSON(null);
         setIsRouteActive(false);
@@ -300,14 +281,12 @@ export default function MapScreen() {
         hasStartedRouteFromParams.current = false;
     };
 
-    // Find and show nearest artwork popup
     const goToNearestArtwork = () => {
         if (!userCoord || markers.length === 0) {
             console.warn("Geen locatie of markers beschikbaar");
             return;
         }
 
-        // Find nearest marker
         let nearestMarker = markers[0];
         let minDistance = calculateDistance(userCoord, markers[0].coordinate);
 
@@ -319,10 +298,8 @@ export default function MapScreen() {
             }
         });
 
-        // Select nearest marker to show popup
         setSelectedMarker(nearestMarker);
 
-        // Zoom to marker with proper camera settings
         cameraRef.current?.setCamera({
             centerCoordinate: nearestMarker.coordinate,
             zoomLevel: 16,
@@ -331,16 +308,14 @@ export default function MapScreen() {
         });
     };
 
-    // Calculate arrival time
     const getArrivalTime = (distanceKm: number) => {
-        const walkingSpeedKmH = 5; // Average walking speed
+        const walkingSpeedKmH = 5;
         const durationMinutes = Math.round((distanceKm / walkingSpeedKmH) * 60);
         const now = new Date();
         now.setMinutes(now.getMinutes() + durationMinutes);
         return now.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
     };
 
-    // Filter markers based on search query
     useEffect(() => {
         if (searchQuery.trim() === '') {
             setFilteredMarkers([]);
@@ -352,12 +327,10 @@ export default function MapScreen() {
         }
     }, [searchQuery, markers]);
 
-    // Fetch artworks on mount and when claimed stickers change
     useEffect(() => {
         fetchArtworks();
     }, [claimedStickers]);
 
-    // Handle route start from ArtworkCardDetail
     useEffect(() => {
         console.log('Route start effect triggered');
         console.log('Params:', params);
@@ -366,7 +339,6 @@ export default function MapScreen() {
         console.log('isRouteActive:', isRouteActive);
         console.log('hasStartedRouteFromParams:', hasStartedRouteFromParams.current);
 
-        // Only trigger on params change, not on userCoord or other state changes
         if (params.startRoute === 'true' && params.artworkLat && params.artworkLng && userCoord && markers.length > 0 && !hasStartedRouteFromParams.current) {
             console.log('Starting route to artwork...');
             const artworkCoord: [number, number] = [
@@ -376,19 +348,16 @@ export default function MapScreen() {
 
             console.log('Artwork coordinate:', artworkCoord);
 
-            // Find the marker by ID to get all details
             const marker = markers.find(m => m.id === params.artworkId);
 
             console.log('Found marker:', marker);
 
             if (marker) {
-                // Start route to this artwork
                 console.log('Navigating to marker:', marker.title);
                 hasStartedRouteFromParams.current = true;
                 navigateToMarker(marker);
             } else if (params.artworkName) {
                 console.log('Creating temporary marker');
-                // Create a temporary marker if not found in list
                 const tempMarker: Marker = {
                     id: params.artworkId as string,
                     coordinate: artworkCoord,
@@ -421,7 +390,6 @@ export default function MapScreen() {
             ];
             setUserCoord(coord);
 
-            // Camera naar gebruiker
             cameraRef.current?.setCamera({
                 centerCoordinate: coord,
                 zoomLevel: 16,
@@ -431,7 +399,6 @@ export default function MapScreen() {
         })();
     }, []);
 
-    // Live location tracking when route is active
     useEffect(() => {
         let locationSubscription: Location.LocationSubscription | null = null;
 
@@ -440,8 +407,8 @@ export default function MapScreen() {
                 locationSubscription = await Location.watchPositionAsync(
                     {
                         accuracy: Location.Accuracy.High,
-                        timeInterval: 5000, // Update every 5 seconds
-                        distanceInterval: 10, // Update every 10 meters
+                        timeInterval: 5000,
+                        distanceInterval: 10,
                     },
                     (location) => {
                         const coord: [number, number] = [
@@ -450,8 +417,6 @@ export default function MapScreen() {
                         ];
                         setUserCoord(coord);
 
-                        // Update route only if it's from automatic tracking, not manual navigation
-                        // Don't update if we're in theme route mode (multi-waypoint route)
                         if (!isManualLocationUpdate.current && !isThemeRoute) {
                             fetchWalkingRoute(coord, selectedMarker.coordinate);
                         }
@@ -468,7 +433,6 @@ export default function MapScreen() {
         };
     }, [isRouteActive, selectedMarker]);
 
-    // Check proximity to artworks
     useEffect(() => {
         if (!userCoord || markers.length === 0) return;
 
@@ -476,12 +440,10 @@ export default function MapScreen() {
             const distanceKm = calculateDistance(userCoord, marker.coordinate);
             const distanceMeters = distanceKm * 1000;
 
-            // Radius: 5 meters
             if (distanceMeters <= 5 && !shownProximityAlerts.current.has(marker.id)) {
                 setNearbyArtwork(marker);
                 setShowProximityPopup(true);
                 shownProximityAlerts.current.add(marker.id);
-                // Trigger haptic feedback to notify user
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
         });
@@ -505,14 +467,11 @@ export default function MapScreen() {
                 animationDuration: 800,
             });
 
-            // Only recalculate route if route is actually active
-            // Don't do anything if route was cancelled
         } catch (error) {
             console.error('Error getting location:', error);
         }
     };
 
-    // Handle theme selection
     const handleThemeSelect = async (theme: string) => {
         if (!userCoord) {
             console.warn('Geen user locatie beschikbaar');
@@ -523,7 +482,6 @@ export default function MapScreen() {
         setThemeDropdownVisible(false);
         console.log('Selected theme:', theme);
 
-        // Filter markers by theme
         const themeMarkers = markers.filter(marker => marker.theme === theme);
 
         if (themeMarkers.length === 0) {
@@ -531,14 +489,11 @@ export default function MapScreen() {
             return;
         }
 
-        // Optimize route using nearest neighbor algorithm
-        // Start from user location and always go to the nearest unvisited artwork
         const optimizedMarkers: Marker[] = [];
         const unvisited = [...themeMarkers];
         let currentPosition = userCoord;
 
         while (unvisited.length > 0) {
-            // Find nearest unvisited marker from current position
             let nearestIndex = 0;
             let minDistance = calculateDistance(currentPosition, unvisited[0].coordinate);
 
@@ -550,18 +505,15 @@ export default function MapScreen() {
                 }
             }
 
-            // Add nearest marker to optimized route
             const nearestMarker = unvisited[nearestIndex];
             optimizedMarkers.push(nearestMarker);
             currentPosition = nearestMarker.coordinate;
 
-            // Remove from unvisited
             unvisited.splice(nearestIndex, 1);
         }
 
         console.log('Building optimized theme route with', optimizedMarkers.length, 'artworks');
 
-        // Build coordinates array: user location + all artwork locations in optimized order
         const routeCoordinates: [number, number][] = [
             userCoord,
             ...optimizedMarkers.map(marker => marker.coordinate)
@@ -569,17 +521,14 @@ export default function MapScreen() {
 
         console.log('Route coordinates:', routeCoordinates.length, 'waypoints');
 
-        // Set first marker as selected for the popup
         setSelectedMarker(optimizedMarkers[0]);
 
-        // Fetch the complete route through all waypoints
         setIsLoadingRoute(true);
         setIsThemeRoute(true);
         await fetchMultiWaypointRoute(routeCoordinates);
         setIsLoadingRoute(false);
         setIsRouteActive(true);
 
-        // Zoom to show the route
         cameraRef.current?.setCamera({
             centerCoordinate: optimizedMarkers[0].coordinate,
             zoomLevel: 14,
@@ -587,7 +536,6 @@ export default function MapScreen() {
         });
     };
 
-    // Handle search result click
     const handleSearchResultClick = (marker: Marker) => {
         setSearchQuery('');
         setFilteredMarkers([]);
@@ -601,7 +549,6 @@ export default function MapScreen() {
         });
     };
 
-    // Create responsive styles
     const styles = StyleSheet.create({
         container: { flex: 1 },
         map: { flex: 1 },
@@ -1105,10 +1052,7 @@ export default function MapScreen() {
                 mapStyle={styleUrl}
                 compassEnabled={false}
             >
-                {/* native user dot */}
                 <UserLocation visible={true} />
-
-                {/* Custom Markers with hidden images */}
                 {markers.map((marker) => (
                     <MarkerView
                         key={marker.id}
@@ -1154,7 +1098,6 @@ export default function MapScreen() {
                     </MarkerView>
                 ))}
 
-                {/* wandelroute user → selected marker (volgt straten) */}
                 {routeGeoJSON && (
                     <ShapeSource
                         id="walking-route"
@@ -1163,7 +1106,7 @@ export default function MapScreen() {
                         <LineLayer
                             id="walking-route-line"
                             style={{
-                                lineColor: "#215AFF", // blauw
+                                lineColor: "#215AFF",
                                 lineWidth: 4,
                                 lineCap: "round",
                                 lineJoin: "round",
@@ -1183,7 +1126,6 @@ export default function MapScreen() {
                 />
             </MapView>
 
-            {/* Location button */}
             <TouchableOpacity
                 style={styles.locationButton}
                 onPress={goToMyLocation}
@@ -1195,7 +1137,6 @@ export default function MapScreen() {
                 />
             </TouchableOpacity>
 
-            {/* Search bar */}
             <View style={styles.searchContainer}>
                 <TextInput
                     placeholder="Zoek naar kunstwerken"
@@ -1212,7 +1153,6 @@ export default function MapScreen() {
                 </View>
             </View>
 
-            {/* Search results dropdown */}
             {filteredMarkers.length > 0 && (
                 <View style={styles.searchResultsContainer}>
                     <FlatList
@@ -1249,7 +1189,6 @@ export default function MapScreen() {
                 </View>
             )}
 
-            {/* Bottom action buttons */}
             {!isRouteActive && (
                 <View style={styles.bottomButtonsContainer}>
                     <TouchableOpacity
@@ -1274,7 +1213,6 @@ export default function MapScreen() {
                 </View>
             )}
 
-            {/* Theme dropdown menu */}
             {!isRouteActive && themeDropdownVisible && (
                 <View style={styles.themeDropdownContainer}>
                     <FlatList
@@ -1294,7 +1232,6 @@ export default function MapScreen() {
                 </View>
             )}
 
-            {/* Popup onderaan bij geselecteerd kunstwerk */}
             {selectedMarker && !isRouteActive && (
                 <Pressable
                     style={styles.popupContainer}
@@ -1304,7 +1241,6 @@ export default function MapScreen() {
                         style={styles.popupCard}
                         onPress={(e) => e.stopPropagation()}
                     >
-                        {/* Left side: Image with dynamic color background - full height */}
                         <View style={[styles.popupImageContainer, { backgroundColor: selectedMarker.color || '#FF5AE5' }]}>
                             {selectedMarker.iconUrl ? (
                                 <Image
@@ -1317,7 +1253,6 @@ export default function MapScreen() {
                             )}
                         </View>
 
-                        {/* Right side: Text content + button */}
                         <View style={styles.popupRightContent}>
                             <View style={styles.popupTextContainer}>
                                 <Text style={styles.popupTitle} numberOfLines={2} ellipsizeMode="tail">
@@ -1331,7 +1266,6 @@ export default function MapScreen() {
                                 </Text>
                             </View>
 
-                            {/* Ontdek button on the right */}
                             <TouchableOpacity
                                 style={[styles.popupPrimaryButton, isLoadingRoute && styles.popupPrimaryButtonDisabled]}
                                 onPress={() => navigateToMarker(selectedMarker)}
@@ -1355,11 +1289,9 @@ export default function MapScreen() {
                 </Pressable>
             )}
 
-            {/* Route navigation popup - shown when route is active */}
             {isRouteActive && selectedMarker && routeGeoJSON && (
                 <View style={styles.routePopupContainer}>
                     <View style={styles.routePopupCard}>
-                        {/* Left side: Green arrow with distance */}
                         <View style={styles.routeArrowContainer}>
                             <Text style={styles.routeDistanceText}>
                                 {userCoord ? Math.round(calculateDistance(userCoord, selectedMarker.coordinate) * 1000) : 0}m
@@ -1371,9 +1303,7 @@ export default function MapScreen() {
                             />
                         </View>
 
-                        {/* Right side: Content */}
                         <View style={styles.routeContentContainer}>
-                            {/* Title and description */}
                             <View>
                                 <Text style={styles.routeTitle}>
                                     {selectedMarker.title || "Kunstwerk"}
@@ -1383,16 +1313,13 @@ export default function MapScreen() {
                                 </Text>
                             </View>
 
-                            {/* Info icons */}
                             <View style={styles.routeInfoSection}>
-                                {/* Labels Row */}
                                 <View style={styles.routeLabelsRow}>
                                     <Text style={styles.routeInfoLabel}>Aankomst</Text>
                                     <Text style={styles.routeInfoLabel}>Afstand</Text>
                                     <Text style={styles.routeInfoLabel}>Annuleer</Text>
                                 </View>
 
-                                {/* Icons Row */}
                                 <View style={styles.routeIconsRow}>
                                     <View style={styles.routeIconCircle}>
                                         <Image
@@ -1420,7 +1347,6 @@ export default function MapScreen() {
                                     </TouchableOpacity>
                                 </View>
 
-                                {/* Values Row */}
                                 <View style={styles.routeValuesRow}>
                                     <Text style={styles.routeInfoValue}>
                                         {userCoord ? getArrivalTime(calculateDistance(userCoord, selectedMarker.coordinate)) : "--"}
@@ -1436,7 +1362,6 @@ export default function MapScreen() {
                 </View>
             )}
 
-            {/* AR Experience Proximity Popup Modal */}
             <Modal
                 visible={showProximityPopup}
                 transparent={true}
@@ -1445,7 +1370,6 @@ export default function MapScreen() {
             >
                 <View style={styles.proximityModalOverlay}>
                     <View style={styles.proximityModalContent}>
-                        {/* Close button */}
                         <TouchableOpacity
                             style={styles.proximityCloseButton}
                             onPress={() => setShowProximityPopup(false)}
@@ -1455,7 +1379,6 @@ export default function MapScreen() {
                             </View>
                         </TouchableOpacity>
 
-                        {/* Title */}
                         <Text style={styles.proximityTitle}>
                             Nice, je hebt
                         </Text>
@@ -1463,21 +1386,17 @@ export default function MapScreen() {
                             {nearbyArtwork?.title || 'ballerina'} bereikt!
                         </Text>
 
-                        {/* Subtitle */}
                         <Text style={styles.proximitySubtitle}>
                             Wil je beginnen met de AR-experience?
                         </Text>
 
-                        {/* Start AR button */}
                         <TouchableOpacity
                             style={styles.proximityButton}
                             onPress={() => {
                                 if (nearbyArtwork) {
-                                    // Bepaal welke AR scene getoond moet worden op basis van kunstwerk naam
-                                    let arSceneNumber: 1 | 2 | 3 | 4 = 1; // default
+                                    let arSceneNumber: 1 | 2 | 3 | 4 = 1;
                                     const title = nearbyArtwork.title.trim();
 
-                                    // Use includes() for flexible matching to handle special characters
                                     if (title.includes('Monument WWII') || title.includes('Monument voor de gesneuvelden')) {
                                         arSceneNumber = 1;
                                     } else if (title.includes('Groeningemonument')) {
@@ -1488,7 +1407,6 @@ export default function MapScreen() {
                                         arSceneNumber = 4;
                                     }
 
-                                    // Sla het geselecteerde kunstwerk op in context
                                     setSelectedArtwork({
                                         id: nearbyArtwork.id,
                                         name: nearbyArtwork.title,
@@ -1503,7 +1421,6 @@ export default function MapScreen() {
                                 }
 
                                 setShowProximityPopup(false);
-                                // Navigeer naar het AR preparation scherm
                                 router.push('/ar-preparation');
                             }}
                         >
