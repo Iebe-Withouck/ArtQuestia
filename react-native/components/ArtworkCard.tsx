@@ -93,11 +93,18 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   const isClaimed = claimedStickers.includes(artworkId);
 
   const photoSource = isClaimed ? attributes.Photo : attributes.Photo_Hidden;
-  const photoData = photoSource?.data || photoSource;
-  const photoUrl = photoData?.attributes?.url || photoData?.url || (photoSource as any)?.url;
+  let photoUrl: string | undefined = undefined;
+  if (photoSource && typeof photoSource === 'object') {
+    if ('data' in photoSource && photoSource.data && typeof photoSource.data === 'object') {
+      photoUrl = photoSource.data.attributes?.url;
+    } else if ('attributes' in photoSource && photoSource.attributes && typeof photoSource.attributes === 'object' && (photoSource.attributes as any).url) {
+      photoUrl = (photoSource.attributes as { url?: string }).url;
+    } else if ('url' in photoSource) {
+      photoUrl = (photoSource as { url?: string }).url;
+    }
+  }
 
   console.log('Artwork ID:', artworkId, 'Claimed:', isClaimed);
-  console.log('Photo data:', photoData);
   console.log('Photo URL:', photoUrl);
 
   const fullImageUrl = photoUrl || null;
@@ -149,10 +156,8 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
         </TouchableOpacity>
 
         <View style={styles.artTextWrapper}>
-          <ThemedText style={[styles.artTitle, { fontFamily: 'Impact' }]}>            {attributes.Name || 'Untitled'}
-          </ThemedText>
-          <ThemedText style={[styles.artSubtitle, { fontFamily: 'LeagueSpartan-regular' }]}>            {attributes.Creator || 'Unknown'}
-          </ThemedText>
+          <ThemedText style={[styles.artTitle, { fontFamily: 'Impact', textAlign: 'left' }]}>{attributes.Name || 'Untitled'}</ThemedText>
+          <ThemedText style={[styles.artSubtitle, { fontFamily: 'LeagueSpartan-regular', textAlign: 'left' }]}>{attributes.Creator || 'Unknown'}</ThemedText>
         </View>
 
       </View>
@@ -259,6 +264,8 @@ const styles = StyleSheet.create({
 
   artTextWrapper: {
     marginTop: 10,
+    alignItems: 'flex-start',
+    width: '100%',
   },
   artTitle: {
     color: '#fff',
