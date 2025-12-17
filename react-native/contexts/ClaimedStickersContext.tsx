@@ -25,9 +25,16 @@ export const ClaimedStickersProvider: React.FC<{ children: ReactNode }> = ({ chi
       setLoading(true);
       const unlockedIds = await getUnlockedArtworks();
       if (unlockedIds.length > 0 || unlockedIds.length === 0) {
-        // Only set if we got a valid response (empty array or with items)
-        setClaimedStickers(unlockedIds);
-        console.log('Loaded unlocked artworks from Strapi:', unlockedIds);
+        // Deduplicate the array to handle any duplicate entries from the database
+        const uniqueIds = [...new Set(unlockedIds)];
+
+        if (unlockedIds.length !== uniqueIds.length) {
+          console.log('⚠️ Removed duplicate entries from unlocked artworks');
+          console.log('Original:', unlockedIds, 'Deduplicated:', uniqueIds);
+        }
+
+        setClaimedStickers(uniqueIds);
+        console.log('Loaded unlocked artworks from Strapi:', uniqueIds);
       }
     } catch (error) {
       // Silently fail if user not logged in - they'll load after login

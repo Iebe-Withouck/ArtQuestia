@@ -280,6 +280,25 @@ export default function SettingsScreen() {
     setModalVisible(true);
   };
 
+  // Calculate number of unlocked themes (themes with at least one claimed sticker)
+  const getUnlockedThemesCount = () => {
+    if (!artworks || artworks.length === 0 || !claimedStickers || claimedStickers.length === 0) {
+      return 0;
+    }
+
+    // Get all claimed artworks
+    const claimedArtworks = artworks.filter(artwork => claimedStickers.includes(artwork.id));
+
+    // Extract unique themes from claimed artworks
+    const uniqueThemes = new Set(
+      claimedArtworks
+        .map(artwork => artwork.attributes?.Theme || artwork.Theme)
+        .filter(theme => theme)
+    );
+
+    return uniqueThemes.size;
+  };
+
   // Filter by theme first
   const themeFilteredStickers = selectedTheme === 'Alle'
     ? artworks
@@ -381,15 +400,15 @@ export default function SettingsScreen() {
 
             <TouchableOpacity style={styles.infoContainer}>
               <Image source={RoutesComplete} style={styles.infoIcons} />
-              <ThemedText style={styles.infoNumberRoutes}>5</ThemedText>
+              <ThemedText style={styles.infoNumberRoutes}>{getUnlockedThemesCount()}</ThemedText>
               <View style={styles.info}>
-                <ThemedText style={styles.infoText}>Complete{"\n"}routes</ThemedText>
+                <ThemedText style={styles.infoText}>Complete{"\n"}quests</ThemedText>
               </View>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.infoContainer}>
               <Image source={FoundedStickers} style={styles.infoIcons} />
-              <ThemedText style={styles.infoNumberStickers}>12</ThemedText>
+              <ThemedText style={styles.infoNumberStickers}>{claimedStickers.length}</ThemedText>
               <View style={styles.info}>
                 <ThemedText style={styles.infoText}>Gevonden{"\n"}stickers</ThemedText>
               </View>
