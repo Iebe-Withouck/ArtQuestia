@@ -82,24 +82,15 @@ export default function LoginScreen() {
       }
       await reloadUnlockedArtworks();
 
-      setAlertConfig({
-        title: 'Success',
-        message: 'Logged in successfully!',
-        type: 'success',
-      });
-      setAlertVisible(true);
-      setTimeout(() => {
-        router.replace('/(tabs)');
-      }, 1500);
+      // On success, navigate to the main app without showing a success alert
+      router.replace('/(tabs)');
     } catch (e: any) {
-      setError(e.message);
       setAlertConfig({
         title: 'Login Error',
         message: e.message,
         type: 'error',
       });
       setAlertVisible(true);
-      console.error(e);
     } finally {
       setLoading(false);
     }
