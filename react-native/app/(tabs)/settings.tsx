@@ -402,7 +402,7 @@ export default function SettingsScreen() {
               <Image source={RoutesComplete} style={styles.infoIcons} />
               <ThemedText style={styles.infoNumberRoutes}>{getUnlockedThemesCount()}</ThemedText>
               <View style={styles.info}>
-                <ThemedText style={styles.infoText}>Complete{"\n"}quests</ThemedText>
+                <ThemedText style={styles.infoText}>{"\n"}Quests</ThemedText>
               </View>
             </TouchableOpacity>
 

@@ -18,7 +18,6 @@ const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive scaling functions
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
@@ -83,9 +82,8 @@ export default function SettingsScreen() {
     }
   };
 
-  // Calculate distance between two coordinates using Haversine formula
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371; // Radius of the Earth in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a =
@@ -107,7 +105,6 @@ export default function SettingsScreen() {
   const fetchThemesWithBadges = async () => {
     try {
       console.log('🚀 Fetching badges...');
-      // Fetch badges with theme and PhotoBadge populated
       const response = await fetch(`${STRAPI_URL}/api/badges?populate=*`);
       console.log('📡 Badge response status:', response.status);
 
@@ -116,7 +113,6 @@ export default function SettingsScreen() {
 
       if (data.data) {
         console.log('✨ Badges fetched:', data.data.length);
-        // Log first badge with full structure to verify
         if (data.data.length > 0) {
           console.log('📸 First badge structure:', {
             name: data.data[0].name,
@@ -153,7 +149,6 @@ export default function SettingsScreen() {
         setArtworks(data.data);
         console.log('Artworks set:', data.data.length);
 
-        // Extract unique themes - Strapi v4 uses attributes
         const uniqueThemes = ['Alle', ...new Set(
           data.data
             .map((artwork: any) => {
@@ -174,9 +169,7 @@ export default function SettingsScreen() {
     }
   };
 
-  // Get badge image URL for a theme based on progress
   const getBadgeForTheme = (theme: string, badgeType: 'not_achieved' | 'partial' | 'full') => {
-    // Map badge type to prefix
     const prefixMap = {
       'not_achieved': 'Not_Achieved',
       'partial': '1_Achieved',
@@ -185,9 +178,6 @@ export default function SettingsScreen() {
 
     const prefix = prefixMap[badgeType];
 
-    // Map artwork themes to badge name suffixes
-    // Artworks use: "Oorlog", "Moderne Kunst", etc.
-    // Badges use: "Oorlog", "Modern", etc.
     const themeMap: { [key: string]: string } = {
       'Moderne Kunst': 'Modern',
       'Oorlog': 'Oorlog',
@@ -201,7 +191,6 @@ export default function SettingsScreen() {
 
     console.log(`🔍 Looking for badge: ${expectedBadgeName} (theme: ${theme})`);
 
-    // Find badge by exact name match
     const badge = themeData.find((b: any) => {
       const badgeName = b.name;
       console.log(`  Checking badge: ${badgeName}`);
@@ -210,7 +199,6 @@ export default function SettingsScreen() {
 
     if (badge) {
       console.log(`✅ Found badge for ${theme}:`, badge.name);
-      // PhotoBadge has capital B in Strapi
       const photoBadge = badge.PhotoBadge;
       const url = photoBadge?.url;
       console.log(`  Badge image URL:`, url);
@@ -221,15 +209,12 @@ export default function SettingsScreen() {
     return null;
   };
 
-  // Calculate badge status for each theme
   const calculateThemeBadges = () => {
     const themeBadges: { [theme: string]: { claimed: number; total: number; badge: 'not_achieved' | 'partial' | 'full'; imageUrl: string | null } } = {};
 
-    // Get all themes except 'Alle'
     const realThemes = themes.filter(t => t !== 'Alle');
 
     realThemes.forEach(theme => {
-      // Get all artworks for this theme
       const themeArtworks = artworks.filter(artwork => {
         const artworkTheme = artwork.attributes?.Theme || artwork.Theme;
         return artworkTheme === theme;
@@ -240,7 +225,6 @@ export default function SettingsScreen() {
         claimedStickers.includes(artwork.id)
       ).length;
 
-      // Determine badge level
       let badge: 'not_achieved' | 'partial' | 'full' = 'not_achieved';
       if (claimed === total && total > 0) {
         badge = 'full';
@@ -256,9 +240,7 @@ export default function SettingsScreen() {
     return themeBadges;
   };
 
-  // Calculate percentage for a specific theme
   const getThemePercentage = (theme: string): number => {
-    // Return 0 if artworks haven't loaded yet
     if (!artworks || artworks.length === 0) return 0;
 
     const themeArtworks = artworks.filter(artwork => {
@@ -292,7 +274,6 @@ export default function SettingsScreen() {
   };
 
   const handleStickerPress = (artwork: any) => {
-    // Calculate distance if user location is available
     if (userLocation) {
       const attributes = artwork.attributes || artwork;
       const lat = attributes.Location?.lat;
@@ -312,23 +293,18 @@ export default function SettingsScreen() {
     setModalVisible(true);
   };
 
-  // Filter by theme first
   const themeFilteredStickers = selectedTheme === 'Alle'
     ? artworks
     : artworks.filter(artwork => {
       const theme = artwork.attributes?.Theme || artwork.Theme;
       return theme === selectedTheme;
     });
-
-  // Then filter by sticker type (Alle/Gevonden/Verborgen)
   const currentStickers = (() => {
     if (selectedStickerType === 'Alle stickers') {
       return themeFilteredStickers;
     } else if (selectedStickerType === 'Gevonden stickers') {
-      // Only show claimed stickers
       return themeFilteredStickers.filter(artwork => claimedStickers.includes(artwork.id));
     } else if (selectedStickerType === 'Verborgen stickers') {
-      // Only show unclaimed stickers
       return themeFilteredStickers.filter(artwork => !claimedStickers.includes(artwork.id));
     }
     return themeFilteredStickers;
@@ -338,17 +314,14 @@ export default function SettingsScreen() {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
-  // Show notifications if opened
   if (showNotifications) {
     return <Notifications onClose={() => setShowNotifications(false)} />;
   }
 
-  // Show detail view if artwork is selected
   if (showDetailView && selectedSticker) {
     return <ArtworkCardDetail artwork={selectedSticker} onClose={() => setShowDetailView(false)} />;
   }
 
-  // Debug badge rendering
   console.log('🎨 About to render. ThemeData length:', themeData.length);
 
   return (
@@ -368,7 +341,6 @@ export default function SettingsScreen() {
           Ontdek Kortrijk, beleef de quest & scoor coupons
         </ThemedText>
 
-        {/* Theme Badges */}
         {themeData.length > 0 && (
           <ScrollView
             horizontal
@@ -427,9 +399,7 @@ export default function SettingsScreen() {
           </View>
         )}
 
-        {/* Progress Bar */}
         <View style={styles.progressBarContainer}>
-          {/* Running icon that moves with progress */}
           <Image
             source={Running}
             style={[
@@ -445,7 +415,6 @@ export default function SettingsScreen() {
               ]}
             />
           </View>
-          {/* Flag icon at the end */}
           <Image
             source={Flag}
             style={styles.flagIcon}
@@ -520,17 +489,30 @@ export default function SettingsScreen() {
         )}
 
         <View style={styles.rowStickers}>
-          {currentStickers.length === 0 ? (
-            <ThemedText style={{ color: '#fff', padding: 20 }}>
-              No stickers found for theme: {selectedTheme}
-            </ThemedText>
-          ) : (
+          {currentStickers.length === 0 ? (() => {
+            if (
+              selectedStickerType === 'Verborgen stickers' &&
+              themeFilteredStickers.length > 0 &&
+              themeFilteredStickers.every(artwork => claimedStickers.includes(artwork.id))
+            ) {
+              return (
+                <ThemedText style={{ color: '#c0c0c0ff', padding: 20, fontWeight: 'semibold', fontFamily: 'LeagueSpartan-semibold', backgroundColor: '#64646461', borderRadius: 10, marginBottom: verticalScale(20) }}>
+                  Je hebt alle stickers voor dit thema al gevonden!
+                </ThemedText>
+              );
+            } else {
+              return (
+                <ThemedText style={{ color: '#c0c0c0ff', padding: 20, fontWeight: 'semibold', fontFamily: 'LeagueSpartan-semibold', backgroundColor: '#64646461', borderRadius: 10, marginBottom: verticalScale(20) }}>
+                  Je hebt nog geen stickers verzameld voor het thema {selectedTheme}
+                </ThemedText>
+              );
+            }
+          })() : (
             currentStickers.map((artwork, index) => {
               const attributes = artwork.attributes || artwork;
               const artworkId = artwork.id;
               const isClaimed = claimedStickers.includes(artworkId);
 
-              // Use Stickers if claimed, otherwise use Stickers_Hidden
               const stickerSource = isClaimed ? attributes.Stickers : attributes.Stickers_Hidden;
               const stickerData = stickerSource?.data || stickerSource;
               const stickerUrl = stickerData?.attributes?.url || stickerData?.url || stickerSource?.url;
@@ -576,7 +558,6 @@ export default function SettingsScreen() {
               const artworkId = selectedSticker.id;
               const isClaimed = claimedStickers.includes(artworkId);
 
-              // Use Stickers if claimed, otherwise use Stickers_Hidden
               const stickerSource = isClaimed ? attributes.Stickers : attributes.Stickers_Hidden;
               const stickerData = stickerSource?.data || stickerSource;
               const stickerUrl = stickerData?.attributes?.url || stickerData?.url || stickerSource?.url;
@@ -884,7 +865,7 @@ const styles = StyleSheet.create({
   stickerContainer: {
     alignItems: 'center',
     position: 'relative',
-    width: '31%', // 3 columns: 31% each
+    width: '31%',
     minHeight: verticalScale(120),
   },
   stickerIcon: {
@@ -989,7 +970,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  // Badge styles
   badgesContainer: {
     marginTop: verticalScale(20),
     marginBottom: verticalScale(10),
@@ -1019,7 +999,6 @@ const styles = StyleSheet.create({
     height: scale(90),
     borderRadius: moderateScale(45),
   },
-  // Progress bar styles
   progressBarContainer: {
     marginTop: verticalScale(35),
     marginBottom: verticalScale(20),
@@ -1042,7 +1021,7 @@ const styles = StyleSheet.create({
     width: moderateScale(30),
     height: moderateScale(30),
     top: verticalScale(-35),
-    marginLeft: -moderateScale(15), // Center the icon on the percentage point
+    marginLeft: -moderateScale(15),
     resizeMode: 'contain',
   },
   flagIcon: {
