@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
+import { useRouter } from 'expo-router';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
@@ -39,6 +40,7 @@ export default function SettingsScreen() {
   });
 
   const { claimedStickers } = useClaimedStickers();
+  const router = useRouter();
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [stickerTypeDropdownVisible, setStickerTypeDropdownVisible] = useState(false);
@@ -52,6 +54,8 @@ export default function SettingsScreen() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSticker, setSelectedSticker] = useState<any>(null);
+  const [badgeModalVisible, setBadgeModalVisible] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<any>(null);
   const [showDetailView, setShowDetailView] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
@@ -288,6 +292,11 @@ export default function SettingsScreen() {
     setModalVisible(true);
   };
 
+  const handleBadgePress = (theme: string, status: any) => {
+    setSelectedBadge({ theme, ...status });
+    setBadgeModalVisible(true);
+  };
+
   const themeFilteredStickers = selectedTheme === 'Alle'
     ? artworks
     : artworks.filter(artwork => {
@@ -344,7 +353,11 @@ export default function SettingsScreen() {
             contentContainerStyle={styles.badgesContent}
           >
             {Object.entries(calculateThemeBadges()).map(([theme, status]) => (
-              <View key={theme} style={styles.badgeItem}>
+              <TouchableOpacity
+                key={theme}
+                style={styles.badgeItem}
+                onPress={() => handleBadgePress(theme, status)}
+              >
                 {status.imageUrl ? (
                   <Image
                     source={{ uri: status.imageUrl }}
@@ -356,7 +369,7 @@ export default function SettingsScreen() {
                     <ThemedText style={styles.badgePlaceholderText}>?</ThemedText>
                   </View>
                 )}
-              </View>
+              </TouchableOpacity>
             ))}
           </ScrollView>
         )}
@@ -600,6 +613,73 @@ export default function SettingsScreen() {
                       }}
                     >
                       <ThemedText style={styles.deelButtonText}>Deel je ervaring!</ThemedText>
+                    </TouchableOpacity>
+                  )}
+                </>
+              );
+            })()}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={badgeModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setBadgeModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {selectedBadge && (() => {
+              const badgeType = selectedBadge.badge;
+
+              return (
+                <>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setBadgeModalVisible(false)}
+                  >
+                    <Image source={Cross} style={styles.closeButtonIcon} />
+                  </TouchableOpacity>
+
+                  {selectedBadge.imageUrl && (
+                    <Image
+                      source={{ uri: selectedBadge.imageUrl }}
+                      style={styles.modalStickerImage}
+                    />
+                  )}
+
+                  <ThemedText style={styles.modalTitle}>
+                    {selectedBadge.theme}
+                  </ThemedText>
+
+                  {badgeType === 'full' && (
+                    <ThemedText style={styles.modalSubtitle}>
+                      Je hebt alle stickers gevonden!
+                    </ThemedText>
+                  )}
+
+                  {badgeType === 'not_achieved' && (
+                    <TouchableOpacity
+                      style={[styles.readMoreButton2, { paddingHorizontal: scale(60) }]}
+                      onPress={() => {
+                        setBadgeModalVisible(false);
+                        router.push('/(tabs)/map');
+                      }}
+                    >
+                      <ThemedText style={styles.readMoreButtonText}>Start deze quest</ThemedText>
+                    </TouchableOpacity>
+                  )}
+
+                  {badgeType === 'partial' && (
+                    <TouchableOpacity
+                      style={[styles.readMoreButton2, { paddingHorizontal: scale(50) }]}
+                      onPress={() => {
+                        setBadgeModalVisible(false);
+                        router.push('/(tabs)/map');
+                      }}
+                    >
+                      <ThemedText style={styles.readMoreButtonText}>Op naar de volgende</ThemedText>
                     </TouchableOpacity>
                   )}
                 </>
@@ -932,10 +1012,20 @@ const styles = StyleSheet.create({
   modalCreator: {
     fontSize: moderateScale(16),
     color: '#ccc',
-    fontFamily: 'LeagueSpartan',
+    fontFamily: 'LeagueSpartan-regular',
     textAlign: 'center',
     marginBottom: verticalScale(25),
   },
+
+  modalSubtitle: {
+    fontSize: moderateScale(16),
+    color: '#ccc',
+    fontFamily: 'LeagueSpartan-regular',
+    textAlign: 'center',
+    marginBottom: verticalScale(25),
+    marginTop: verticalScale(20),
+  },
+
   readMoreButton: {
     backgroundColor: '#FF7700',
     paddingVertical: verticalScale(12),
@@ -943,6 +1033,16 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(25),
     marginBottom: verticalScale(10),
   },
+
+  readMoreButton2: {
+    backgroundColor: '#FF7700',
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(95),
+    borderRadius: moderateScale(25),
+    marginBottom: verticalScale(10),
+    marginTop: verticalScale(20),
+  },
+
   readMoreButtonText: {
     color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(15),
