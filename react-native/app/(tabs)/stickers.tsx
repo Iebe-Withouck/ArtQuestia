@@ -345,6 +345,10 @@ export default function SettingsScreen() {
           Ontdek Kortrijk, beleef de quest & scoor coupons
         </ThemedText>
 
+        <ThemedText style={[styles.instructionText]}>
+          Swipe om ze allemaal te zien
+        </ThemedText>
+
         {themeData.length > 0 && (
           <ScrollView
             horizontal
@@ -744,6 +748,11 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(15),
     color: '#fff',
   },
+  instructionText: {
+    fontSize: moderateScale(14),
+    marginTop: verticalScale(30),
+    color: '#979797da',
+  },
   title: {
     fontSize: moderateScale(24),
     marginTop: verticalScale(50),
@@ -955,7 +964,7 @@ const styles = StyleSheet.create({
   stickerName: {
     color: '#fff',
     fontSize: moderateScale(15),
-    lineHeight: moderateScale(14),
+    lineHeight: moderateScale(20),
     fontFamily: 'LeagueSpartan-semibold',
     fontWeight: '600',
     textAlign: 'center',
@@ -1068,7 +1077,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   badgesContainer: {
-    marginTop: verticalScale(20),
+    marginTop: verticalScale(10),
     marginBottom: verticalScale(10),
   },
   badgesContent: {

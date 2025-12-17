@@ -1121,7 +1121,7 @@ const styles = StyleSheet.create({
   stickerName: {
     color: '#fff',
     fontSize: moderateScale(15),
-    lineHeight: moderateScale(14),
+    lineHeight: moderateScale(20),
     fontFamily: 'LeagueSpartan-semibold',
     fontWeight: '600',
     textAlign: 'center',
