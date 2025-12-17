@@ -20,7 +20,6 @@ import { useArtwork } from '@/contexts/ArtworkContext';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive scaling functions
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
@@ -133,7 +132,6 @@ export default function Scan() {
     );
   }
 
-  // Check if no artwork is selected or no AR scene available
   if (!selectedArtwork || !selectedArtwork.arSceneNumber) {
     return (
       <View style={styles.noArtworkContainer}>
