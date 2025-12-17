@@ -16,15 +16,12 @@ export default function LocatiePermission() {
   };
 
   const handleSkip = () => {
-    // User explicitly chose to skip location services
-    // No need to request permissions - just navigate to camera permission
     console.log('User skipped location permission');
     router.push("/onboarding/cameraPermission");
   };
 
   const handleNext = async () => {
     try {
-      // Request location permissions
       const { status } = await Location.requestForegroundPermissionsAsync();
 
       if (status === 'granted') {
@@ -36,7 +33,6 @@ export default function LocatiePermission() {
       console.error('Error requesting location permission:', error);
     }
 
-    // Navigate to camera permission screen
     router.push("/onboarding/cameraPermission");
   };
 
@@ -45,7 +41,6 @@ export default function LocatiePermission() {
 
       <Image source={Phone} style={styles.phoneImage} />
 
-      {/* Pop-up overlay */}
       <View style={styles.popupOverlay}>
         <View style={styles.popupCard}>
           <Text style={styles.popupTitle}>Locatie aanzetten?</Text>

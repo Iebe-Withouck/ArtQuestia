@@ -16,7 +16,6 @@ export default function Screen2() {
 
   return (
     <View style={styles.container}>
-      {/* Progress Bar */}
       <View style={styles.progressBarContainer}>
         <View style={[styles.progressBar, { width: '50%' }]} />
       </View>

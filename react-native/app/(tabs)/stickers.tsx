@@ -28,11 +28,6 @@ import ArtworkCardDetail from '@/components/ArtworkCardDetail';
 import Notifications from '@/components/Notifications';
 
 import Bell from '../../assets/icons/doorbell.png';
-import Icon11 from '../../assets/prestaties/11.png';
-import Icon4 from '../../assets/prestaties/4.png';
-import Icon7 from '../../assets/prestaties/7.png';
-import Icon120 from '../../assets/prestaties/120.png';
-import Icon55 from '../../assets/prestaties/55.png';
 import Cross from '../../assets/icons/cross.png';
 import Flag from '../../assets/icons/flag.png';
 import Running from '../../assets/icons/running.png';

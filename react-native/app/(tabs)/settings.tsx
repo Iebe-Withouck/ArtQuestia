@@ -1,4 +1,5 @@
 import { useFonts } from 'expo-font';
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,12 +18,10 @@ import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
-// Set to false to hide debug indicators in production
 const SHOW_DEBUG = false;
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive scaling functions
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
@@ -97,9 +96,8 @@ export default function SettingsScreen() {
     }
   };
 
-  // Calculate distance between two coordinates using Haversine formula
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371; // Radius of the Earth in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a =
@@ -131,15 +129,11 @@ export default function SettingsScreen() {
     }
   };
 
-  // Get themes that user has unlocked artworks for
   const getActiveThemes = () => {
     if (!artworks || artworks.length === 0 || !claimedStickers || claimedStickers.length === 0) {
       return [];
     }
 
-    // Map artwork theme names to Strapi theme names
-    // Artworks use: "Oorlog", "Moderne Kunst", etc.
-    // Strapi Themes use: "Oorlogmonumenten", "Moderne Kunst", etc.
     const themeNameMap: { [key: string]: string } = {
       'Oorlog': 'Oorlogmonumenten',
       'Moderne Kunst': 'Moderne Kunst',
@@ -148,25 +142,20 @@ export default function SettingsScreen() {
       'ZieMie': 'ZieMie'
     };
 
-    // Get all artworks that are claimed
     const claimedArtworks = artworks.filter(artwork => claimedStickers.includes(artwork.id));
 
-    // Extract unique themes from claimed artworks and map to Strapi theme names
     const activeThemeNames = new Set(
       claimedArtworks
         .map(artwork => {
           const artworkTheme = artwork.attributes?.Theme || artwork.Theme;
-          // Map artwork theme to Strapi theme name
           return themeNameMap[artworkTheme] || artworkTheme;
         })
         .filter(theme => theme)
     );
 
-    // Filter availableThemes to only include active themes
     return availableThemes.filter(theme => activeThemeNames.has(theme.name));
   };
 
-  // Auto-populate themaRoutes with themes that have unlocked artworks
   useEffect(() => {
     if (artworks.length > 0 && availableThemes.length > 0 && claimedStickers.length > 0) {
       const activeThemes = getActiveThemes();
@@ -216,7 +205,6 @@ export default function SettingsScreen() {
         setArtworks(data.data);
         console.log('Artworks set:', data.data.length);
 
-        // Extract unique themes - Strapi v4 uses attributes
         const uniqueThemes = ['Alle', ...new Set(
           data.data
             .map((artwork: any) => {
@@ -248,7 +236,6 @@ export default function SettingsScreen() {
   };
 
   const handleThemaRouteSelect = (themeName: string) => {
-    // Find the theme in availableThemes
     const themeToAdd = availableThemes.find(t => t.name === themeName);
 
     if (themeToAdd && !themaRoutes.some(r => r.id === themeToAdd.id)) {
@@ -260,7 +247,6 @@ export default function SettingsScreen() {
   };
 
   const handleStickerPress = (artwork: any) => {
-    // Calculate distance if user location is available
     if (userLocation) {
       const attributes = artwork.attributes || artwork;
       const lat = attributes.Location?.lat;
@@ -280,16 +266,13 @@ export default function SettingsScreen() {
     setModalVisible(true);
   };
 
-  // Calculate number of unlocked themes (themes with at least one claimed sticker)
   const getUnlockedThemesCount = () => {
     if (!artworks || artworks.length === 0 || !claimedStickers || claimedStickers.length === 0) {
       return 0;
     }
 
-    // Get all claimed artworks
     const claimedArtworks = artworks.filter(artwork => claimedStickers.includes(artwork.id));
 
-    // Extract unique themes from claimed artworks
     const uniqueThemes = new Set(
       claimedArtworks
         .map(artwork => artwork.attributes?.Theme || artwork.Theme)
@@ -299,7 +282,6 @@ export default function SettingsScreen() {
     return uniqueThemes.size;
   };
 
-  // Filter by theme first
   const themeFilteredStickers = selectedTheme === 'Alle'
     ? artworks
     : artworks.filter(artwork => {
@@ -307,15 +289,12 @@ export default function SettingsScreen() {
       return theme === selectedTheme;
     });
 
-  // Then filter by sticker type (Alle/Gevonden/Verborgen)
   const currentStickers = (() => {
     if (selectedStickerType === 'Alle stickers') {
       return themeFilteredStickers;
     } else if (selectedStickerType === 'Gevonden stickers') {
-      // Only show claimed stickers
       return themeFilteredStickers.filter(artwork => claimedStickers.includes(artwork.id));
     } else if (selectedStickerType === 'Verborgen stickers') {
-      // Only show unclaimed stickers
       return themeFilteredStickers.filter(artwork => !claimedStickers.includes(artwork.id));
     }
     return themeFilteredStickers;
@@ -325,17 +304,14 @@ export default function SettingsScreen() {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
-  // Show notifications if opened
   if (showNotifications) {
     return <Notifications onClose={() => setShowNotifications(false)} />;
   }
 
-  // Show detail view if artwork is selected
   if (showDetailView && selectedSticker) {
     return <ArtworkCardDetail artwork={selectedSticker} onClose={() => setShowDetailView(false)} />;
   }
 
-  // Show edit view if edit icon is clicked
   if (showEditView) {
     return (
       <SettingsEdit
@@ -557,17 +533,30 @@ export default function SettingsScreen() {
         )}
 
         <View style={styles.rowStickers}>
-          {currentStickers.length === 0 ? (
-            <ThemedText style={{ color: '#fff', padding: 20 }}>
-              No stickers found for theme: {selectedTheme}
-            </ThemedText>
-          ) : (
+          {currentStickers.length === 0 ? (() => {
+            if (
+              selectedStickerType === 'Verborgen stickers' &&
+              themeFilteredStickers.length > 0 &&
+              themeFilteredStickers.every(artwork => claimedStickers.includes(artwork.id))
+            ) {
+              return (
+                <ThemedText style={{ color: '#c0c0c0ff', padding: 20, fontWeight: 'semibold', fontFamily: 'LeagueSpartan-semibold', backgroundColor: '#64646461', borderRadius: 10, marginBottom: verticalScale(20) }}>
+                  Je hebt alle stickers voor dit thema al gevonden!
+                </ThemedText>
+              );
+            } else {
+              return (
+                <ThemedText style={{ color: '#c0c0c0ff', padding: 20, fontWeight: 'semibold', fontFamily: 'LeagueSpartan-semibold', backgroundColor: '#64646461', borderRadius: 10, marginBottom: verticalScale(20) }}>
+                  Je hebt nog geen stickers verzameld voor het thema {selectedTheme}
+                </ThemedText>
+              );
+            }
+          })() : (
             currentStickers.map((artwork, index) => {
               const attributes = artwork.attributes || artwork;
               const artworkId = artwork.id;
               const isClaimed = claimedStickers.includes(artworkId);
 
-              // Use Stickers if claimed, otherwise use Stickers_Hidden
               const stickerSource = isClaimed ? attributes.Stickers : attributes.Stickers_Hidden;
               const stickerData = stickerSource?.data || stickerSource;
               const stickerUrl = stickerData?.attributes?.url || stickerData?.url || stickerSource?.url;
@@ -601,7 +590,6 @@ export default function SettingsScreen() {
                   <ThemedText style={styles.stickerName}>
                     {attributes.Name || 'Untitled'}
                   </ThemedText>
-                  {/* Debug indicator */}
                   {SHOW_DEBUG && (
                     <View style={{
                       position: 'absolute',
@@ -623,6 +611,16 @@ export default function SettingsScreen() {
           )}
         </View>
 
+      <View style={styles.logoutContainer}>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => {
+            router.push("/onboarding/screen1");
+            }}>
+          <ThemedText style={styles.logoutButtonText}>Logout</ThemedText>
+        </TouchableOpacity>
+      </View>
+
       </ScrollView>
 
       <Modal
@@ -638,7 +636,6 @@ export default function SettingsScreen() {
               const artworkId = selectedSticker.id;
               const isClaimed = claimedStickers.includes(artworkId);
 
-              // Use Stickers if claimed, otherwise use Stickers_Hidden
               const stickerSource = isClaimed ? attributes.Stickers : attributes.Stickers_Hidden;
               const stickerData = stickerSource?.data || stickerSource;
               const stickerUrl = stickerData?.attributes?.url || stickerData?.url || stickerSource?.url;
@@ -1101,7 +1098,7 @@ const styles = StyleSheet.create({
   stickerContainer: {
     alignItems: 'center',
     position: 'relative',
-    width: '31%', // 3 columns: 31% each
+    width: '31%',
     minHeight: verticalScale(120),
   },
   stickerIcon: {
@@ -1332,5 +1329,23 @@ const styles = StyleSheet.create({
     fontFamily: 'LeagueSpartan-regular',
     flex: 1,
     textAlign: 'left',
+  },
+  logoutButton: {
+    backgroundColor: '#FF0000',
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(130),
+    borderRadius: moderateScale(30),
+  },
+  logoutButtonText: {
+    color: 'rgba(0, 0, 0, 0.6)',
+    fontSize: moderateScale(15),
+    fontFamily: 'LeagueSpartan-regular',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  logoutContainer : {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: verticalScale(50),
   },
 });
