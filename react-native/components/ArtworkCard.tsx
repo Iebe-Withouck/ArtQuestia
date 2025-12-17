@@ -62,10 +62,8 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   const { claimedStickers } = useClaimedStickers();
 
   const handleMapPress = () => {
-    // Haal locatie info op uit artwork (kan ontbreken)
     const lat = attributes.Location?.lat;
     const lon = attributes.Location?.lng;
-    // Voeg een unieke timestamp toe zodat de effect-hook in map.tsx altijd opnieuw triggert
     router.push({
       pathname: '/(tabs)/map',
       params: {
@@ -83,7 +81,6 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
-  // Add null checks for attributes
   if (!artwork) {
     console.log('No artwork provided');
     return null;
@@ -95,7 +92,6 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   const artworkId = artwork.id;
   const isClaimed = claimedStickers.includes(artworkId);
 
-  // Use Photo if claimed, otherwise use Photo_Hidden
   const photoSource = isClaimed ? attributes.Photo : attributes.Photo_Hidden;
   const photoData = photoSource?.data || photoSource;
   const photoUrl = photoData?.attributes?.url || photoData?.url || (photoSource as any)?.url;
@@ -104,11 +100,9 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   console.log('Photo data:', photoData);
   console.log('Photo URL:', photoUrl);
 
-  // Strapi Cloud provides full URLs, so use them directly
   const fullImageUrl = photoUrl || null;
   console.log('Full image URL:', fullImageUrl);
 
-  // Use the calculated distance from the artwork object (passed from index.tsx)
   const calculatedDistance = (artwork as any).distance;
   console.log('Artwork distance:', calculatedDistance);
   console.log('Full artwork object:', artwork);
@@ -120,7 +114,6 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
   console.log('Distance text:', distanceText);
   console.log('Color from attributes:', attributes.Color);
 
-  // Add # to color code if it doesn't already have it
   const backgroundColor = attributes.Color
     ? (attributes.Color.startsWith('#') ? attributes.Color : `#${attributes.Color}`)
     : '#FF5AE5';
@@ -156,11 +149,9 @@ export default function ArtworkCard({ artwork, onNext, index = 0 }: ArtworkCardP
         </TouchableOpacity>
 
         <View style={styles.artTextWrapper}>
-          <ThemedText style={[styles.artTitle, { fontFamily: 'Impact' }]}>
-            {attributes.Name || 'Untitled'}
+          <ThemedText style={[styles.artTitle, { fontFamily: 'Impact' }]}>            {attributes.Name || 'Untitled'}
           </ThemedText>
-          <ThemedText style={[styles.artSubtitle, { fontFamily: 'LeagueSpartan-regular' }]}>
-            {attributes.Creator || 'Unknown'}
+          <ThemedText style={[styles.artSubtitle, { fontFamily: 'LeagueSpartan-regular' }]}>            {attributes.Creator || 'Unknown'}
           </ThemedText>
         </View>
 

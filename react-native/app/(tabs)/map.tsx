@@ -103,7 +103,7 @@ export default function MapScreen() {
     const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
     const [nearbyArtwork, setNearbyArtwork] = useState<Marker | null>(null);
     const [showProximityPopup, setShowProximityPopup] = useState(false);
-    const [isThemeRoute, setIsThemeRoute] = useState(false);
+    const [themeRouteWaypoints, setThemeRouteWaypoints] = useState<[number, number][]>([]);
     const shownProximityAlerts = useRef<Set<string>>(new Set());
 
     const cameraRef = useRef<CameraRef>(null);
@@ -276,8 +276,8 @@ export default function MapScreen() {
         setRouteGeoJSON(null);
         setIsRouteActive(false);
         setSelectedMarker(null);
-        setIsThemeRoute(false);
         setSelectedTheme(null);
+        setThemeRouteWaypoints([]);
         hasStartedRouteFromParams.current = false;
     };
 
@@ -417,8 +417,41 @@ export default function MapScreen() {
                         ];
                         setUserCoord(coord);
 
-                        if (!isManualLocationUpdate.current && !isThemeRoute) {
-                            fetchWalkingRoute(coord, selectedMarker.coordinate);
+                        if (!isManualLocationUpdate.current) {
+                            // Check if this is a multi-waypoint theme route
+                            if (themeRouteWaypoints.length > 0) {
+                                // Check if user has reached the current waypoint (within 5 meters)
+                                const distanceToCurrentWaypoint = calculateDistance(coord, themeRouteWaypoints[0]);
+                                const distanceMeters = distanceToCurrentWaypoint * 1000;
+
+                                if (distanceMeters <= 5) {
+                                    // Remove the current waypoint and move to the next
+                                    const remainingWaypoints = themeRouteWaypoints.slice(1);
+                                    setThemeRouteWaypoints(remainingWaypoints);
+
+                                    if (remainingWaypoints.length > 0) {
+                                        // Update to next artwork
+                                        const nextMarker = markers.find(
+                                            m => m.coordinate[0] === remainingWaypoints[0][0] &&
+                                                 m.coordinate[1] === remainingWaypoints[0][1]
+                                        );
+                                        if (nextMarker) {
+                                            setSelectedMarker(nextMarker);
+                                        }
+                                        // Update route with remaining waypoints
+                                        fetchMultiWaypointRoute([coord, ...remainingWaypoints]);
+                                    } else {
+                                        // No more waypoints, end the route
+                                        cancelRoute();
+                                    }
+                                } else {
+                                    // Update multi-waypoint route with current location
+                                    fetchMultiWaypointRoute([coord, ...themeRouteWaypoints]);
+                                }
+                            } else {
+                                // Update single-destination route
+                                fetchWalkingRoute(coord, selectedMarker.coordinate);
+                            }
                         }
                         isManualLocationUpdate.current = false;
                     }
@@ -431,7 +464,7 @@ export default function MapScreen() {
                 locationSubscription.remove();
             }
         };
-    }, [isRouteActive, selectedMarker]);
+    }, [isRouteActive, selectedMarker, themeRouteWaypoints]);
 
     useEffect(() => {
         if (!userCoord || markers.length === 0) return;
@@ -514,17 +547,18 @@ export default function MapScreen() {
 
         console.log('Building optimized theme route with', optimizedMarkers.length, 'artworks');
 
+        const waypointCoordinates = optimizedMarkers.map(marker => marker.coordinate);
         const routeCoordinates: [number, number][] = [
             userCoord,
-            ...optimizedMarkers.map(marker => marker.coordinate)
+            ...waypointCoordinates
         ];
 
         console.log('Route coordinates:', routeCoordinates.length, 'waypoints');
 
         setSelectedMarker(optimizedMarkers[0]);
+        setThemeRouteWaypoints(waypointCoordinates);
 
         setIsLoadingRoute(true);
-        setIsThemeRoute(true);
         await fetchMultiWaypointRoute(routeCoordinates);
         setIsLoadingRoute(false);
         setIsRouteActive(true);

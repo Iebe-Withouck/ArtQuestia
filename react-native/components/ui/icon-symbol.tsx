@@ -1,11 +1,8 @@
-// Fallback for using MaterialIcons on Android and web.
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { ComponentProps } from 'react';
 import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
 
-// Map commonly used SF Symbol-like names to MaterialIcons names.
-// Add more entries here when you need additional mappings.
 const MAPPING: Record<string, ComponentProps<typeof MaterialIcons>['name']> = {
   'house.fill': 'home',
   'paperplane.fill': 'send',
@@ -17,11 +14,6 @@ const MAPPING: Record<string, ComponentProps<typeof MaterialIcons>['name']> = {
   'camera.fill': 'photo-camera',
 };
 
-/**
- * IconSymbol: renders a Material icon. The `name` prop accepts any string but will
- * map common SF-symbol-like names to Material icons. Unknown names fall back to
- * 'help-outline' to avoid runtime errors.
- */
 export function IconSymbol({
   name,
   size = 24,

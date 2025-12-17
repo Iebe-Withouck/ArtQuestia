@@ -23,7 +23,6 @@ const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive scaling functions
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
@@ -86,11 +85,8 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
   const [showNotifications, setShowNotifications] = useState(false);
 
   const handleStartRoute = () => {
-    // Store artwork data in global state or pass via params
-    // For now, we'll use router params
     if (onClose) onClose();
 
-    // Voeg een unieke timestamp toe zodat de effect-hook in map.tsx altijd opnieuw triggert
     router.push({
       pathname: '/(tabs)/map',
       params: {
@@ -108,7 +104,6 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
-  // Show notifications if opened
   if (showNotifications) {
     return <Notifications onClose={() => setShowNotifications(false)} />;
   }
@@ -122,10 +117,8 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
   const artworkId = artwork.id;
   const isClaimed = claimedStickers.includes(artworkId);
 
-  // Use Photo if claimed, otherwise use Photo_Hidden
   const photoSource = isClaimed ? attributes.Photo : attributes.Photo_Hidden;
 
-  // Get Photo URL - Strapi Cloud returns full URLs, not relative paths
   let photoUrl: string | undefined = undefined;
   if (photoSource) {
     if (
@@ -156,7 +149,6 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
   }
   const fullImageUrl = photoUrl || null;
 
-  // Get Stickers URL
   let stickersUrl: string | undefined = undefined;
   if (attributes.Stickers) {
     if (
@@ -187,7 +179,6 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
   }
   const fullStickersUrl = stickersUrl || null;
 
-  // Get Stickers_Hidden URL
   let stickersHiddenUrl: string | undefined = undefined;
   if (attributes.Stickers_Hidden) {
     if (
@@ -218,17 +209,14 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
   }
   const fullStickersHiddenUrl = stickersHiddenUrl || null;
 
-  // Get location info
   const lat = attributes.Location?.lat;
   const lon = attributes.Location?.lng;
 
-  // Use the calculated distance from the artwork object (passed from index.tsx)
   const calculatedDistance = (artwork as any).distance;
   const distanceText = calculatedDistance && calculatedDistance !== Infinity
     ? `${calculatedDistance.toFixed(1)} km`
     : 'Distance not available';
 
-  // Add # to color code if it doesn't already have it
   const backgroundColor = attributes.Color
     ? (attributes.Color.startsWith('#') ? attributes.Color : `#${attributes.Color}`)
     : '#FF5AE5';
@@ -240,7 +228,6 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
         showsVerticalScrollIndicator={false}
       >
 
-        {/* Back Button */}
         <TouchableOpacity style={[styles.nextButton]} onPress={onClose} >
           <Image source={NextIcon} style={styles.nextButtonIcon} />
         </TouchableOpacity>
@@ -250,17 +237,14 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
           <View style={styles.notificationDot} />
         </TouchableOpacity>
 
-        {/* Main Photo */}
         {fullImageUrl && (
           <View style={[styles.imageContainer, { backgroundColor }]}>
             <Image source={{ uri: fullImageUrl }} style={styles.heroImage} />
           </View>
         )}
 
-        {/* Content */}
         <View style={styles.contentContainer}>
 
-          {/* Title Section */}
           <ThemedText style={[styles.title, { fontFamily: 'Impact' }]}>
             {attributes.Name || 'Untitled'}
           </ThemedText>
@@ -302,7 +286,6 @@ export default function ArtworkCardDetail({ artwork, onClose }: ArtworkCardDetai
             </TouchableOpacity>
           </View>
 
-          {/* Description */}
           {attributes.Description && (
             <View style={styles.section}>
               <ThemedText style={[styles.description, { fontFamily: 'LeagueSpartan-regular' }]}>
@@ -338,7 +321,6 @@ const styles = StyleSheet.create({
     paddingBottom: verticalScale(40),
   },
 
-  // Back Button
   nextButton: {
     position: 'absolute',
     top: verticalScale(60),
@@ -384,7 +366,6 @@ const styles = StyleSheet.create({
     borderColor: '#000',
   },
 
-  // Hero Image
   imageContainer: {
     width: '100%',
     height: verticalScale(400),
@@ -398,7 +379,6 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
 
-  // Content
   contentContainer: {
     paddingHorizontal: scale(20),
     paddingTop: verticalScale(30),
@@ -479,7 +459,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Sections
   section: {
     marginBottom: verticalScale(30),
     marginTop: verticalScale(10),
@@ -495,7 +474,6 @@ const styles = StyleSheet.create({
     lineHeight: moderateScale(22),
   },
 
-  // Location
   locationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -514,7 +492,6 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
-  // Images
   sectionImage: {
     width: '100%',
     height: verticalScale(300),

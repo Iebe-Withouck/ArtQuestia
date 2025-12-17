@@ -32,8 +32,7 @@ import { useRouter } from 'expo-router';
 import { getRewardRoutePath } from '@/utils/rewardHelper';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
-const SHOW_DEBUG = false; // Set to true to enable debug logging
-
+const SHOW_DEBUG = false;
 const { width, height } = Dimensions.get('window');
 
 const scale = (size: number) => (width / 375) * size;
@@ -60,7 +59,6 @@ interface ARScene1Props {
     sceneKey: number;
 }
 
-// Internal AR Scene Component
 function ARScene1Scene({ onAnimationFinish }: {
     onAnimationFinish: () => void;
 }) {
@@ -71,30 +69,25 @@ function ARScene1Scene({ onAnimationFinish }: {
 
     return (
         <ViroARScene>
-            {/* Ambient light for overall scene illumination */}
             <ViroAmbientLight color="#ffffff" intensity={30000} />
 
-            {/* Directional light from above-front to simulate sunlight */}
             <ViroDirectionalLight
                 color="#ffffff"
                 direction={[0, -1, -0.5]}
                 intensity={500}
             />
 
-            {/* Additional directional light from the side for depth */}
             <ViroDirectionalLight
                 color="#ffffff"
                 direction={[1, -0.5, 0]}
                 intensity={300}
             />
 
-            {/* Node to group and anchor all objects at fixed position */}
             <ViroNode
                 position={arPosition}
                 dragType="FixedToWorld"
             >
 
-                {/* 3D Model with baked animation from Blender */}
                 <Viro3DObject
                     source={require('../../assets/3D-Models/bomb.glb')}
                     resources={[]}
@@ -111,11 +104,9 @@ function ARScene1Scene({ onAnimationFinish }: {
                     onLoadStart={() => console.log('ARScene1: Bomb loading...')}
                     onLoadEnd={() => {
                         console.log('ARScene1: Bomb loaded at fixed position');
-                        // Show text balloons after 2 seconds
                         setTimeout(() => {
                             setShowBalloons(true);
                         }, 2000);
-                        // Trigger popup after animation duration (250 frames at 24fps = ~10.4 seconds)
                         setTimeout(() => {
                             if (!animationPlayed) {
                                 setAnimationPlayed(true);
@@ -280,7 +271,7 @@ function ARScene1Scene({ onAnimationFinish }: {
 export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
     const [isMenuExpanded, setIsMenuExpanded] = useState(false);
     const [menuHeight] = useState(new Animated.Value(verticalScale(120)));
-    const [arrowRotation] = useState(new Animated.Value(180)); // 180deg = closed, 0deg = open
+    const [arrowRotation] = useState(new Animated.Value(180));
     const [artworkData, setArtworkData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [showStickerPopup, setShowStickerPopup] = useState(false);
@@ -293,7 +284,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
             onMoveShouldSetPanResponder: (_, gestureState) => {
-                // Only respond to significant vertical movement
                 return Math.abs(gestureState.dy) > 5;
             },
             onPanResponderMove: (_, gestureState) => {
@@ -302,19 +292,15 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                 const maxHeight = verticalScale(380);
 
                 if (!isMenuExpanded && dy < 0) {
-                    // Swipe up to open (only when menu is closed)
                     const newHeight = Math.min(maxHeight, minHeight + Math.abs(dy));
                     menuHeight.setValue(newHeight);
 
-                    // Calculate rotation based on height progress (180deg -> 0deg)
                     const progress = (newHeight - minHeight) / (maxHeight - minHeight);
                     arrowRotation.setValue(180 - (progress * 180));
                 } else if (isMenuExpanded && dy > 0) {
-                    // Swipe down to close (only when menu is open)
                     const newHeight = Math.max(minHeight, maxHeight - dy);
                     menuHeight.setValue(newHeight);
 
-                    // Calculate rotation based on height progress (0deg -> 180deg)
                     const progress = (newHeight - minHeight) / (maxHeight - minHeight);
                     arrowRotation.setValue(180 - (progress * 180));
                 }
@@ -324,13 +310,10 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                 const swipeThreshold = 50;
 
                 if (!isMenuExpanded && dy < -swipeThreshold) {
-                    // Open menu if swiped up enough
                     toggleMenu();
                 } else if (isMenuExpanded && dy > swipeThreshold) {
-                    // Close menu if swiped down enough
                     toggleMenu();
                 } else {
-                    // Return to current state if not swiped enough
                     Animated.parallel([
                         Animated.spring(menuHeight, {
                             toValue: isMenuExpanded ? verticalScale(380) : verticalScale(120),
@@ -355,7 +338,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
     });
 
-    // Hide movement text after 2 seconds
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowMovementText(false);
@@ -364,7 +346,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Fetch artwork data from Strapi
     useEffect(() => {
         const fetchArtwork = async () => {
             try {
@@ -372,7 +353,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                 const data = await response.json();
 
                 if (data.data && data.data.length > 0) {
-                    // Store all artworks in context for reward calculations
                     setAllArtworks(data.data);
 
                     const targetArtwork = data.data.find(
@@ -524,7 +504,6 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                                     }
                                     setShowStickerPopup(false);
 
-                                    // Navigate to reward screen if applicable
                                     if (rewardData?.shouldShowReward && rewardData.rewardType) {
                                         const route = getRewardRoutePath(rewardData.rewardType);
                                         router.push({

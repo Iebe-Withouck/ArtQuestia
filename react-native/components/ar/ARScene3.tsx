@@ -32,7 +32,7 @@ import { useRouter } from 'expo-router';
 import { getRewardRoutePath } from '@/utils/rewardHelper';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
-const SHOW_DEBUG = false; // Set to true to enable debug logging
+const SHOW_DEBUG = false;
 
 const { width, height } = Dimensions.get('window');
 
@@ -237,7 +237,7 @@ function ARScene3Scene({ onAnimationFinish }: {
 export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
     const [isMenuExpanded, setIsMenuExpanded] = useState(false);
     const [menuHeight] = useState(new Animated.Value(verticalScale(120)));
-    const [arrowRotation] = useState(new Animated.Value(180)); // 180deg = closed, 0deg = open
+    const [arrowRotation] = useState(new Animated.Value(180));
     const [artworkData, setArtworkData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [showStickerPopup, setShowStickerPopup] = useState(false);
@@ -250,7 +250,6 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
             onMoveShouldSetPanResponder: (_, gestureState) => {
-                // Only respond to significant vertical movement
                 return Math.abs(gestureState.dy) > 5;
             },
             onPanResponderMove: (_, gestureState) => {
@@ -259,19 +258,15 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
                 const maxHeight = verticalScale(380);
 
                 if (!isMenuExpanded && dy < 0) {
-                    // Swipe up to open (only when menu is closed)
                     const newHeight = Math.min(maxHeight, minHeight + Math.abs(dy));
                     menuHeight.setValue(newHeight);
 
-                    // Calculate rotation based on height progress (180deg -> 0deg)
                     const progress = (newHeight - minHeight) / (maxHeight - minHeight);
                     arrowRotation.setValue(180 - (progress * 180));
                 } else if (isMenuExpanded && dy > 0) {
-                    // Swipe down to close (only when menu is open)
                     const newHeight = Math.max(minHeight, maxHeight - dy);
                     menuHeight.setValue(newHeight);
 
-                    // Calculate rotation based on height progress (0deg -> 180deg)
                     const progress = (newHeight - minHeight) / (maxHeight - minHeight);
                     arrowRotation.setValue(180 - (progress * 180));
                 }
@@ -281,13 +276,10 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
                 const swipeThreshold = 50;
 
                 if (!isMenuExpanded && dy < -swipeThreshold) {
-                    // Open menu if swiped up enough
                     toggleMenu();
                 } else if (isMenuExpanded && dy > swipeThreshold) {
-                    // Close menu if swiped down enough
                     toggleMenu();
                 } else {
-                    // Return to current state if not swiped enough
                     Animated.parallel([
                         Animated.spring(menuHeight, {
                             toValue: isMenuExpanded ? verticalScale(380) : verticalScale(120),
@@ -312,7 +304,6 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
         LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
     });
 
-    // Hide movement text after 2 seconds
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowMovementText(false);
@@ -328,7 +319,6 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
                 const data = await response.json();
 
                 if (data.data && data.data.length > 0) {
-                    // Store all artworks in context for reward calculations
                     setAllArtworks(data.data);
 
                     const targetArtwork = data.data.find(
@@ -476,7 +466,6 @@ export default function ARScene3({ userLocation, sceneKey }: ARScene3Props) {
                                     }
                                     setShowStickerPopup(false);
 
-                                    // Navigate to reward screen if applicable
                                     if (rewardData?.shouldShowReward && rewardData.rewardType) {
                                         const route = getRewardRoutePath(rewardData.rewardType);
                                         router.push({

@@ -15,7 +15,6 @@ import { auth } from '@/config/firebase';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive scaling functions
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
@@ -75,7 +74,6 @@ export default function SettingsEdit({ onClose, userName, userAge, onSave }: Set
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
 
-  // Show notifications if opened
   if (showNotifications) {
     return <Notifications onClose={() => setShowNotifications(false)} />;
   }
