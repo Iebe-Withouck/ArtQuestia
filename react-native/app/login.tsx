@@ -38,13 +38,8 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      // Sign in with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-
-      // Get the Firebase ID token
       const idToken = await userCredential.user.getIdToken();
-
-      // Send the ID token to Strapi
       try {
         const response = await fetch(`${STRAPI_URL}/api/auth/firebase`, {
           method: 'POST',
@@ -60,14 +55,10 @@ export default function LoginScreen() {
 
         if (response.ok) {
           console.log('Successfully authenticated with Strapi:', data);
-
-          // Store Strapi authentication data
           await AsyncStorage.setItem('strapiToken', data.jwt);
           await AsyncStorage.setItem('strapiUserId', data.user.id.toString());
           await AsyncStorage.setItem('firebaseUID', userCredential.user.uid);
           await AsyncStorage.setItem('userEmail', data.user.email);
-
-          // Verify the data was saved
           const savedToken = await AsyncStorage.getItem('strapiToken');
           const savedUserId = await AsyncStorage.getItem('strapiUserId');
 
@@ -85,13 +76,10 @@ export default function LoginScreen() {
         }
       } catch (strapiError) {
         console.error('Error sending token to Strapi:', strapiError);
-        // Save Firebase UID locally even if Strapi fails
         await AsyncStorage.setItem('firebaseUID', userCredential.user.uid);
         await AsyncStorage.setItem('userEmail', userCredential.user.email || '');
         console.log('⚠️ Saved Firebase data locally, but Strapi sync failed');
       }
-
-      // Reload unlocked artworks with the new token
       await reloadUnlockedArtworks();
 
       setAlertConfig({
@@ -100,8 +88,6 @@ export default function LoginScreen() {
         type: 'success',
       });
       setAlertVisible(true);
-
-      // Navigate after a brief delay to show the success message
       setTimeout(() => {
         router.replace('/(tabs)');
       }, 1500);

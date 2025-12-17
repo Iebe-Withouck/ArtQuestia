@@ -38,7 +38,6 @@ export default function Scan() {
     LeagueSpartan: require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
   });
 
-  // Rotate animation for loader
   useEffect(() => {
     Animated.loop(
       Animated.timing(rotateValue, {
@@ -54,7 +53,6 @@ export default function Scan() {
     outputRange: ['0deg', '360deg'],
   });
 
-  // Get user location
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -66,14 +64,12 @@ export default function Scan() {
 
       setHasPermission(true);
 
-      // Get initial location
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.High,
       });
       setUserLocation(location);
       console.log('User location:', location.coords);
 
-      // Watch for location updates
       Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
@@ -87,7 +83,6 @@ export default function Scan() {
     })();
   }, []);
 
-  // Remount AR scene when tab is focused
   useFocusEffect(
     useCallback(() => {
       setSceneKey(prev => prev + 1);
@@ -95,7 +90,6 @@ export default function Scan() {
     }, [])
   );
 
-  // Show loading while getting location
   if (hasPermission === null) {
     return (
       <View style={styles.loadingContainer}>
@@ -113,7 +107,6 @@ export default function Scan() {
     );
   }
 
-  // Show error if permission denied
   if (hasPermission === false) {
     return (
       <View style={styles.loadingContainer}>
@@ -123,7 +116,6 @@ export default function Scan() {
     );
   }
 
-  // Show loading while getting GPS lock
   if (!userLocation) {
     return (
       <View style={styles.loadingContainer}>
@@ -164,7 +156,6 @@ export default function Scan() {
     );
   }*/
 
-  // Render de juiste AR scene op basis van het geselecteerde kunstwerk
   const renderARScene = () => {
     const sceneNumber = selectedArtwork?.arSceneNumber || 4;
     const commonProps = {

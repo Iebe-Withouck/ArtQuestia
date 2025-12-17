@@ -28,13 +28,10 @@ export default function Reward() {
 
   return (
     <View style={styles.container}>
-      {/* Header Text */}
       <Text style={[styles.headerText, { fontFamily: 'Impact' }]}>{themeName} quest voltooid</Text>
       <Text style={[styles.subHeaderText, { fontFamily: 'LeagueSpartan-regular' }]}>
         We droppen je beloning in je mailbox,{'\n'}binnen max. 2 dagen. Enjoy!
       </Text>
-
-      {/* Reward Image */}
       <View style={styles.rewardContainer}>
         <Image
           source={require('../../assets/images/reward.png')}
@@ -42,8 +39,6 @@ export default function Reward() {
           resizeMode="contain"
         />
       </View>
-
-      {/* Button */}
       <TouchableOpacity style={styles.rewardButton} onPress={handleReward}>
         <Text style={[styles.rewardButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>Start nieuwe quest</Text>
       </TouchableOpacity>

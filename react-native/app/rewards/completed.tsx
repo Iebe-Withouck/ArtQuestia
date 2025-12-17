@@ -39,11 +39,8 @@ export default function Completed() {
 
   return (
     <View style={styles.container}>
-      {/* Header Text */}
       <Text style={[styles.headerText, { fontFamily: 'Impact' }]}>{themeName} quest voltooid</Text>
       <Text style={[styles.subHeaderText, { fontFamily: 'LeagueSpartan-regular' }]}>Ultieme Badge ontvangen!</Text>
-
-      {/* Badge Image */}
       <View style={styles.badgeContainer}>
         {badgeUrl ? (
           <Image
@@ -59,14 +56,9 @@ export default function Completed() {
           />
         )}
       </View>
-
-      {/* Quest Title */}
       <Text style={[styles.questTitle, { fontFamily: 'Impact' }]}>{themeName} quest</Text>
       <Text style={[styles.questProgress, { fontFamily: 'LeagueSpartan-regular' }]}>{progress}% compleet</Text>
-
-      {/* Progress Bar */}
       <View style={styles.progressBarContainer}>
-        {/* Running icon that moves with progress */}
         <Image
           source={require('../../assets/icons/running.png')}
           style={[
@@ -82,14 +74,12 @@ export default function Completed() {
             ]}
           />
         </View>
-        {/* Flag icon at the end */}
         <Image
           source={require('../../assets/icons/flag.png')}
           style={styles.flagIcon}
         />
       </View>
 
-      {/* Buttons */}
       <TouchableOpacity style={styles.levelUpButton} onPress={handleCompleted}>
         <Text style={[styles.levelUpButtonText, { fontFamily: 'LeagueSpartan-semibold' }]}>Scoor je beloning</Text>
       </TouchableOpacity>
@@ -153,7 +143,6 @@ const styles = StyleSheet.create({
     height: verticalScale(80),
     marginBottom: verticalScale(50),
   },
-  // Progress bar styles
   progressBarContainer: {
     marginTop: verticalScale(20),
     marginBottom: verticalScale(50),
@@ -177,7 +166,7 @@ const styles = StyleSheet.create({
     width: moderateScale(30),
     height: moderateScale(30),
     top: verticalScale(-35),
-    marginLeft: -moderateScale(15), // Center the icon on the percentage point
+    marginLeft: -moderateScale(15),
     resizeMode: 'contain',
   },
   flagIcon: {

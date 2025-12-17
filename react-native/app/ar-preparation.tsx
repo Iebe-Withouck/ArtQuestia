@@ -11,8 +11,6 @@ import { useRouter } from 'expo-router';
 import { useFonts } from 'expo-font';
 
 const { width, height } = Dimensions.get('window');
-
-// Responsive scaling functions
 const scale = (size: number) => (width / 375) * size;
 const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
@@ -27,31 +25,23 @@ export default function ARPreparation() {
   });
 
   const handleReady = () => {
-    // Navigate to the scan tab - selectedArtwork is already in context
     router.push('/(tabs)/scan');
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {/* Title */}
         <Text style={[styles.title, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
           Main character mode
         </Text>
-
-        {/* Subtitle */}
         <Text style={[styles.subtitle, { fontFamily: fontsLoaded ? 'LeagueSpartan-semibold' : undefined }]}>
           Ga op het kruis staan & beleef{'\n'}de AR experience!
         </Text>
-
-        {/* Arrow image */}
         <Image
           source={require('../assets/images/ar-preperation.png')}
           style={styles.arrowImage}
           resizeMode="contain"
         />
-
-        {/* Ready button */}
         <TouchableOpacity
           style={styles.readyButton}
           onPress={handleReady}
