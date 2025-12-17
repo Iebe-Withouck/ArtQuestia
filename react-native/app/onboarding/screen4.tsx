@@ -23,7 +23,7 @@ export default function Screen4() {
 
       <Image source={Phone} style={styles.phoneImage} />
 
-      <Text style={styles.title}>Spaar de digitale stickers en win coupons voor het Abby cafe en de musea shops!</Text>
+      <Text style={styles.title}>Spaar de digitale stickers en win bons voor het abby cafe en de musea shops!</Text>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Start jouw avontuur</Text>
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(16),
-    fontFamily: 'Impact',
+    fontFamily: 'LeagueSpartan-semibold',
     fontWeight: 'bold',
     textAlign: 'center',
   },

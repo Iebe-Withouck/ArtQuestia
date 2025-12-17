@@ -36,7 +36,7 @@ export default function Screen1() {
 
       <Image source={Phone} style={styles.phoneImage} />
 
-      <Text style={styles.title}>Ontdek Kortrijk, beleef de quest & scoor coupons</Text>
+      <Text style={styles.title}>Ontdek kortrijk, beleef de quest & scoor coupons!</Text>
 
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Hup, naar de volgende!</Text>
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(16),
-    fontFamily: 'Impact',
+    fontFamily: 'LeagueSpartan-semibold',
     fontWeight: 'bold',
     textAlign: 'center',
   },

@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: 'rgba(0, 0, 0, 0.6)',
     fontSize: moderateScale(16),
-    fontFamily: 'Impact',
+    fontFamily: 'LeagueSpartan-semibold',
     fontWeight: 'bold',
     textAlign: 'center',
   },

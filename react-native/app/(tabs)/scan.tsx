@@ -142,12 +142,16 @@ export default function Scan() {
   }
 
   // Check if no artwork is selected or no AR scene available
-  /* if (!selectedArtwork || !selectedArtwork.arSceneNumber) {
+  /*if (!selectedArtwork || !selectedArtwork.arSceneNumber) {
     return (
       <View style={styles.noArtworkContainer}>
         <Text style={[styles.noArtworkTitle, { fontFamily: fontsLoaded ? 'Impact' : undefined }]}>
           Ga naar een artwork om een AR experience te starten
         </Text>
+        <Image
+          source={require('../../assets/images/fallbackimage.png')}
+          style={{ width: 250, height: 412, marginVertical: 40 }}
+        />
         <TouchableOpacity
           style={styles.mapButton}
           onPress={() => router.push('/map')}
@@ -158,7 +162,7 @@ export default function Scan() {
         </TouchableOpacity>
       </View>
     );
-  } */
+  }*/
 
   // Render de juiste AR scene op basis van het geselecteerde kunstwerk
   const renderARScene = () => {
