@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { useFonts } from 'expo-font';
 
 const { width, height } = Dimensions.get('window');
 
@@ -8,14 +9,27 @@ const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
 export default function Reward() {
+  const params = useLocalSearchParams();
+  const themeName = (params.themeName as string) || 'Modern';
+
+  const [fontsLoaded] = useFonts({
+    Impact: require('../../assets/fonts/impact.ttf'),
+    'LeagueSpartan-regular': require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
+    'LeagueSpartan-semibold': require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
+  });
+
   const handleReward = () => {
-    router.push("/");
+    router.push("/(tabs)/map");
   };
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
       {/* Header Text */}
-      <Text style={styles.headerText}>Modern quest voltooid</Text>
+      <Text style={styles.headerText}>{themeName} quest voltooid</Text>
       <Text style={styles.subHeaderText}>
         We droppen je beloning in je mailbox,{'\n'}binnen max. 2 dagen. Enjoy!
       </Text>
@@ -31,7 +45,7 @@ export default function Reward() {
 
       {/* Button */}
       <TouchableOpacity style={styles.rewardButton} onPress={handleReward}>
-        <Text style={styles.rewardButtonText}>Scoor je beloning</Text>
+        <Text style={styles.rewardButtonText}>Start nieuwe quest</Text>
       </TouchableOpacity>
     </View>
   );

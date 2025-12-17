@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { useFonts } from 'expo-font';
 
 const { width, height } = Dimensions.get('window');
 
@@ -8,43 +9,89 @@ const verticalScale = (size: number) => (height / 812) * size;
 const moderateScale = (size: number, factor = 0.5) => size + (scale(size) - size) * factor;
 
 export default function Completed() {
+  const params = useLocalSearchParams();
+  const themeName = (params.themeName as string) || 'Modern';
+  const badgeUrl = params.badgeUrl as string;
+  const progress = params.progress ? parseInt(params.progress as string) : 100;
+
+  const [fontsLoaded] = useFonts({
+    Impact: require('../../assets/fonts/impact.ttf'),
+    'LeagueSpartan-regular': require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
+    'LeagueSpartan-semibold': require('../../assets/fonts/LeagueSpartan-VariableFont_wght.ttf'),
+  });
+
   const handleCompleted = () => {
-    router.push("/(tabs)/stickers");
+    router.push({
+      pathname: '/rewards/reward',
+      params: {
+        themeName: themeName
+      }
+    });
   };
 
   const handleShare = () => {
     router.replace("/(tabs)");
   };
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       {/* Header Text */}
-      <Text style={styles.headerText}>Modern quest voltooid</Text>
+      <Text style={styles.headerText}>{themeName} quest voltooid</Text>
       <Text style={styles.subHeaderText}>Ultieme Badge ontvangen!</Text>
 
       {/* Badge Image */}
       <View style={styles.badgeContainer}>
-        <Image
-          source={require('../../assets/images/badge3.png')}
-          style={styles.badgeImage}
-          resizeMode="contain"
-        />
+        {badgeUrl ? (
+          <Image
+            source={{ uri: badgeUrl }}
+            style={styles.badgeImage}
+            resizeMode="contain"
+          />
+        ) : (
+          <Image
+            source={require('../../assets/images/badge3.png')}
+            style={styles.badgeImage}
+            resizeMode="contain"
+          />
+        )}
       </View>
 
       {/* Quest Title */}
-      <Text style={styles.questTitle}>Modern quest</Text>
-      <Text style={styles.questProgress}>100% compleet</Text>
+      <Text style={styles.questTitle}>{themeName} quest</Text>
+      <Text style={styles.questProgress}>{progress}% compleet</Text>
 
-      {/* Progress Image */}
-      <Image
-        source={require('../../assets/icons/themaRouteIcon3.png')}
-        style={styles.progressImage}
-        resizeMode="contain"
-      />
+      {/* Progress Bar */}
+      <View style={styles.progressBarContainer}>
+        {/* Running icon that moves with progress */}
+        <Image
+          source={require('../../assets/icons/running.png')}
+          style={[
+            styles.runningIcon,
+            { left: `${progress}%` }
+          ]}
+        />
+        <View style={styles.progressBarBackground}>
+          <View
+            style={[
+              styles.progressBarFill,
+              { width: `${progress}%` }
+            ]}
+          />
+        </View>
+        {/* Flag icon at the end */}
+        <Image
+          source={require('../../assets/icons/flag.png')}
+          style={styles.flagIcon}
+        />
+      </View>
 
       {/* Buttons */}
       <TouchableOpacity style={styles.levelUpButton} onPress={handleCompleted}>
-        <Text style={styles.levelUpButtonText}>Start nieuwe quest</Text>
+        <Text style={styles.levelUpButtonText}>Scoor je beloning</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
@@ -105,6 +152,41 @@ const styles = StyleSheet.create({
     width: '90%',
     height: verticalScale(80),
     marginBottom: verticalScale(50),
+  },
+  // Progress bar styles
+  progressBarContainer: {
+    marginTop: verticalScale(20),
+    marginBottom: verticalScale(50),
+    position: 'relative',
+    width: '90%',
+  },
+  progressBarBackground: {
+    width: '100%',
+    height: verticalScale(12),
+    backgroundColor: '#fff',
+    borderRadius: moderateScale(6),
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#1AF7A2',
+    borderRadius: moderateScale(6),
+  },
+  runningIcon: {
+    position: 'absolute',
+    width: moderateScale(30),
+    height: moderateScale(30),
+    top: verticalScale(-35),
+    marginLeft: -moderateScale(15), // Center the icon on the percentage point
+    resizeMode: 'contain',
+  },
+  flagIcon: {
+    position: 'absolute',
+    width: moderateScale(25),
+    height: moderateScale(25),
+    top: verticalScale(-32),
+    right: -moderateScale(12),
+    resizeMode: 'contain',
   },
   levelUpButton: {
     backgroundColor: '#FF7700',

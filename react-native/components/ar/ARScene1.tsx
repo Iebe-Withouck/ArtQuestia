@@ -28,6 +28,8 @@ import {
 } from 'react-native';
 import { useClaimedStickers } from '@/contexts/ClaimedStickersContext';
 import ArtworkCardDetail from '@/components/ArtworkCardDetail';
+import { useRouter } from 'expo-router';
+import { getRewardRoutePath } from '@/utils/rewardHelper';
 
 const STRAPI_URL = 'https://colorful-charity-cafd22260f.strapiapp.com';
 const SHOW_DEBUG = false; // Set to true to enable debug logging
@@ -284,7 +286,8 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
     const [showStickerPopup, setShowStickerPopup] = useState(false);
     const [showMovementText, setShowMovementText] = useState(true);
     const [showArtworkDetail, setShowArtworkDetail] = useState(false);
-    const { claimSticker } = useClaimedStickers();
+    const { claimSticker, setAllArtworks } = useClaimedStickers();
+    const router = useRouter();
 
     const panResponderRef = useRef(
         PanResponder.create({
@@ -369,6 +372,9 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                 const data = await response.json();
 
                 if (data.data && data.data.length > 0) {
+                    // Store all artworks in context for reward calculations
+                    setAllArtworks(data.data);
+
                     const targetArtwork = data.data.find(
                         (artwork: any) => {
                             const name = artwork.attributes?.Name || artwork.Name;
@@ -392,7 +398,7 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
         };
 
         fetchArtwork();
-    }, []);
+    }, [setAllArtworks]);
 
     const toggleMenu = () => {
         const toValue = isMenuExpanded ? verticalScale(120) : verticalScale(380);
@@ -512,12 +518,25 @@ export default function ARScene1({ userLocation, sceneKey }: ARScene1Props) {
                             style={styles.claimButton}
                             onPress={async () => {
                                 if (artworkData?.id) {
-                                    await claimSticker(artworkData.id);
+                                    const rewardData = await claimSticker(artworkData.id);
                                     if (SHOW_DEBUG) {
                                         console.log('Sticker claimed and saved to Strapi - ID:', artworkData.id);
                                     }
+                                    setShowStickerPopup(false);
+
+                                    // Navigate to reward screen if applicable
+                                    if (rewardData?.shouldShowReward && rewardData.rewardType) {
+                                        const route = getRewardRoutePath(rewardData.rewardType);
+                                        router.push({
+                                            pathname: route as any,
+                                            params: {
+                                                themeName: rewardData.themeName,
+                                                badgeUrl: rewardData.badgeUrl || '',
+                                                progress: rewardData.progress.toString()
+                                            }
+                                        });
+                                    }
                                 }
-                                setShowStickerPopup(false);
                             }}
                             activeOpacity={0.8}
                         >
