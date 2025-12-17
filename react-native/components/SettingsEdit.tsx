@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(12),
     paddingHorizontal: scale(50),
     borderRadius: moderateScale(25),
-    marginTop: verticalScale(30),
+    marginTop: verticalScale(40),
     alignSelf: 'center',
   },
   saveButtonText: {
@@ -661,7 +661,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(50),
     borderRadius: moderateScale(25),
     marginTop: verticalScale(15),
-    marginBottom: verticalScale(40),
+    marginBottom: verticalScale(10),
     alignSelf: 'center',
   },
   cancelButtonText: {

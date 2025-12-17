@@ -620,7 +620,7 @@ export default function SettingsScreen() {
           onPress={() => {
             router.push("/onboarding/screen1");
             }}>
-          <ThemedText style={styles.logoutButtonText}>Logout</ThemedText>
+          <ThemedText style={styles.logoutButtonText}>Uitloggen</ThemedText>
         </TouchableOpacity>
       </View>
 
@@ -1339,13 +1339,13 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   logoutButton: {
-    backgroundColor: '#FF0000',
+    backgroundColor: 'rgba(97, 97, 97, 0.6)',
     paddingVertical: verticalScale(12),
     paddingHorizontal: scale(130),
     borderRadius: moderateScale(30),
   },
   logoutButtonText: {
-    color: 'rgba(0, 0, 0, 0.6)',
+    color: '#FF0000',
     fontSize: moderateScale(15),
     fontFamily: 'LeagueSpartan-regular',
     fontWeight: 'bold',
@@ -1354,6 +1354,7 @@ const styles = StyleSheet.create({
   logoutContainer : {
     width: '100%',
     alignItems: 'center',
-    marginBottom: verticalScale(50),
+    marginBottom: verticalScale(70),
+    marginTop: verticalScale(50),
   },
 });
