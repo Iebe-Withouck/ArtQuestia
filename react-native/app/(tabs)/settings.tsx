@@ -397,6 +397,9 @@ export default function SettingsScreen() {
             Quest routes
           </ThemedText>
         </View>
+        <ThemedText style={[styles.instructionText]}>
+            Swipe om ze allemaal te zien
+          </ThemedText>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -858,6 +861,11 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(16),
     marginTop: verticalScale(8),
     color: '#fff',
+  },
+  instructionText: {
+    fontSize: moderateScale(14),
+    marginTop: verticalScale(4),
+    color: '#979797da',
   },
   title: {
     fontFamily: 'Impact',
