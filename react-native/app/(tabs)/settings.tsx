@@ -398,8 +398,8 @@ export default function SettingsScreen() {
           </ThemedText>
         </View>
         <ThemedText style={[styles.instructionText]}>
-            Swipe om ze allemaal te zien
-          </ThemedText>
+          Swipe om ze allemaal te zien
+        </ThemedText>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -614,11 +614,11 @@ export default function SettingsScreen() {
           )}
         </View>
 
-      <View style={styles.logoutContainer}>
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => {
-            router.push("/onboarding/screen1");
+        <View style={styles.logoutContainer}>
+          <TouchableOpacity
+            style={styles.logoutButton}
+            onPress={() => {
+              router.push("/onboarding/screen1");
             }}>
           <ThemedText style={styles.logoutButtonText}>Uitloggen</ThemedText>
         </TouchableOpacity>
@@ -871,12 +871,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Impact',
     fontSize: moderateScale(24),
     marginTop: verticalScale(50),
+    lineHeight: moderateScale(28),
     color: '#fff',
   },
   stickersTitle: {
     fontSize: moderateScale(24),
     marginTop: verticalScale(50),
     marginBottom: verticalScale(10),
+    lineHeight: moderateScale(28),
     color: '#fff',
     fontFamily: 'Impact',
   },
@@ -1351,7 +1353,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  logoutContainer : {
+  logoutContainer: {
     width: '100%',
     alignItems: 'center',
     marginBottom: verticalScale(70),

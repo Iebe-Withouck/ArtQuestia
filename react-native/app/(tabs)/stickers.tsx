@@ -747,6 +747,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: moderateScale(24),
     marginTop: verticalScale(50),
+    lineHeight: moderateScale(28),
     color: '#fff',
     fontFamily: 'Impact',
   },
@@ -754,6 +755,7 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(24),
     marginTop: verticalScale(50),
     marginBottom: verticalScale(10),
+    lineHeight: moderateScale(28),
     color: '#fff',
     fontFamily: 'Impact',
   },
